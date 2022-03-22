@@ -1,4 +1,4 @@
-package networking.client;
+package com.hirshi001.networking.client;
 
 import java.net.SocketAddress;
 
