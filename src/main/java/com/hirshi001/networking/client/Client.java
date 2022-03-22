@@ -8,8 +8,6 @@ public interface Client {
 
     String getHost();
 
-    SocketAddress getRemoteAddress();
-
 
 
 }
