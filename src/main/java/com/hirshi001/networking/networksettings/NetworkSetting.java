@@ -1,11 +1,11 @@
 package com.hirshi001.networking.networksettings;
 
-import io.netty.buffer.ByteBuf;
+import com.hirshi001.networking.buffers.ByteBuffer;
 
 public class NetworkSetting {
 
     public static void test(){
-        ByteBuf buf = null;
+        ByteBuffer buf = null;
     }
 
 
