@@ -1,16 +1,27 @@
 package com.hirshi001.networking.buffers;
 
+import com.hirshi001.networking.bufferfactory.BufferFactory;
+
 public class ArrayBackedByteBuffer extends AbstractByteBuffer{
 
     private byte[] data;
     private int readerIndex, writerIndex;
     private int readerMark, writerMark;
 
-    public ArrayBackedByteBuffer(int size) {
-        super();
-        data = new byte[size];
+
+    public ArrayBackedByteBuffer(int size, BufferFactory factory) {
+        this(new byte[size], factory);
+    }
+
+    public ArrayBackedByteBuffer(BufferFactory factory) {
+        this(16, factory);
+    }
+
+    public ArrayBackedByteBuffer(byte[] data, BufferFactory factory) {
+        super(factory);
+        this.data = data;
         readerIndex = 0;
-        writerIndex = 0;
+        writerIndex = data.length;
     }
 
     @Override
@@ -24,13 +35,13 @@ public class ArrayBackedByteBuffer extends AbstractByteBuffer{
     }
 
     @Override
-    public ByteBuffer setReaderIndex(int readerIndex) {
+    public ByteBuffer readerIndex(int readerIndex) {
         this.readerIndex = readerIndex;
         return this;
     }
 
     @Override
-    public ByteBuffer setWriterIndex(int writerIndex) {
+    public ByteBuffer writerIndex(int writerIndex) {
         this.writerIndex = writerIndex;
         return this;
     }
@@ -57,6 +68,7 @@ public class ArrayBackedByteBuffer extends AbstractByteBuffer{
 
     @Override
     public ByteBuffer writeBytes(byte[] bytes, int offset, int length) {
+        ensureWritable(length);
         System.arraycopy(bytes, offset, data, writerIndex, length);
         writerIndex += length;
         return this;
@@ -69,10 +81,11 @@ public class ArrayBackedByteBuffer extends AbstractByteBuffer{
 
     @Override
     public ByteBuffer writeBytes(ByteBuffer src, int length) {
+        ensureWritable(length);
         if(src.hasArray()){
             System.arraycopy(src.array(), src.readerIndex(), data, writerIndex, length);
             writerIndex += length;
-            src.setReaderIndex(src.readerIndex() + length);
+            src.readerIndex(src.readerIndex() + length);
             return this;
         }
         return super.writeBytes(src, length);
@@ -80,6 +93,7 @@ public class ArrayBackedByteBuffer extends AbstractByteBuffer{
 
     @Override
     public ByteBuffer writeBytes(ByteBuffer src, int srcIndex, int length) {
+        ensureWritable(length);
         if(src.hasArray()){
             System.arraycopy(src.array(), srcIndex, data, writerIndex, length);
             writerIndex += length;
@@ -88,53 +102,59 @@ public class ArrayBackedByteBuffer extends AbstractByteBuffer{
         return super.writeBytes(src, srcIndex, length);
     }
 
+
     @Override
     public int readBytes(byte[] dst) {
-        return readBytes(dst, 0, dst.length);
-
-    }
-
-    @Override
-    public int readBytes(byte[] dst, int offset, int length) {
-        System.arraycopy(data, readerIndex, dst, offset, length);
-        readerIndex += length;
+        int length = Math.min(readableBytes(), dst.length);
+        readBytes(dst, 0, length);
         return length;
     }
 
     @Override
-    public int readBytes(ByteBuffer dst) {
-        return readBytes(dst, dst.writableBytes());
+    public ByteBuffer readBytes(byte[] dst, int offset, int length) {
+        System.arraycopy(data, readerIndex, dst, offset, length);
+        readerIndex += length;
+        return this;
     }
 
     @Override
-    public int readBytes(ByteBuffer dst, int length) {
+    public int readBytes(ByteBuffer dst) {
+        int length = Math.min(readableBytes(), dst.writableBytes());
+        readBytes(dst, length);
+        return length;
+    }
+
+    @Override
+    public ByteBuffer readBytes(ByteBuffer dst, int length) {
         if(dst.hasArray()){
             System.arraycopy(data, readerIndex, dst.array(), dst.writerIndex(), length);
             readerIndex += length;
-            dst.setWriterIndex(dst.writerIndex() + length);
-            return length;
+            dst.writerIndex(dst.writerIndex() + length);
+            return this;
         }
         return super.readBytes(dst, length);
     }
 
     @Override
-    public int readBytes(ByteBuffer dst, int dstIndex, int length) {
+    public ByteBuffer readBytes(ByteBuffer dst, int dstIndex, int length) {
         if (dst.hasArray()) {
             System.arraycopy(data, readerIndex, dst.array(), dstIndex, length);
             readerIndex += length;
-            return length;
+            return this;
         }
         return super.readBytes(dst, dstIndex, length);
     }
 
     @Override
     public ByteBuffer writeByte(byte b) {
+        ensureWritable(1);
         data[writerIndex++] = b;
         return this;
     }
 
     @Override
     public ByteBuffer writeInt(int i) {
+        ensureWritable(4);
         data[writerIndex++] = (byte) (i >> 24);
         data[writerIndex++] = (byte) (i >> 16);
         data[writerIndex++] = (byte) (i >> 8);
@@ -144,6 +164,7 @@ public class ArrayBackedByteBuffer extends AbstractByteBuffer{
 
     @Override
     public ByteBuffer writeLong(long l) {
+        ensureWritable(8);
         data[writerIndex++] = (byte) (l >> 56);
         data[writerIndex++] = (byte) (l >> 48);
         data[writerIndex++] = (byte) (l >> 40);
@@ -157,6 +178,7 @@ public class ArrayBackedByteBuffer extends AbstractByteBuffer{
 
     @Override
     public ByteBuffer writeShort(short s) {
+        ensureWritable(2);
         data[writerIndex++] = (byte) (s >> 8);
         data[writerIndex++] = (byte) s;
         return this;
@@ -181,7 +203,7 @@ public class ArrayBackedByteBuffer extends AbstractByteBuffer{
     }
 
     @Override
-    public ByteBuffer writeChar(char c) {
+    public ByteBuffer writeChar(int c) {
         writeShort((short) c);
         return this;
     }
@@ -236,7 +258,7 @@ public class ArrayBackedByteBuffer extends AbstractByteBuffer{
     }
 
     @Override
-    public char readChar() {
+    public int readChar() {
         return (char) readShort();
     }
 
@@ -263,7 +285,7 @@ public class ArrayBackedByteBuffer extends AbstractByteBuffer{
         int length = src.readableBytes();
         if (src.hasArray()) {
             System.arraycopy(src.array(), src.readerIndex(), data, index, length);
-            src.setReaderIndex(src.readerIndex() + length);
+            src.readerIndex(src.readerIndex() + length);
             return this;
         }
         return super.putBytes(src, index);
@@ -299,7 +321,7 @@ public class ArrayBackedByteBuffer extends AbstractByteBuffer{
     public ByteBuffer getBytes(ByteBuffer dst, int index, int length) {
         if (dst.hasArray()) {
             System.arraycopy(data, index, dst.array(), dst.writerIndex(), length);
-            dst.setWriterIndex(dst.writerIndex() + length);
+            dst.writerIndex(dst.writerIndex() + length);
             return this;
         }
         return super.getBytes(dst, index, length);
@@ -410,7 +432,7 @@ public class ArrayBackedByteBuffer extends AbstractByteBuffer{
     }
 
     @Override
-    public char getChar(int index) {
+    public int getChar(int index) {
         return (char) getShort(index);
     }
 
@@ -469,5 +491,14 @@ public class ArrayBackedByteBuffer extends AbstractByteBuffer{
         System.arraycopy(data, 0, newData, 0, data.length);
         data = newData;
         return this;
+    }
+
+    @Override
+    public void clear() {
+        readerIndex = 0;
+        writerIndex = 0;
+        readerMark = 0;
+        writerMark = 0;
+        //Arrays.fill(data, (byte) 0); // May not be necessary
     }
 }

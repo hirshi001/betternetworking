@@ -1,7 +1,30 @@
 package com.hirshi001.networking.buffers;
 
+import com.hirshi001.networking.bufferfactory.BufferFactory;
+
 public abstract class AbstractByteBuffer implements ByteBuffer {
 
+    private BufferFactory factory;
+
+    public AbstractByteBuffer(BufferFactory factory) {
+        this.factory = factory;
+    }
+
+    @Override
+    public BufferFactory bufferFactory() {
+        return factory;
+    }
+
+    @Override
+    public ByteBuffer setBufferFactory(BufferFactory bufferFactory) {
+        this.factory = bufferFactory;
+        return this;
+    }
+
+    @Override
+    public void release() {
+        factory.recycle(this);
+    }
 
     //Subclasses implement
     //
@@ -12,6 +35,12 @@ public abstract class AbstractByteBuffer implements ByteBuffer {
 
     @Override
     public abstract byte readByte();
+
+    @Override
+    public ByteBuffer readBytes(int length) {
+        ByteBuffer src = factory.buffer(length);
+        return readBytes(src, length);
+    }
 
     @Override
     public ByteBuffer writeInt(int i){
@@ -85,14 +114,14 @@ public abstract class AbstractByteBuffer implements ByteBuffer {
     }
 
     @Override
-    public ByteBuffer writeChar(char c){
+    public ByteBuffer writeChar(int c){
         writeShort((short)c);
         return this;
     }
 
     @Override
-    public char readChar(){
-        return (char)readShort();
+    public int readChar(){
+        return readShort();
     }
 
     //--------------------------------------------------------------------------
@@ -169,42 +198,40 @@ public abstract class AbstractByteBuffer implements ByteBuffer {
 
     @Override
     public int readBytes(byte[] dst) {
-        return readBytes(dst, 0, dst.length);
+        int length = Math.min(dst.length, readableBytes());
+        readBytes(dst, 0, length);
+        return length;
     }
 
     @Override
-    public int readBytes(byte[] dst, int offset, int length) {
-        int i;
-        length = Math.min(length, readableBytes());
-        for(i=0;i<length;i++) {
+    public ByteBuffer readBytes(byte[] dst, int offset, int length) {
+        for(int i=0;i<length;i++) {
             dst[offset+i] = readByte();
         }
-        return length;
+        return this;
     }
 
     @Override
     public int readBytes(ByteBuffer dst) {
-        return readBytes(dst,dst.size());
+        int length = Math.min(dst.writableBytes(), readableBytes());
+        readBytes(dst, 0, length);
+        return length;
     }
 
     @Override
-    public int readBytes(ByteBuffer dst, int length) {
-        int i;
-        length = Math.min(length, readableBytes());
-        for(i=0;i<length;i++) {
+    public ByteBuffer readBytes(ByteBuffer dst, int length) {
+        for(int i=0;i<length;i++) {
             dst.writeByte(readByte());
         }
-        return length;
+        return this;
     }
 
     @Override
-    public int readBytes(ByteBuffer dst, int dstIndex, int length) {
-        int i;
-        length = Math.min(length, readableBytes());
-        for(i=0;i<length;i++) {
+    public ByteBuffer readBytes(ByteBuffer dst, int dstIndex, int length) {
+        for(int i=0;i<length;i++) {
             dst.putByte(readByte(), dstIndex+i);
         }
-        return length;
+        return this;
     }
 
 
@@ -331,8 +358,8 @@ public abstract class AbstractByteBuffer implements ByteBuffer {
     }
 
     @Override
-    public char getChar(int index) {
-        return (char) getShort(index);
+    public int getChar(int index) {
+        return getShort(index);
     }
 
 
