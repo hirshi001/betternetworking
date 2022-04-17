@@ -1,13 +1,10 @@
 package com.hirshi001.networking.network.client;
 
 import com.hirshi001.networking.network.NetworkSide;
-import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.restapi.RestFuture;
-
-import java.util.concurrent.CompletableFuture;
 
 public interface Client extends NetworkSide{
 
