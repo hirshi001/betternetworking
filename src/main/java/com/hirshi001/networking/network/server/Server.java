@@ -1,10 +1,7 @@
 package com.hirshi001.networking.network.server;
 
 import com.hirshi001.networking.network.NetworkSide;
-import com.hirshi001.networking.packet.Packet;
-import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
-import com.hirshi001.networking.packetregistry.PacketRegistry;
-import com.hirshi001.networking.restapi.RestAction;
+import com.hirshi001.restapi.RestFuture;
 
 import java.util.Set;
 
@@ -26,19 +23,12 @@ public interface Server extends NetworkSide {
 
     boolean supportsUDP();
 
-    public RestAction<PacketHandlerContext<?>> sendTCP(ClientInstance client, Packet packet, PacketRegistry registry);
+    public RestFuture<Server, Server> connectTCP();
 
-    public RestAction<PacketHandlerContext<?>> sendTCPWithResponse(ClientInstance client, Packet packet, PacketRegistry registry, long timeout);
+    public RestFuture<Server, Server> connectUDP();
 
-    public RestAction<PacketHandlerContext<?>> sendUDP(ClientInstance client, Packet packet, PacketRegistry registry);
+    public RestFuture<Server, Server> disconnectTCP();
 
-    public RestAction<PacketHandlerContext<?>> sendUDPWithResponse(ClientInstance client, Packet packet, PacketRegistry registry, long timeout);
+    public RestFuture<Server, Server> disconnectUDP();
 
-    public RestAction<Server> connectTCP();
-
-    public RestAction<Server> connectUDP();
-
-    public RestAction<Server> disconnectTCP();
-
-    public RestAction<Server> disconnectUDP();
 }

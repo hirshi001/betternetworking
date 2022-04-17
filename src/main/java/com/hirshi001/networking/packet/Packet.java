@@ -1,6 +1,7 @@
 package com.hirshi001.networking.packet;
 
-import com.hirshi001.networking.buffers.ByteBuffer;
+import com.hirshi001.buffers.ByteBuffer;
+
 public abstract class Packet implements ByteBufSerializable {
 
     public int sendingId = -1, receivingId = -1;

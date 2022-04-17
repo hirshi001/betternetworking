@@ -1,8 +1,7 @@
 package com.hirshi001.networking.packetdecoderencoder;
 
 
-import com.hirshi001.networking.buffers.ArrayBackedByteBuffer;
-import com.hirshi001.networking.buffers.ByteBuffer;
+import com.hirshi001.buffers.ByteBuffer;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packet.PacketHolder;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;

@@ -1,7 +1,7 @@
 package com.hirshi001.networking.util.defaultpackets.primitivepackets;
 
+import com.hirshi001.buffers.ByteBuffer;
 import com.hirshi001.networking.packet.Packet;
-import com.hirshi001.networking.buffers.ByteBuffer;
 
 public class ShortPacket extends Packet {
 

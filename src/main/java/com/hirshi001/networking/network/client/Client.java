@@ -5,7 +5,9 @@ import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
-import com.hirshi001.networking.restapi.RestAction;
+import com.hirshi001.restapi.RestFuture;
+
+import java.util.concurrent.CompletableFuture;
 
 public interface Client extends NetworkSide{
 
@@ -27,20 +29,20 @@ public interface Client extends NetworkSide{
 
     boolean supportsUDP();
 
-    public RestAction<PacketHandlerContext<?>> sendTCP(Packet packet, PacketRegistry registry);
+    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> sendTCP(Packet packet, PacketRegistry registry);
 
-    public RestAction<PacketHandlerContext<?>> sendTCPWithResponse(Packet packet, PacketRegistry registry, long timeout);
+    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> sendTCPWithResponse(Packet packet, PacketRegistry registry, long timeout);
 
-    public RestAction<PacketHandlerContext<?>> sendUDP(Packet packet, PacketRegistry registry);
+    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> sendUDP(Packet packet, PacketRegistry registry);
 
-    public RestAction<PacketHandlerContext<?>> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout);
+    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout);
 
-    public RestAction<Client> connectTCP();
+    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> connectTCP();
 
-    public RestAction<Client> connectUDP();
+    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> connectUDP();
 
-    public RestAction<Client> disconnectTCP();
+    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> disconnectTCP();
 
-    public RestAction<Client> disconnectUDP();
+    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> disconnectUDP();
 
 }

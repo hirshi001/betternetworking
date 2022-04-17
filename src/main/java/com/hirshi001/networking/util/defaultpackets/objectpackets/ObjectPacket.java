@@ -1,6 +1,6 @@
 package com.hirshi001.networking.util.defaultpackets.objectpackets;
 
-import com.hirshi001.networking.buffers.ByteBuffer;
+import com.hirshi001.buffers.ByteBuffer;
 import com.hirshi001.networking.packet.Packet;
 
 import java.io.*;
