@@ -1,6 +1,7 @@
 package com.hirshi001.networking.network.server;
 
 import com.hirshi001.networking.network.NetworkSide;
+import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.restapi.RestFuture;
 
 import java.util.Set;
@@ -30,5 +31,13 @@ public interface Server extends NetworkSide {
     public RestFuture<Server, Server> disconnectTCP();
 
     public RestFuture<Server, Server> disconnectUDP();
+
+    /**
+     * Disconnects TCP and UDP if they are connected and removes all ClientInstances
+     */
+    public void close();
+
+    public boolean isClosed();
+
 
 }

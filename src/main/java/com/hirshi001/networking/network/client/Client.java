@@ -29,20 +29,20 @@ public interface Client extends NetworkSide{
 
     boolean supportsUDP();
 
-    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> sendTCP(Packet packet, PacketRegistry registry);
+    public RestFuture<Client, Client> sendTCP(Packet packet, PacketRegistry registry);
 
     public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> sendTCPWithResponse(Packet packet, PacketRegistry registry, long timeout);
 
     public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> sendUDP(Packet packet, PacketRegistry registry);
 
-    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout);
+    public RestFuture<Client, Client> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout);
 
-    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> connectTCP();
+    public RestFuture<Client, Client> connectTCP();
 
-    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> connectUDP();
+    public RestFuture<Client, Client> connectUDP();
 
-    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> disconnectTCP();
+    public RestFuture<Client, Client> disconnectTCP();
 
-    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> disconnectUDP();
+    public RestFuture<Client, Client> disconnectUDP();
 
 }
