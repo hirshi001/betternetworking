@@ -17,6 +17,7 @@ import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
 import com.hirshi001.networking.packetregistrycontainer.SinglePacketRegistryContainer;
 import com.hirshi001.networking.util.defaultpackets.primitivepackets.IntegerPacket;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -24,8 +25,10 @@ public class ExampleUsage {
 
 
 
-
-    public static void main(String[] args) throws Exception{
+    @Test
+    public void main() throws Exception{
+        assert true;
+        if(true) return; //just make sure the code compiles
 
         PacketEncoderDecoder packetEncoderDecoder = new SimplePacketEncoderDecoder();
         NetworkFactory serverFactory = null;//not implemented in this project
@@ -45,7 +48,7 @@ public class ExampleUsage {
         NetworkData serverNetworkData = new DefaultNetworkData(packetEncoderDecoder, serverContainer);
 
         //Start Server
-        Server server = serverFactory.createServer(serverNetworkData, bufferFactory, 8080);
+        Server server = serverFactory.createServer(serverNetworkData, bufferFactory, 8080); //will produce null pointer exception
         server.setChannelInitializer((channel)-> channel.setChannelOption(ChannelOption.SO_TIMEOUT, 1000));
         server.setServerOption(ServerOption.MAX_CLIENTS, 10);
         server.setServerOption(ServerOption.RECEIVE_BUFFER_SIZE, 1024);

@@ -27,7 +27,7 @@ public class SetPacketRegistryIDPacket extends Packet {
     }
 
     public static void clientHandle(PacketHandlerContext<SetPacketRegistryIDPacket> context) {
-        PacketRegistryContainer container = context.networkData.getPacketRegistryContainer();
+        PacketRegistryContainer container = context.networkSide.getNetworkData().getPacketRegistryContainer();
         PacketRegistry registry = container.get(context.packet.registryName);
         if(registry!=null) {
             container.setPacketRegistryID(registry, context.packet.registryId);
