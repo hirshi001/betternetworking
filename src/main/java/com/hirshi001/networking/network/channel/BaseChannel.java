@@ -93,6 +93,26 @@ public abstract class BaseChannel implements Channel {
         return bytes;
     }
 
+    @Override
+    public void addChannelListener(ChannelListener listener) {
+        clientListenerHandler.add(listener);
+    }
+
+    @Override
+    public void addChannelListeners(ChannelListener... listeners) {
+        clientListenerHandler.addAll(listeners);
+    }
+
+    @Override
+    public boolean removeChannelListener(ChannelListener listener) {
+        return clientListenerHandler.remove(listener);
+    }
+
+    @Override
+    public void removeChannelListeners(ChannelListener... listeners) {
+        clientListenerHandler.removeAll(listeners);
+    }
+
     protected ChannelListener getListenerHandler() {
         return clientListenerHandler;
     }
