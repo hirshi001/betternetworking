@@ -1,6 +1,10 @@
 package com.hirshi001.networking.network.client;
 
+import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.NetworkSide;
+import com.hirshi001.networking.network.channel.ChannelInitializer;
+import com.hirshi001.networking.network.channel.ChannelListener;
+import com.hirshi001.networking.network.channel.ChannelOption;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
@@ -22,24 +26,36 @@ public interface Client extends NetworkSide{
 
     String getHost();
 
-    boolean supportsTCP();
+    Channel getChannel();
 
-    boolean supportsUDP();
+    public RestFuture<?, PacketHandlerContext<?>> sendTCP(Packet packet, PacketRegistry registry);
 
-    public RestFuture<Client, Client> sendTCP(Packet packet, PacketRegistry registry);
+    public RestFuture<?, PacketHandlerContext<?>> sendTCPWithResponse(Packet packet, PacketRegistry registry, long timeout);
 
-    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> sendTCPWithResponse(Packet packet, PacketRegistry registry, long timeout);
+    public RestFuture<?, PacketHandlerContext<?>> sendUDP(Packet packet, PacketRegistry registry);
 
-    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> sendUDP(Packet packet, PacketRegistry registry);
+    public RestFuture<?, PacketHandlerContext<?>> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout);
 
-    public RestFuture<Client, Client> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout);
+    public void setChannelInitializer(ChannelInitializer initializer);
 
-    public RestFuture<Client, Client> connectTCP();
+    public <T> void setChannelOption(ChannelOption<T> option, T value);
 
-    public RestFuture<Client, Client> connectUDP();
+    public <T> T getChannelOption(ChannelOption<T> option);
 
-    public RestFuture<Client, Client> disconnectTCP();
+    public void addClientListener(ChannelListener listener);
 
-    public RestFuture<Client, Client> disconnectUDP();
+    public void addClientListeners(ChannelListener... listeners);
+
+    public boolean removeClientListener(ChannelListener listener);
+
+    public void removeClientListeners(ChannelListener... listeners);
+
+    public RestFuture<?, Client> connectTCP();
+
+    public RestFuture<?, Client> connectUDP();
+
+    public RestFuture<?, Client> disconnectTCP();
+
+    public RestFuture<?, Client> disconnectUDP();
 
 }

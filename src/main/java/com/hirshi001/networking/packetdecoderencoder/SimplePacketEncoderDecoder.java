@@ -68,7 +68,9 @@ public class SimplePacketEncoderDecoder implements PacketEncoderDecoder {
         out.writerIndex(startIndex); // Set the writer index back to the start index
 
         out.writeInt(size); // Write the size of the packet
-        out.writeInt(packetRegistry.getId(packet.getClass())); // Write the id of the packet
+        int packetHolderId = packetRegistry.getId(packet.getClass());
+
+        out.writeInt(packetHolderId); // Write the id of the packet
 
         out.writerIndex(lastIdx); // Set the writer index back to the last index
     }

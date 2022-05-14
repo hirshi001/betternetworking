@@ -23,6 +23,7 @@ public interface PacketEncoderDecoder {
      * Encodes a single packet into the given ByteBuf.
      * @param packet the packet to encode
      * @param out the ByteBuf to write to
+     * @param container the SidedPacketRegistryContainer which contains the packet registries
      */
     public void encode(Packet packet, PacketRegistryContainer container, PacketRegistry packetRegistry, ByteBuffer out);
 

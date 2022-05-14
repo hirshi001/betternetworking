@@ -1,10 +1,9 @@
 package com.hirshi001.networking.network.server;
 
 import com.hirshi001.networking.network.NetworkSide;
-import com.hirshi001.networking.networkdata.NetworkData;
+import com.hirshi001.networking.network.channel.ChannelInitializer;
+import com.hirshi001.networking.network.channel.ChannelSet;
 import com.hirshi001.restapi.RestFuture;
-
-import java.util.Set;
 
 public interface Server extends NetworkSide {
 
@@ -18,11 +17,9 @@ public interface Server extends NetworkSide {
         return true;
     }
 
-    public Set<ClientInstance> getClients();
+    public int getPort();
 
-    boolean supportsTCP();
-
-    boolean supportsUDP();
+    public ChannelSet getClients();
 
     public RestFuture<Server, Server> connectTCP();
 
@@ -31,6 +28,20 @@ public interface Server extends NetworkSide {
     public RestFuture<Server, Server> disconnectTCP();
 
     public RestFuture<Server, Server> disconnectUDP();
+
+    public <T> void setServerOption(ServerOption<T> option, T value);
+
+    public <T> T getServerOption(ServerOption<T> option);
+
+    public void addServerListener(ServerListener listener);
+
+    public void addServerListeners(ServerListener... listeners);
+
+    public boolean removeServerListener(ServerListener listener);
+
+    public void removeServerListeners(ServerListener... listeners);
+
+    public void setChannelInitializer(ChannelInitializer initializer);
 
     /**
      * Disconnects TCP and UDP if they are connected and removes all ClientInstances

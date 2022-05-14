@@ -13,19 +13,4 @@ public interface NetworkData {
 
     PacketRegistryContainer getPacketRegistryContainer();
 
-    default PacketHandlerContext<?> decode(ByteBuffer in){
-        PacketHandlerContext<?> context = getPacketEncoderDecoder().decode(getPacketRegistryContainer(), in, null);
-        if(context!=null){
-            context.networkData = this;
-        }
-        return context;
-    }
-
-    default void encode(Packet packet, PacketRegistry packetRegistry, ByteBuffer out){
-        if(!getPacketRegistryContainer().supportsMultipleRegistries() || packetRegistry==null){
-            packetRegistry = getPacketRegistryContainer().getDefaultRegistry();
-        }
-        getPacketEncoderDecoder().encode(packet, getPacketRegistryContainer(), packetRegistry, out);
-    }
-
 }

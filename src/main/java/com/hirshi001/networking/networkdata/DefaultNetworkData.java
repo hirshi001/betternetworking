@@ -8,6 +8,11 @@ public class DefaultNetworkData implements NetworkData{
     protected PacketEncoderDecoder encoderDecoder;
     protected PacketRegistryContainer registryContainer;
 
+    public DefaultNetworkData(PacketEncoderDecoder encoderDecoder, PacketRegistryContainer registryContainer) {
+        this.encoderDecoder = encoderDecoder;
+        this.registryContainer = registryContainer;
+    }
+
     @Override
     public PacketEncoderDecoder getPacketEncoderDecoder() {
         return encoderDecoder;

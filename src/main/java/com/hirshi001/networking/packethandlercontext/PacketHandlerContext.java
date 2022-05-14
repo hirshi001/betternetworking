@@ -1,6 +1,7 @@
 package com.hirshi001.networking.packethandlercontext;
 
 import com.hirshi001.networking.network.NetworkSide;
+import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packet.PacketHandler;
@@ -9,8 +10,8 @@ import com.hirshi001.networking.packetregistry.PacketRegistry;
 
 public class PacketHandlerContext<T extends Packet> {
 
-    public NetworkData networkData;
     public NetworkSide networkSide;
+    public Channel channel;
     public PacketType packetType;
     public PacketRegistry packetRegistry;
     public PacketHandler<T> packetHandler;
@@ -19,9 +20,9 @@ public class PacketHandlerContext<T extends Packet> {
     public PacketHandlerContext(){
     }
 
-    public PacketHandlerContext(NetworkData networkData, NetworkSide networkSide, PacketType packetType, PacketRegistry packetRegistry, PacketHandler<T> packetHandler, T packet){
-        this.networkData = networkData;
+    public PacketHandlerContext(NetworkSide networkSide, Channel channel, PacketType packetType, PacketRegistry packetRegistry, PacketHandler<T> packetHandler, T packet){
         this.networkSide = networkSide;
+        this.channel = channel;
         this.packetType = packetType;
         this.packetRegistry = packetRegistry;
         this.packetHandler = packetHandler;
