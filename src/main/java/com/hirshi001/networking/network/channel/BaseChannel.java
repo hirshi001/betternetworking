@@ -10,7 +10,6 @@ import com.hirshi001.networking.packethandlercontext.PacketType;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
 import com.hirshi001.restapi.RestFuture;
-import sun.nio.ch.ChannelInputStream;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
