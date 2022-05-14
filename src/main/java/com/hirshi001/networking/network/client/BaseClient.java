@@ -11,17 +11,24 @@ import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.restapi.RestFuture;
 
+import java.net.InetAddress;
+
 public abstract class BaseClient implements Client {
 
     private final NetworkData networkData;
     private final BufferFactory bufferFactory;
+    private final String host;
+    private final int port;
     private final ChannelListenerHandler clientListenerHandler;
     protected ChannelInitializer channelInitializer;
 
-    public BaseClient(NetworkData networkData, BufferFactory bufferFactory) {
+
+    public BaseClient(NetworkData networkData, BufferFactory bufferFactory, String host, int port) {
         this.networkData = networkData;
         this.bufferFactory = bufferFactory;
         this.clientListenerHandler = new ChannelListenerHandler();
+        this.host = host;
+        this.port = port;
     }
 
 
@@ -47,12 +54,12 @@ public abstract class BaseClient implements Client {
 
     @Override
     public int getPort() {
-        return getChannel().getPort();
+        return port;
     }
 
     @Override
     public String getHost() {
-        return getChannel().getIp();
+        return host;
     }
 
     @Override
