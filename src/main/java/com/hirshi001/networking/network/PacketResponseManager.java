@@ -23,12 +23,11 @@ public class PacketResponseManager {
         this.executorService = executorService;
     }
 
-    public RestFuture<?, PacketHandlerContext<?>> submit(Packet packet, Runnable runnable, long timeout, TimeUnit unit) {
+    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> submit(Packet packet, long timeout, TimeUnit unit) {
         return RestFuture.create((future, input) -> {
             int id = getNextPacketResponseId();
             packet.sendingId = id;
             packetResponses.put(id, future);
-            runnable.run();
             executorService.schedule(()-> {
                 RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> sFuture = packetResponses.remove(id);
                 if(sFuture!=null && !sFuture.isDone()) sFuture.setCause(new TimeoutException("Packet did not arrive on time"));

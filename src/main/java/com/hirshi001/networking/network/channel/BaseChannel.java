@@ -10,7 +10,10 @@ import com.hirshi001.networking.packethandlercontext.PacketType;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
 import com.hirshi001.restapi.RestFuture;
+import com.hirshi001.restapi.RestFutureConsumer;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -48,12 +51,7 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public RestFuture<?, PacketHandlerContext<?>> sendTCPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
-        return packetResponseManager.submit(packet, ()->{
-            PacketHandlerContext context = getNewPacketHandlerContext(packet, registry);
-            byte[] bytes = toBytes(packet, registry);
-            sendTCP(bytes);
-            getListenerHandler().TCPSent(context);
-        }, timeout, TimeUnit.MILLISECONDS);
+        return sendTCP(packet, registry).then(packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS));
     }
 
     @Override
@@ -69,12 +67,9 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public RestFuture<?, PacketHandlerContext<?>> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
-        return packetResponseManager.submit(packet, ()->{
-            PacketHandlerContext context = getNewPacketHandlerContext(packet, registry);
-            byte[] bytes = toBytes(packet, registry);
-            sendUDP(bytes);
-            getListenerHandler().UDPSent(context);
-        }, timeout, TimeUnit.MILLISECONDS);
+        return sendUDP(packet, registry).then(packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS);
+
+
     }
 
     private byte[] toBytes(Packet packet, PacketRegistry registry) {
@@ -124,8 +119,9 @@ public abstract class BaseChannel implements Channel {
         packetResponseManager.success(context);
     }
 
-    protected abstract void sendTCP(byte[] data);
+    protected abstract void sendTCP(byte[] data) throws IOException;
 
-    protected abstract void sendUDP(byte[] data);
+    protected abstract void sendUDP(byte[] data) throws IOException;
+
 
 }
