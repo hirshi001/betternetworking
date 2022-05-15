@@ -31,7 +31,7 @@ public class ExampleUsage {
         if(true) return; //just make sure the code compiles
 
         PacketEncoderDecoder packetEncoderDecoder = new SimplePacketEncoderDecoder();
-        NetworkFactory serverFactory = null;//not implemented in this project
+        NetworkFactory serverFactory = null; //not implemented in this project
         BufferFactory bufferFactory = new DefaultBufferFactory((bufferFactory1, size) -> new ArrayBackedByteBuffer(size, bufferFactory1));
 
 
@@ -52,7 +52,7 @@ public class ExampleUsage {
         server.setChannelInitializer((channel)-> channel.setChannelOption(ChannelOption.SO_TIMEOUT, 1000));
         server.setServerOption(ServerOption.MAX_CLIENTS, 10);
         server.setServerOption(ServerOption.RECEIVE_BUFFER_SIZE, 1024);
-        server.connectTCP().get();
+        server.startTCP().get();
 
 
         //Client
@@ -68,7 +68,6 @@ public class ExampleUsage {
             channel.setChannelOption(ChannelOption.TCP_NODELAY, true); //idk what this does
         });
 
-        server.connectTCP().perform().get();
         client.connectTCP().perform().get();
 
         client.sendTCPWithResponse(new IntegerPacket(10), null, 100)

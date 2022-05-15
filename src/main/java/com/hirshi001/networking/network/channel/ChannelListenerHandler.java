@@ -28,6 +28,16 @@ public class ChannelListenerHandler extends ListenerHandler<ChannelListener> imp
     }
 
     @Override
+    public void onUDPStart(Client client) {
+        forEachListener(l -> l.onUDPStart(client));
+    }
+
+    @Override
+    public void onUDPStop(Client client) {
+        forEachListener(l -> l.onUDPStop(client));
+    }
+
+    @Override
     public void TCPSent(PacketHandlerContext<?> context) {
         forEachListener(l -> l.TCPSent(context));
     }

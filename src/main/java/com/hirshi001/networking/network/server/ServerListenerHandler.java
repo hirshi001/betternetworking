@@ -27,6 +27,16 @@ public class ServerListenerHandler extends ListenerHandler<ServerListener> imple
     }
 
     @Override
+    public void onUDPStart(Server server) {
+        forEachListener(listener -> listener.onUDPStart(server));
+    }
+
+    @Override
+    public void onUDPStop(Server server) {
+        forEachListener(listener -> listener.onUDPStop(server));
+    }
+
+    @Override
     public void onClientConnect(Server server, Channel clientChannel) {
         forEachListener(listener -> listener.onClientConnect(server, clientChannel));
     }

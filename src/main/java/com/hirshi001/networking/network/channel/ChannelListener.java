@@ -9,6 +9,10 @@ public interface ChannelListener {
 
     public void onTCPDisconnect(Client client);
 
+    public void onUDPStart(Client client);
+
+    public void onUDPStop(Client client);
+
     public void TCPSent(PacketHandlerContext<?> context);
 
     public void TCPReceived(PacketHandlerContext<?> context);

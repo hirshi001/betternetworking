@@ -21,13 +21,13 @@ public interface Server extends NetworkSide {
 
     public ChannelSet getClients();
 
-    public RestFuture<Server, Server> connectTCP();
+    public RestFuture<Server, Server> startTCP();
 
-    public RestFuture<Server, Server> connectUDP();
+    public RestFuture<Server, Server> startUDP();
 
-    public RestFuture<Server, Server> disconnectTCP();
+    public RestFuture<Server, Server> stopTCP();
 
-    public RestFuture<Server, Server> disconnectUDP();
+    public RestFuture<Server, Server> stopUDP();
 
     public <T> void setServerOption(ServerOption<T> option, T value);
 

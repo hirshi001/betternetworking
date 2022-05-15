@@ -9,6 +9,10 @@ public interface ServerListener {
 
     public void onTCPStop(Server server);
 
+    public void onUDPStart(Server server);
+
+    public void onUDPStop(Server server);
+
     public void onClientConnect(Server server, Channel clientChannel);
 
     public void onClientDisconnect(Server server, Channel clientChannel);

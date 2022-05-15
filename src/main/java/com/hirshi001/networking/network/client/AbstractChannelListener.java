@@ -16,6 +16,16 @@ public class AbstractChannelListener implements ChannelListener {
     }
 
     @Override
+    public void onUDPStart(Client client) {
+
+    }
+
+    @Override
+    public void onUDPStop(Client client) {
+
+    }
+
+    @Override
     public void TCPSent(PacketHandlerContext<?> context) {
 
     }

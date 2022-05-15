@@ -52,10 +52,10 @@ public interface Client extends NetworkSide{
 
     public RestFuture<?, Client> connectTCP();
 
-    public RestFuture<?, Client> connectUDP();
+    public RestFuture<?, Client> startUDP();
 
     public RestFuture<?, Client> disconnectTCP();
 
-    public RestFuture<?, Client> disconnectUDP();
+    public RestFuture<?, Client> stopUDP();
 
 }

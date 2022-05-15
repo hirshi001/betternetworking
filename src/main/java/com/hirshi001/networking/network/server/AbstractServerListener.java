@@ -16,6 +16,16 @@ public class AbstractServerListener implements ServerListener {
     }
 
     @Override
+    public void onUDPStart(Server server) {
+
+    }
+
+    @Override
+    public void onUDPStop(Server server) {
+
+    }
+
+    @Override
     public void onClientConnect(Server server, Channel clientChannel) {
 
     }
