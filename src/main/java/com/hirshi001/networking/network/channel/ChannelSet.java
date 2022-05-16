@@ -8,10 +8,10 @@ import com.hirshi001.restapi.RestFuture;
 import java.util.*;
 import java.util.function.Supplier;
 
-public class ChannelSet implements Set<Channel> {
+public class ChannelSet<T extends Channel> implements Set<T> {
 
     private final Server server;
-    private final Set<Channel> channels;
+    private final Set<T> channels;
     private final Object lock;
 
     public ChannelSet(Server server) {
@@ -24,7 +24,7 @@ public class ChannelSet implements Set<Channel> {
         return server;
     }
 
-    public RestFuture<?, ChannelSet> sendTCPToAll(Packet packet, PacketRegistry packetRegistry) {
+    public RestFuture<?, ChannelSet<T>> sendTCPToAll(Packet packet, PacketRegistry packetRegistry) {
         return RestFuture.create(()->{
             synchronized (lock) {
                 channels.forEach(channel -> channel.sendTCP(packet, packetRegistry));
@@ -33,7 +33,7 @@ public class ChannelSet implements Set<Channel> {
         });
     }
 
-    public RestFuture<?, ChannelSet> sendUDPToAll(Packet packet, PacketRegistry packetRegistry) {
+    public RestFuture<?, ChannelSet<T>> sendUDPToAll(Packet packet, PacketRegistry packetRegistry) {
         return RestFuture.create(()->{
             synchronized (lock) {
                 channels.forEach(channel -> channel.sendUDP(packet, packetRegistry));
@@ -59,21 +59,21 @@ public class ChannelSet implements Set<Channel> {
         }
     }
 
-    public Channel getOrCreate(byte[] address, int port, Supplier<Channel> channelSupplier) {
+    public T getOrCreate(byte[] address, int port, Supplier<T> channelSupplier) {
         synchronized (lock) {
-            for (Channel channel : channels) {
+            for (T channel : channels) {
                 if (Arrays.equals(channel.getAddress(), address) && channel.getPort() == port) {
                     return channel;
                 }
             }
-            Channel channel = channelSupplier.get();
+            T channel = channelSupplier.get();
             add(channel);
             return channel;
         }
     }
 
     @Override
-    public Iterator<Channel> iterator() {
+    public Iterator<T> iterator() {
         return channels.iterator();
     }
 
@@ -92,7 +92,7 @@ public class ChannelSet implements Set<Channel> {
     }
 
     @Override
-    public boolean add(Channel channel) {
+    public boolean add(T channel) {
         synchronized (lock) {
             return channels.add(channel);
         }
@@ -113,7 +113,7 @@ public class ChannelSet implements Set<Channel> {
     }
 
     @Override
-    public boolean addAll(Collection<? extends Channel> c) {
+    public boolean addAll(Collection<? extends T> c) {
         synchronized (lock) {
             return channels.addAll(c);
         }

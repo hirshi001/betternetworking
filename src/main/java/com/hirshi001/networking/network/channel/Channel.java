@@ -1,6 +1,7 @@
 package com.hirshi001.networking.network.channel;
 
 import com.hirshi001.networking.network.NetworkSide;
+import com.hirshi001.networking.network.client.Client;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.networking.packetregistry.PacketRegistry;

@@ -5,6 +5,7 @@ import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelSet;
 import com.hirshi001.networking.networkdata.NetworkData;
+import com.hirshi001.restapi.RestFuture;
 
 public abstract class BaseServer implements Server{
 
