@@ -123,6 +123,7 @@ public abstract class BaseChannel implements Channel {
      */
     protected void onPacketReceived(PacketHandlerContext<?> context) {
         packetResponseManager.success(context);
+        context.handle();
     }
 
     protected abstract void sendTCP(byte[] data) throws IOException;
