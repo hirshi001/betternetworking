@@ -35,7 +35,23 @@ public interface Channel{
 
     public NetworkSide getSide();
 
-    public RestFuture<?, Channel> close();
+    public RestFuture<?, Channel> openTCP();
+
+    public RestFuture<?, Channel> closeTCP();
+
+    public RestFuture<?, Channel> openUDP();
+
+    public RestFuture<?, Channel> closeUDP();
+
+    public boolean isTCPOpen();
+
+    public boolean isUDPOpen();
+
+    public boolean isTCPClosed();
+
+    public boolean isUDPClosed();
+
+    public boolean isOpen();
 
     public boolean isClosed();
 

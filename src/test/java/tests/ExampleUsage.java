@@ -49,7 +49,7 @@ public class ExampleUsage {
 
         //Start Server
         Server server = serverFactory.createServer(serverNetworkData, bufferFactory, 8080); //will produce null pointer exception
-        server.setChannelInitializer((channel)-> channel.setChannelOption(ChannelOption.SO_TIMEOUT, 1000));
+        server.setChannelInitializer((channel)-> channel.setChannelOption(ChannelOption.TCP_SO_TIMEOUT, 1000));
         server.setServerOption(ServerOption.MAX_CLIENTS, 10);
         server.setServerOption(ServerOption.RECEIVE_BUFFER_SIZE, 1024);
         server.startTCP().get();
@@ -64,7 +64,7 @@ public class ExampleUsage {
 
         Client client = serverFactory.createClient(clientNetworkData, bufferFactory, "localhost", 8080);
         client.setChannelInitializer((channel)-> {
-            channel.setChannelOption(ChannelOption.SO_TIMEOUT, 1000);
+            channel.setChannelOption(ChannelOption.TCP_SO_TIMEOUT, 1000);
             channel.setChannelOption(ChannelOption.TCP_NODELAY, true); //idk what this does
         });
 

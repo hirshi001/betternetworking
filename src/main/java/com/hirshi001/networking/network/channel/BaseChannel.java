@@ -10,10 +10,8 @@ import com.hirshi001.networking.packethandlercontext.PacketType;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
 import com.hirshi001.restapi.RestFuture;
-import com.hirshi001.restapi.RestFutureConsumer;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -124,6 +122,26 @@ public abstract class BaseChannel implements Channel {
     protected void onPacketReceived(PacketHandlerContext<?> context) {
         packetResponseManager.success(context);
         context.handle();
+    }
+
+    @Override
+    public boolean isOpen() {
+        return isTCPOpen() || isUDPOpen();
+    }
+
+    @Override
+    public boolean isClosed() {
+        return !isOpen();
+    }
+
+    @Override
+    public boolean isTCPClosed() {
+        return !isTCPOpen();
+    }
+
+    @Override
+    public boolean isUDPClosed() {
+        return !isUDPOpen();
     }
 
     protected abstract void sendTCP(byte[] data) throws IOException;
