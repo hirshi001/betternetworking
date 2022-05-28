@@ -20,9 +20,11 @@ import java.util.concurrent.TimeUnit;
 public abstract class BaseChannel implements Channel {
 
     protected final PacketResponseManager packetResponseManager;
+    private final ScheduledExecutorService executor;
     protected ChannelListenerHandler clientListenerHandler;
 
     public BaseChannel(ScheduledExecutorService executor) {
+        this.executor = executor;
         packetResponseManager = new PacketResponseManager(executor);
     }
 
@@ -110,6 +112,10 @@ public abstract class BaseChannel implements Channel {
 
     protected ChannelListener getListenerHandler() {
         return clientListenerHandler;
+    }
+
+    protected ScheduledExecutorService getExecutor() {
+        return executor;
     }
 
     /*
