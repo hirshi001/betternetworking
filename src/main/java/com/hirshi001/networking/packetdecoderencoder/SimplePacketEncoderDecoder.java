@@ -57,6 +57,7 @@ public class SimplePacketEncoderDecoder implements PacketEncoderDecoder {
     public void encode(Packet packet, PacketRegistryContainer container, PacketRegistry packetRegistry, ByteBuffer out) {
 
         int startIndex = out.writerIndex(); // start index
+        out.ensureWritable(8); // ensure that there is enough space to write the size and the id
         out.writerIndex(startIndex+8); // Reserve space for the length and the id
 
         out.writeInt(packetRegistry.getId()); // Write the id of the registry
