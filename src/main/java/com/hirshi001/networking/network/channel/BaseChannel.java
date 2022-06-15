@@ -56,7 +56,10 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public RestFuture<?, PacketHandlerContext<?>> sendTCPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
-        return sendTCP(packet, registry).then((context)-> packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS));
+        return RestFuture.create((future, input)->{
+            packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS, future);
+            sendTCP(packet, registry).perform();
+        });
     }
 
     @Override
@@ -78,9 +81,10 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public RestFuture<?, PacketHandlerContext<?>> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
-        return sendUDP(packet, registry).then(packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS));
-
-
+        return RestFuture.create((future, input)->{
+            packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS, future);
+            sendUDP(packet, registry).perform();
+        });
     }
 
     private ByteBuffer toBytes(Packet packet, PacketRegistry registry) {

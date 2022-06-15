@@ -13,7 +13,7 @@ public class PacketResponseManager {
 
 
     private final AtomicInteger packetResponseId;
-    private final Map<Integer, RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>>> packetResponses;
+    private final Map<Integer, RestFuture<PacketHandlerContext<?>, ?>> packetResponses;
     private final ScheduledExecutorService executorService;
 
     public PacketResponseManager(ScheduledExecutorService executorService) {
@@ -23,23 +23,23 @@ public class PacketResponseManager {
         this.executorService = executorService;
     }
 
-    public RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> submit(Packet packet, long timeout, TimeUnit unit) {
-        return RestFuture.create((future, input) -> {
-            int id = getNextPacketResponseId();
-            packet.sendingId = id;
-            packetResponses.put(id, future);
-            executorService.schedule(()-> {
-                RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> sFuture = packetResponses.remove(id);
-                if(sFuture!=null && !sFuture.isDone()) sFuture.setCause(new TimeoutException("Packet did not arrive on time"));
-            }, timeout, unit);
-        });
+    public void submit(Packet packet, long timeout, TimeUnit unit, RestFuture<PacketHandlerContext<?>, ?> successFuture) {
+        int id = getNextPacketResponseId();
+        packet.sendingId = id;
+        packetResponses.put(id, successFuture);
+        executorService.schedule(()-> {
+            RestFuture<PacketHandlerContext<?>, ?> sFuture = packetResponses.remove(id);
+            if(sFuture!=null && !sFuture.isDone()) sFuture.setCause(new TimeoutException("Packet did not arrive on time"));
+        }, timeout, unit);
+
     }
 
     public void success(PacketHandlerContext<?> context){
-        RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> future = packetResponses.remove(context.packet.receivingId);
+        int receivingId = context.packet.receivingId;
+        if(receivingId<0) return;
+        RestFuture<PacketHandlerContext<?>,?> future = packetResponses.remove(context.packet.receivingId);
         if(future!=null){
             future.perform(context);
-            future.taskFinished(context);
         }
     }
 
