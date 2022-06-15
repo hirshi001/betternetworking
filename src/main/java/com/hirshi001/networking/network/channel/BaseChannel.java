@@ -56,7 +56,7 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public RestFuture<?, PacketHandlerContext<?>> sendTCPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
-        return packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS).then(context -> sendTCP(packet, registry).perform());
+        return sendTCP(packet, registry).then((context)-> packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS));
     }
 
     @Override
