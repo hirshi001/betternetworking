@@ -19,7 +19,7 @@ public abstract class BaseClient implements Client {
     private final BufferFactory bufferFactory;
     private final String host;
     private final int port;
-    private final ChannelListenerHandler clientListenerHandler;
+    protected final ChannelListenerHandler clientListenerHandler;
     protected ChannelInitializer channelInitializer;
 
 
@@ -96,7 +96,6 @@ public abstract class BaseClient implements Client {
     public <T> T getChannelOption(ChannelOption<T> option){
         return getChannel().getChannelOption(option);
     }
-
 
     @Override
     public void addClientListener(ChannelListener listener) {

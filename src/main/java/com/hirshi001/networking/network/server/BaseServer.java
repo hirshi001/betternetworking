@@ -12,7 +12,7 @@ public abstract class BaseServer implements Server{
     private final NetworkData networkData;
     private final BufferFactory bufferFactory;
     private final ChannelSet channelSet;
-    private final ServerListenerHandler serverListenerHandler;
+    protected final ServerListenerHandler serverListenerHandler;
     private ChannelInitializer channelInitializer;
     private final int port;
 
