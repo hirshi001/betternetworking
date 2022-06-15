@@ -35,9 +35,12 @@ public class PacketResponseManager {
         });
     }
 
-    public void success(PacketHandlerContext<?> context){
+    public void success(PacketHandlerContext context){
         RestFuture<PacketHandlerContext<?>, ?> future = packetResponses.remove(context.packet.receivingId);
-        if(future!=null) future.perform(context);
+        if(future!=null){
+            future.perform(context);
+            future.perform(context);
+        }
     }
 
     public void noId(Packet packet){
