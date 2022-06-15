@@ -1,6 +1,6 @@
 package com.hirshi001.networking.network.channel;
 
-import com.hirshi001.buffers.ByteBuffer;
+import com.hirshi001.buffer.buffers.ByteBuffer;
 import com.hirshi001.networking.network.NetworkSide;
 import com.hirshi001.networking.network.PacketResponseManager;
 import com.hirshi001.networking.networkdata.NetworkData;

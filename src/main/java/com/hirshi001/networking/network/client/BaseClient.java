@@ -1,6 +1,6 @@
 package com.hirshi001.networking.network.client;
 
-import com.hirshi001.bufferfactory.BufferFactory;
+import com.hirshi001.buffer.bufferfactory.BufferFactory;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelListener;
 import com.hirshi001.networking.network.channel.ChannelListenerHandler;

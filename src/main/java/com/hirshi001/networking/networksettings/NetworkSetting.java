@@ -1,7 +1,7 @@
 package com.hirshi001.networking.networksettings;
 
 
-import com.hirshi001.buffers.ByteBuffer;
+import com.hirshi001.buffer.buffers.ByteBuffer;
 
 public class NetworkSetting {
 

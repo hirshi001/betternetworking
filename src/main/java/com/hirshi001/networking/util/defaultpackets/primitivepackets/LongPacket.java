@@ -1,6 +1,6 @@
 package com.hirshi001.networking.util.defaultpackets.primitivepackets;
 
-import com.hirshi001.buffers.ByteBuffer;
+import com.hirshi001.buffer.buffers.ByteBuffer;
 import com.hirshi001.networking.packet.Packet;
 
 public class LongPacket extends Packet {

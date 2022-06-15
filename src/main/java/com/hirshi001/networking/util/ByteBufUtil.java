@@ -1,7 +1,7 @@
 package com.hirshi001.networking.util;
 
 
-import com.hirshi001.buffers.ByteBuffer;
+import com.hirshi001.buffer.buffers.ByteBuffer;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;

@@ -1,8 +1,8 @@
 package tests;
 
-import com.hirshi001.bufferfactory.BufferFactory;
-import com.hirshi001.bufferfactory.DefaultBufferFactory;
-import com.hirshi001.buffers.ArrayBackedByteBuffer;
+import com.hirshi001.buffer.bufferfactory.BufferFactory;
+import com.hirshi001.buffer.bufferfactory.DefaultBufferFactory;
+import com.hirshi001.buffer.buffers.ArrayBackedByteBuffer;
 import com.hirshi001.networking.network.NetworkFactory;
 import com.hirshi001.networking.network.channel.ChannelOption;
 import com.hirshi001.networking.network.client.Client;
