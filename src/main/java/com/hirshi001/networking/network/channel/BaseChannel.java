@@ -41,10 +41,15 @@ public abstract class BaseChannel implements Channel {
     public RestFuture<?, PacketHandlerContext<?>> sendTCP(Packet packet, PacketRegistry registry) {
         return RestFuture.create(()->{
             PacketHandlerContext context = getNewPacketHandlerContext(packet, registry);
-            byte[] bytes = toBytes(packet, registry);
-            sendTCP(bytes);
+            ByteBuffer buffer = toBytes(packet, registry);
+            if(buffer.hasArray()) {
+                sendTCP(buffer.array(), buffer.readerIndex(), buffer.readableBytes());
+            } else {
+                byte[] bytes = new byte[buffer.readableBytes()];
+                buffer.getBytes(bytes, buffer.readerIndex(), bytes.length);
+                sendTCP(bytes, 0, bytes.length);
+            }
             getListenerHandler().TCPSent(context);
-
             return (PacketHandlerContext<?>) context;
         });
     }
@@ -58,8 +63,14 @@ public abstract class BaseChannel implements Channel {
     public RestFuture<?, PacketHandlerContext<?>> sendUDP(Packet packet, PacketRegistry registry) {
         return RestFuture.create(()->{
             PacketHandlerContext context = getNewPacketHandlerContext(packet, registry);
-            byte[] bytes = toBytes(packet, registry);
-            sendUDP(bytes);
+            ByteBuffer buffer = toBytes(packet, registry);
+            if(buffer.hasArray()) {
+                sendTCP(buffer.array(), buffer.readerIndex(), buffer.readableBytes());
+            } else {
+                byte[] bytes = new byte[buffer.readableBytes()];
+                buffer.getBytes(bytes, buffer.readerIndex(), bytes.length);
+                sendTCP(bytes, 0, bytes.length);
+            }
             getListenerHandler().UDPSent(context);
             return (PacketHandlerContext<?>) context;
         });
@@ -72,20 +83,14 @@ public abstract class BaseChannel implements Channel {
 
     }
 
-    private byte[] toBytes(Packet packet, PacketRegistry registry) {
+    private ByteBuffer toBytes(Packet packet, PacketRegistry registry) {
         NetworkSide side = getSide();
         if(registry==null) registry = side.getNetworkData().getPacketRegistryContainer().getDefaultRegistry();
         NetworkData data = side.getNetworkData();
         ByteBuffer buffer = side.getBufferFactory().buffer();
         PacketRegistryContainer container = data.getPacketRegistryContainer();
         data.getPacketEncoderDecoder().encode(packet, container, registry, buffer);
-
-        if(buffer.hasArray()) return buffer.array();
-        byte[] bytes = new byte[buffer.readableBytes()];
-        buffer.readBytes(bytes);
-        buffer.release();
-
-        return bytes;
+        return buffer;
     }
 
     @Override
@@ -144,9 +149,8 @@ public abstract class BaseChannel implements Channel {
         return !isUDPOpen();
     }
 
-    protected abstract void sendTCP(byte[] data) throws IOException;
+    protected abstract void sendTCP(byte[] data, int offset, int length) throws IOException;
 
-    protected abstract void sendUDP(byte[] data) throws IOException;
-
+    protected abstract void sendUDP(byte[] data, int offset, int length) throws IOException;
 
 }
