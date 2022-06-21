@@ -7,19 +7,19 @@ import com.hirshi001.networking.network.channel.ChannelSet;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.restapi.RestFuture;
 
-public abstract class BaseServer implements Server{
+public abstract class BaseServer<T extends Channel> implements Server{
 
     private final NetworkData networkData;
     private final BufferFactory bufferFactory;
-    private final ChannelSet channelSet;
+    protected final ChannelSet<Channel> channelSet;
     protected final ServerListenerHandler serverListenerHandler;
-    private ChannelInitializer channelInitializer;
+    protected ChannelInitializer channelInitializer;
     private final int port;
 
     public BaseServer(NetworkData networkData, BufferFactory bufferFactory, int port) {
         this.networkData = networkData;
         this.bufferFactory = bufferFactory;
-        this.channelSet = new ChannelSet(this);
+        this.channelSet = new ChannelSet<>(this);
         this.serverListenerHandler = new ServerListenerHandler();
         this.port = port;
     }
@@ -27,6 +27,11 @@ public abstract class BaseServer implements Server{
     @Override
     public void setChannelInitializer(ChannelInitializer initializer) {
         channelInitializer = initializer;
+    }
+
+    @Override
+    public ChannelInitializer getChannelInitializer() {
+        return channelInitializer;
     }
 
     @Override

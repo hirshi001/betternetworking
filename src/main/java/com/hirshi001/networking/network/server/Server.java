@@ -43,6 +43,8 @@ public interface Server extends NetworkSide {
 
     public void setChannelInitializer(ChannelInitializer initializer);
 
+    public ChannelInitializer getChannelInitializer();
+
     /**
      * Disconnects TCP and UDP if they are connected and removes all ClientInstances
      */

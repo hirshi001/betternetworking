@@ -6,6 +6,8 @@ import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.restapi.RestFuture;
 
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ChannelSet<T extends Channel> implements Set<T> {
@@ -59,7 +61,15 @@ public class ChannelSet<T extends Channel> implements Set<T> {
         }
     }
 
-    public T getOrCreate(byte[] address, int port, Supplier<T> channelSupplier) {
+    /**
+     *
+     * @param address The address of the channel to find
+     * @param port the port of the channel to find
+     * @param channelSupplier Supplier that creates a new channel when a new connection is made
+     * @param callback called when the channel is created
+     * @return
+     */
+    public T getOrCreate(byte[] address, int port, Supplier<T> channelSupplier, Consumer<T> callback) {
         synchronized (lock) {
             for (T channel : channels) {
                 if (Arrays.equals(channel.getAddress(), address) && channel.getPort() == port) {
@@ -68,6 +78,7 @@ public class ChannelSet<T extends Channel> implements Set<T> {
             }
             T channel = channelSupplier.get();
             add(channel);
+            callback.accept(channel);
             return channel;
         }
     }
