@@ -73,11 +73,14 @@ public abstract class BaseServer<T extends Channel> implements Server{
         serverListenerHandler.removeAll(listeners);
     }
 
-    public void addChannel(T channel){
-        if(channelInitializer != null){
-            channelInitializer.initChannel(channel);
+    public boolean addChannel(T channel){
+        if(channelSet.add(channel)) {
+            if (channelInitializer != null) {
+                channelInitializer.initChannel(channel);
+            }
+            return true;
         }
-        channelSet.add(channel);
+        return false;
     }
 
     public boolean removeChannel(Channel channel){
