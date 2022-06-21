@@ -11,7 +11,7 @@ public abstract class BaseServer<T extends Channel> implements Server{
 
     private final NetworkData networkData;
     private final BufferFactory bufferFactory;
-    protected final ChannelSet<Channel> channelSet;
+    protected final ChannelSet<T> channelSet;
     protected final ServerListenerHandler serverListenerHandler;
     protected ChannelInitializer channelInitializer;
     private final int port;
@@ -50,7 +50,7 @@ public abstract class BaseServer<T extends Channel> implements Server{
     }
 
     @Override
-    public ChannelSet getClients() {
+    public ChannelSet<T> getClients() {
         return channelSet;
     }
 
@@ -74,7 +74,7 @@ public abstract class BaseServer<T extends Channel> implements Server{
         serverListenerHandler.removeAll(listeners);
     }
 
-    public void addChannel(Channel channel){
+    public void addChannel(T channel){
         if(channelInitializer != null){
             channelInitializer.initChannel(channel);
         }
