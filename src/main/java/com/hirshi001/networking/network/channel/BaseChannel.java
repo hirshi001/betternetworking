@@ -68,11 +68,11 @@ public abstract class BaseChannel implements Channel {
             PacketHandlerContext context = getNewPacketHandlerContext(packet, registry);
             ByteBuffer buffer = toBytes(packet, registry);
             if(buffer.hasArray()) {
-                sendTCP(buffer.array(), buffer.readerIndex(), buffer.readableBytes());
+                sendUDP(buffer.array(), buffer.readerIndex(), buffer.readableBytes());
             } else {
                 byte[] bytes = new byte[buffer.readableBytes()];
                 buffer.getBytes(bytes, buffer.readerIndex(), bytes.length);
-                sendTCP(bytes, 0, bytes.length);
+                sendUDP(bytes, 0, bytes.length);
             }
             getListenerHandler().UDPSent(context);
             return (PacketHandlerContext<?>) context;
