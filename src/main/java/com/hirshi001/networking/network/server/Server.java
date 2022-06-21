@@ -3,7 +3,6 @@ package com.hirshi001.networking.network.server;
 import com.hirshi001.networking.network.NetworkSide;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelSet;
-import com.hirshi001.restapi.RestFuture;
 
 public interface Server extends NetworkSide {
 
@@ -21,13 +20,13 @@ public interface Server extends NetworkSide {
 
     public ChannelSet getClients();
 
-    public RestFuture<Server, Server> startTCP();
+    public void startTCP();
 
-    public RestFuture<Server, Server> startUDP();
+    public void startUDP();
 
-    public RestFuture<Server, Server> stopTCP();
+    public void stopTCP();
 
-    public RestFuture<Server, Server> stopUDP();
+    public void stopUDP();
 
     public <T> void setServerOption(ServerOption<T> option, T value);
 

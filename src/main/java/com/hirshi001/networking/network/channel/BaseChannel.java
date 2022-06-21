@@ -49,7 +49,8 @@ public abstract class BaseChannel implements Channel {
                 buffer.getBytes(bytes, buffer.readerIndex(), bytes.length);
                 sendTCP(bytes, 0, bytes.length);
             }
-            getListenerHandler().TCPSent(context);
+            getListenerHandler().onTCPSent(context);
+            getListenerHandler().onSent(context);
             return (PacketHandlerContext<?>) context;
         });
     }
@@ -74,7 +75,8 @@ public abstract class BaseChannel implements Channel {
                 buffer.getBytes(bytes, buffer.readerIndex(), bytes.length);
                 sendUDP(bytes, 0, bytes.length);
             }
-            getListenerHandler().UDPSent(context);
+            getListenerHandler().onUDPSent(context);
+            getListenerHandler().onSent(context);
             return (PacketHandlerContext<?>) context;
         });
     }
@@ -121,7 +123,7 @@ public abstract class BaseChannel implements Channel {
         return clientListenerHandler;
     }
 
-    protected ScheduledExecutorService getExecutor() {
+    public ScheduledExecutorService getExecutor() {
         return executor;
     }
 
@@ -130,6 +132,12 @@ public abstract class BaseChannel implements Channel {
      */
     protected void onPacketReceived(PacketHandlerContext<?> context) {
         packetResponseManager.success(context);
+        getListenerHandler().onReceived(context);
+        if(context.packetType==PacketType.TCP) {
+            getListenerHandler().onTCPReceived(context);
+        } else {
+            getListenerHandler().onUDPReceived(context);
+        }
         context.handle();
     }
 

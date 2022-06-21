@@ -27,4 +27,14 @@ public interface NetworkSide {
         return (Client) this;
     }
 
+    boolean isClosed();
+
+    boolean isOpen();
+
+    void close();
+
+    void closeTCP();
+
+    void closeUDP();
+
 }

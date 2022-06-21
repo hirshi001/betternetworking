@@ -38,23 +38,23 @@ public class ChannelListenerHandler extends ListenerHandler<ChannelListener> imp
     }
 
     @Override
-    public void TCPSent(PacketHandlerContext<?> context) {
-        forEachListener(l -> l.TCPSent(context));
+    public void onTCPSent(PacketHandlerContext<?> context) {
+        forEachListener(l -> l.onTCPSent(context));
     }
 
     @Override
-    public void TCPReceived(PacketHandlerContext<?> context) {
-        forEachListener(l -> l.TCPReceived(context));
+    public void onTCPReceived(PacketHandlerContext<?> context) {
+        forEachListener(l -> l.onTCPReceived(context));
     }
 
     @Override
-    public void UDPSent(PacketHandlerContext<?> context) {
-        forEachListener(l -> l.UDPSent(context));
+    public void onUDPSent(PacketHandlerContext<?> context) {
+        forEachListener(l -> l.onUDPSent(context));
     }
 
     @Override
-    public void UDPReceived(PacketHandlerContext<?> context) {
-        forEachListener(l -> l.UDPReceived(context));
+    public void onUDPReceived(PacketHandlerContext<?> context) {
+        forEachListener(l -> l.onUDPReceived(context));
     }
 
     @Override

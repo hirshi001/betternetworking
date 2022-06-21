@@ -3,15 +3,14 @@ package com.hirshi001.networking.network.server;
 import com.hirshi001.buffer.bufferfactory.BufferFactory;
 import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
-import com.hirshi001.networking.network.channel.ChannelSet;
+import com.hirshi001.networking.network.channel.DefaultChannelSet;
 import com.hirshi001.networking.networkdata.NetworkData;
-import com.hirshi001.restapi.RestFuture;
 
 public abstract class BaseServer<T extends Channel> implements Server{
 
     private final NetworkData networkData;
     private final BufferFactory bufferFactory;
-    protected final ChannelSet<T> channelSet;
+    protected final DefaultChannelSet<T> channelSet;
     protected final ServerListenerHandler serverListenerHandler;
     protected ChannelInitializer channelInitializer;
     private final int port;
@@ -19,7 +18,7 @@ public abstract class BaseServer<T extends Channel> implements Server{
     public BaseServer(NetworkData networkData, BufferFactory bufferFactory, int port) {
         this.networkData = networkData;
         this.bufferFactory = bufferFactory;
-        this.channelSet = new ChannelSet<>(this);
+        this.channelSet = new DefaultChannelSet<>(this);
         this.serverListenerHandler = new ServerListenerHandler();
         this.port = port;
     }
@@ -50,7 +49,7 @@ public abstract class BaseServer<T extends Channel> implements Server{
     }
 
     @Override
-    public ChannelSet<T> getClients() {
+    public DefaultChannelSet<T> getClients() {
         return channelSet;
     }
 
@@ -81,8 +80,8 @@ public abstract class BaseServer<T extends Channel> implements Server{
         channelSet.add(channel);
     }
 
-    public void removeChannel(Channel channel){
-        channelSet.remove(channel);
+    public boolean removeChannel(Channel channel){
+        return channelSet.remove(channel);
     }
 
 

@@ -26,22 +26,22 @@ public class AbstractChannelListener implements ChannelListener {
     }
 
     @Override
-    public void TCPSent(PacketHandlerContext<?> context) {
+    public void onTCPSent(PacketHandlerContext<?> context) {
 
     }
 
     @Override
-    public void TCPReceived(PacketHandlerContext<?> context) {
+    public void onTCPReceived(PacketHandlerContext<?> context) {
 
     }
 
     @Override
-    public void UDPSent(PacketHandlerContext<?> context) {
+    public void onUDPSent(PacketHandlerContext<?> context) {
 
     }
 
     @Override
-    public void UDPReceived(PacketHandlerContext<?> context) {
+    public void onUDPReceived(PacketHandlerContext<?> context) {
 
     }
 
