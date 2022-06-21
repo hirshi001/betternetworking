@@ -35,13 +35,13 @@ public interface Channel{
 
     public NetworkSide getSide();
 
-    public RestFuture<?, Channel> openTCP();
+    public RestFuture<?, Channel> startTCP();
 
-    public RestFuture<?, Channel> closeTCP();
+    public RestFuture<?, Channel> stopTCP();
 
-    public RestFuture<?, Channel> openUDP();
+    public RestFuture<?, Channel> startUDP();
 
-    public RestFuture<?, Channel> closeUDP();
+    public RestFuture<?, Channel> stopUDP();
 
     public boolean isTCPOpen();
 

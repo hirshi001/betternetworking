@@ -50,12 +50,16 @@ public interface Client extends NetworkSide{
 
     public void removeClientListeners(ChannelListener... listeners);
 
-    public RestFuture<?, Client> connectTCP();
+    @Override
+    public RestFuture<?, Client> startTCP();
 
+    @Override
     public RestFuture<?, Client> startUDP();
 
-    public RestFuture<?, Client> disconnectTCP();
+    @Override
+    public RestFuture<?, Client> stopTCP();
 
+    @Override
     public RestFuture<?, Client> stopUDP();
 
 }

@@ -4,6 +4,7 @@ import com.hirshi001.buffer.bufferfactory.BufferFactory;
 import com.hirshi001.networking.network.client.Client;
 import com.hirshi001.networking.network.server.Server;
 import com.hirshi001.networking.networkdata.NetworkData;
+import com.hirshi001.restapi.RestFuture;
 
 public interface NetworkSide {
 
@@ -33,8 +34,12 @@ public interface NetworkSide {
 
     void close();
 
-    void closeTCP();
+    public RestFuture<?, ? extends NetworkSide> startTCP();
 
-    void closeUDP();
+    public RestFuture<?, ? extends NetworkSide> startUDP();
+
+    public RestFuture<?, ? extends NetworkSide> stopTCP();
+
+    public RestFuture<?, ? extends NetworkSide> stopUDP();
 
 }
