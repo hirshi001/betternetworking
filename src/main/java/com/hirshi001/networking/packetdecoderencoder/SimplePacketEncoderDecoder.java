@@ -26,8 +26,12 @@ public class SimplePacketEncoderDecoder implements PacketEncoderDecoder {
         if(in.readableBytes()<8) return null; // If there is not enough bytes to read the length and the id
 
 
-        int size = in.getInt(in.readerIndex()); // Get the size of the packet without changing the reader index
-        if(size>maxSize) throw new IllegalArgumentException("Packet size of '"+size+"' is too big"); // If the size is too big
+        int rIndex = in.readerIndex();
+        int size = in.readInt(); // Get the size of the packet without changing the reader index
+        if(size>maxSize){
+            in.readerIndex(rIndex);
+            throw new IllegalArgumentException("Packet size of '"+size+"' is too big"); // If the size is too big
+        }
 
         if(in.readableBytes()<size+8) return null; // If there is not enough bytes to read the packet
         in.readInt(); // Read the size of the packet (we already know it)
