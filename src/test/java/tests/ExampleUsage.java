@@ -68,7 +68,7 @@ public class ExampleUsage {
             channel.setChannelOption(ChannelOption.TCP_NODELAY, true); //idk what this does
         });
 
-        client.connectTCP().perform().get();
+        client.startTCP().perform().get();
 
         client.sendTCPWithResponse(new IntegerPacket(10), null, 100)
                 .then(System.out::println).performAsync();
