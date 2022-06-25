@@ -1,5 +1,6 @@
 package com.hirshi001.networking.network.channel;
 
+import com.hirshi001.networking.network.channel.ChannelOption;
 import com.hirshi001.networking.util.Option;
 
 public class ChannelOption<T> extends Option<T> {
@@ -20,6 +21,15 @@ public class ChannelOption<T> extends Option<T> {
     public static final ChannelOption<Integer> UDP_RECEIVE_BUFFER_SIZE = new ChannelOption<>("udp_receive_buffer_size", Integer.class);
     public static final ChannelOption<Integer> UDP_TRAFFIC_CLASS = new ChannelOption<>("udp_traffic_class",Integer.class);
     public static final ChannelOption<Boolean> UDP_BROADCAST = new ChannelOption<>("udp_broadcast", Boolean.class);
+
+
+    public static final ChannelOption<Integer> MAX_PAYLOAD_SIZE = new ChannelOption<>("max_payload_size", Integer.class); //for encoding packets
+    public static final ChannelOption<Integer> MAX_PACKET_SIZE = new ChannelOption<>("max_packet_size", Integer.class); //all the data in a packet
+
+    public static final ChannelOption<Boolean> DEFAULT_TCP = new ChannelOption<>("default_tcp", Boolean.class); //if true, will use tcp if udp is not available
+    public static final ChannelOption<Boolean> DEFAULT_UDP = new ChannelOption<>("default_udp", Boolean.class); //if true, will use udp if tcp is not available
+    public static final ChannelOption<Boolean> DEFAULT_SWITCH_PROTOCOL = new ChannelOption<>("default_switch_protocol", Boolean.class); //if true, will switch networking protocols if current one is unavailable
+
 
     public ChannelOption(String name, Class<T> type) {
         super(name, type);
