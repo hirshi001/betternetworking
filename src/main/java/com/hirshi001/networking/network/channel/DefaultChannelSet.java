@@ -41,7 +41,7 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     public RestFuture<?, DefaultChannelSet<T>> sendTCPToAll(Packet packet, PacketRegistry packetRegistry) {
         return RestFuture.create(()->{
             synchronized (lock) {
-                channels.forEach(channel -> channel.sendTCP(packet, packetRegistry));
+                channels.forEach(channel -> channel.sendTCP(packet, packetRegistry).perform());
             }
             return this;
         });
@@ -51,7 +51,7 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     public RestFuture<?, DefaultChannelSet<T>> sendUDPToAll(Packet packet, PacketRegistry packetRegistry) {
         return RestFuture.create(()->{
             synchronized (lock) {
-                channels.forEach(channel -> channel.sendUDP(packet, packetRegistry));
+                channels.forEach(channel -> channel.sendUDP(packet, packetRegistry).perform());
             }
             return this;
         });
