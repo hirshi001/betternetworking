@@ -47,11 +47,13 @@ public class SimplePacketEncoderDecoder implements PacketEncoderDecoder {
         int receivingId = -1;
 
         //read all the bytes first before creating and reading to help with possible errors
-        if(isMultipleRegistry) registryId = in.readInt();
-        if(useSendingId) sendingId = in.readInt();
-        if(useReceivingId) receivingId = in.readInt();
 
-        ByteBuffer msg = in.readBytes(size-9);
+        ByteBuffer msg = in.readBytes(size);
+
+        if(isMultipleRegistry) registryId = msg.readInt();
+        if(useSendingId) sendingId = msg.readInt();
+        if(useReceivingId) receivingId = msg.readInt();
+
 
         PacketRegistry registry;
         if(isMultipleRegistry){
