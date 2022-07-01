@@ -43,31 +43,31 @@ public class BooleanCompression {
         The methods should not use any if statements and should all be 1 line long
      */
     public static byte compressBooleans(boolean a) {
-        return (byte) (a ? 1 : 0);
+        return compressBooleans(a, false, false, false, false, false, false, false);
     }
 
     public static byte compressBooleans(boolean a, boolean b) {
-        return (byte) ((a ? 1 : 0) | (b ? 1 : 0) << 1);
+        return compressBooleans(a, b, false, false, false, false, false, false);
     }
 
     public static byte compressBooleans(boolean a, boolean b, boolean c) {
-        return (byte) ((a ? 1 : 0) | (b ? 1 : 0) << 1 | (c ? 1 : 0) << 2);
+        return compressBooleans(a, b, c, false, false, false, false, false);
     }
 
     public static byte compressBooleans(boolean a, boolean b, boolean c, boolean d) {
-        return (byte) ((a ? 1 : 0) | (b ? 1 : 0) << 1 | (c ? 1 : 0) << 2 | (d ? 1 : 0) << 3);
+        return compressBooleans(a, b, c, d, false, false, false, false);
     }
 
     public static byte compressBooleans(boolean a, boolean b, boolean c, boolean d, boolean e) {
-        return (byte) ((a ? 1 : 0) | (b ? 1 : 0) << 1 | (c ? 1 : 0) << 2 | (d ? 1 : 0) << 3 | (e ? 1 : 0) << 4);
+        return compressBooleans(a, b, c, d, e, false, false, false);
     }
 
     public static byte compressBooleans(boolean a, boolean b, boolean c, boolean d, boolean e, boolean f) {
-        return (byte) ((a ? 1 : 0) | (b ? 1 : 0) << 1 | (c ? 1 : 0) << 2 | (d ? 1 : 0) << 3 | (e ? 1 : 0) << 4 | (f ? 1 : 0) << 5);
+        return compressBooleans(a, b, c, d, e, f, false, false);
     }
 
     public static byte compressBooleans(boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean g) {
-        return (byte) ((a ? 1 : 0) | (b ? 1 : 0) << 1 | (c ? 1 : 0) << 2 | (d ? 1 : 0) << 3 | (e ? 1 : 0) << 4 | (f ? 1 : 0) << 5 | (g ? 1 : 0) << 6);
+        return compressBooleans(a, b, c, d, e, f, g, false);
     }
 
     public static byte compressBooleans(boolean a, boolean b, boolean c, boolean d, boolean e, boolean f, boolean g, boolean h) {

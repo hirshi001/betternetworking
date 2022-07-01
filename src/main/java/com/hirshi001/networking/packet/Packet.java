@@ -5,7 +5,8 @@ import com.hirshi001.buffer.buffers.ByteBuffer;
 
 public abstract class Packet implements ByteBufSerializable {
 
-    public int sendingId = -1, receivingId = -1;
+    public int sendingId = -1, receivingId = -1; // -1 means not set
+    //do no use sendingId and receivingId in writeBytes/readBytes, they will be used in PacketEncoderDecoder
 
     public Packet(){}
 
@@ -26,10 +27,10 @@ public abstract class Packet implements ByteBufSerializable {
      * @param packet
      */
     public final Packet setResponsePacket(Packet packet){
-        int sId = packet.receivingId;
-        int rId = packet.sendingId;
-        this.sendingId = sId;
-        this.receivingId = rId;
+        //int sId = packet.receivingId;
+        //int rId = packet.sendingId;
+        //this.sendingId = packet.receivingId;
+        this.receivingId = packet.sendingId;
         return this;
     }
 

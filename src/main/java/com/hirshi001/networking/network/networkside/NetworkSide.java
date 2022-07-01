@@ -1,4 +1,4 @@
-package com.hirshi001.networking.network;
+package com.hirshi001.networking.network.networkside;
 
 import com.hirshi001.buffer.bufferfactory.BufferFactory;
 import com.hirshi001.networking.network.client.Client;
@@ -41,5 +41,7 @@ public interface NetworkSide {
     public RestFuture<?, ? extends NetworkSide> stopTCP();
 
     public RestFuture<?, ? extends NetworkSide> stopUDP();
+
+    public NetworkSideListener getListenerHandler();
 
 }

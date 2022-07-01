@@ -19,7 +19,9 @@ import com.hirshi001.networking.packetregistrycontainer.SinglePacketRegistryCont
 import com.hirshi001.networking.util.defaultpackets.primitivepackets.IntegerPacket;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 public class ExampleUsage {
 
@@ -32,24 +34,34 @@ public class ExampleUsage {
 
         PacketEncoderDecoder packetEncoderDecoder = new SimplePacketEncoderDecoder();
         NetworkFactory serverFactory = null; //not implemented in this project
-        BufferFactory bufferFactory = new DefaultBufferFactory((bufferFactory1, size) -> new ArrayBackedByteBuffer(size, bufferFactory1));
+        BufferFactory bufferFactory = new DefaultBufferFactory();
 
 
         //Setup Server Options
         PacketRegistryContainer serverContainer = new SinglePacketRegistryContainer();
         PacketRegistry serverRegistry = serverContainer.getDefaultRegistry();
         serverRegistry.registerDefaultPrimitivePackets();
-        serverRegistry.register(new PacketHolder<>(IntegerPacket::new, (context)->{
+        serverRegistry.register(IntegerPacket::new, (context)->{
                 IntegerPacket packet = context.packet;
                 IntegerPacket random = new IntegerPacket(ThreadLocalRandom.current().nextInt(packet.value));
                 random.setResponsePacket(packet);
-                context.channel.sendTCP(random, null);
-        }, IntegerPacket.class), 0);
+                context.channel.sendTCP(random, null).perform();
+            try {
+                context.channel.flushTCP();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }, IntegerPacket.class, 0);
         NetworkData serverNetworkData = new DefaultNetworkData(packetEncoderDecoder, serverContainer);
 
         //Start Server
         Server server = serverFactory.createServer(serverNetworkData, bufferFactory, 8080); //will produce null pointer exception
-        server.setChannelInitializer((channel)-> channel.setChannelOption(ChannelOption.TCP_SO_TIMEOUT, 1000));
+        server.setChannelInitializer((channel)-> {
+            channel.setChannelOption(ChannelOption.TCP_SO_TIMEOUT, 1000);
+            channel.setChannelOption(ChannelOption.DEFAULT_SWITCH_PROTOCOL, true);
+            channel.setChannelOption(ChannelOption.UDP_AUTO_FLUSH, true);
+            channel.setChannelOption(ChannelOption.TCP_AUTO_FLUSH, true);
+        });
         server.setServerOption(ServerOption.MAX_CLIENTS, 10);
         server.setServerOption(ServerOption.RECEIVE_BUFFER_SIZE, 1024);
         server.startTCP().get();
@@ -58,7 +70,7 @@ public class ExampleUsage {
         //Client
         PacketRegistryContainer clientContainer = new SinglePacketRegistryContainer();
         clientContainer.getDefaultRegistry().registerDefaultPrimitivePackets().
-        register(new PacketHolder<>(IntegerPacket::new, null, IntegerPacket.class), 0);
+        register(IntegerPacket::new, null, IntegerPacket.class, 0);
 
         NetworkData clientNetworkData = new DefaultNetworkData(packetEncoderDecoder, clientContainer);
 
@@ -66,6 +78,8 @@ public class ExampleUsage {
         client.setChannelInitializer((channel)-> {
             channel.setChannelOption(ChannelOption.TCP_SO_TIMEOUT, 1000);
             channel.setChannelOption(ChannelOption.TCP_NODELAY, true); //idk what this does
+            channel.setChannelOption(ChannelOption.UDP_AUTO_FLUSH, true);
+            channel.setChannelOption(ChannelOption.TCP_AUTO_FLUSH, true);
         });
 
         client.startTCP().perform().get();

@@ -5,6 +5,7 @@ import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.restapi.RestFuture;
 
+import java.io.IOException;
 import java.util.*;
 
 public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
@@ -41,7 +42,9 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     public RestFuture<?, DefaultChannelSet<T>> sendTCPToAll(Packet packet, PacketRegistry packetRegistry) {
         return RestFuture.create(()->{
             synchronized (lock) {
-                channels.forEach(channel -> channel.sendTCP(packet, packetRegistry).perform());
+                for (T channel : channels) {
+                    channel.sendTCP(packet, packetRegistry).perform();
+                }
             }
             return this;
         });
@@ -51,20 +54,56 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     public RestFuture<?, DefaultChannelSet<T>> sendUDPToAll(Packet packet, PacketRegistry packetRegistry) {
         return RestFuture.create(()->{
             synchronized (lock) {
-                channels.forEach(channel -> channel.sendUDP(packet, packetRegistry).perform());
+                for (T channel : channels) {
+                    channel.sendUDP(packet, packetRegistry).perform();
+                }
             }
             return this;
         });
     }
 
     @Override
+    public void flushTCP() {
+        synchronized (lock) {
+            for(Channel channel:channels){
+                try {
+                    channel.flushTCP();
+                } catch (IOException ignored) { }
+            }
+        }
+    }
+
+    @Override
+    public void flushUDP() {
+        synchronized (lock) {
+            for(Channel channel:channels){
+                try {
+                    channel.flushUDP();
+                } catch (IOException ignored) { }
+            }
+        }
+    }
+
+    @Override
+    public void flush() {
+        synchronized (lock) { //obtain lock so thread doesn't have to do it multiple times
+            flushTCP();
+            flushUDP();
+        }
+    }
+
+    @Override
     public int size() {
-        return channels.size();
+        synchronized (lock) {
+            return channels.size();
+        }
     }
 
     @Override
     public boolean isEmpty() {
-        return channels.isEmpty();
+        synchronized (lock) {
+            return channels.isEmpty();
+        }
     }
 
     @Override

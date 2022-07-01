@@ -1,11 +1,11 @@
 package com.hirshi001.networking.util.defaultpackets.systempackets;
-;
+
 import com.hirshi001.buffer.buffers.ByteBuffer;
+import com.hirshi001.buffer.util.ByteBufUtil;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
-import com.hirshi001.networking.util.ByteBufUtil;
 
 public class SetPacketRegistryIDPacket extends Packet {
 

@@ -1,8 +1,8 @@
 package com.hirshi001.networking.util.defaultpackets.primitivepackets;
 
 import com.hirshi001.buffer.buffers.ByteBuffer;
+import com.hirshi001.buffer.util.ByteBufUtil;
 import com.hirshi001.networking.packet.Packet;
-import com.hirshi001.networking.util.ByteBufUtil;
 
 import java.util.Objects;
 

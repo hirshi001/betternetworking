@@ -1,6 +1,6 @@
 package com.hirshi001.networking.network.server;
 
-import com.hirshi001.networking.network.NetworkSide;
+import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelSet;
 import com.hirshi001.restapi.RestFuture;
@@ -45,6 +45,8 @@ public interface Server extends NetworkSide {
     public void setChannelInitializer(ChannelInitializer initializer);
 
     public ChannelInitializer getChannelInitializer();
+
+    public ServerListenerHandler getListenerHandler();
 
     /**
      * Disconnects TCP and UDP if they are connected and removes all ClientInstances

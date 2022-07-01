@@ -1,10 +1,11 @@
 package com.hirshi001.networking.network.channel;
 
 import com.hirshi001.buffer.buffers.ByteBuffer;
-import com.hirshi001.networking.network.NetworkSide;
+import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.network.PacketResponseManager;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.networking.packet.Packet;
+import com.hirshi001.networking.packetdecoderencoder.PacketEncoderDecoder;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.networking.packethandlercontext.PacketType;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
@@ -12,6 +13,8 @@ import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
 import com.hirshi001.restapi.RestFuture;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -19,15 +22,35 @@ public abstract class BaseChannel implements Channel {
 
     protected final PacketResponseManager packetResponseManager;
     private final ScheduledExecutorService executor;
-    protected ChannelListenerHandler clientListenerHandler;
+    private final NetworkSide networkSide;
+    protected ChannelListenerHandler<ChannelListener> clientListenerHandler;
 
-    public BaseChannel(ScheduledExecutorService executor) {
+    private final Map<ChannelOption, Object> optionObjectMap;
+
+    private boolean autoFlushTCP = false;
+    private boolean autoFlushUDP = false;
+
+    private boolean defaultTCP = false;
+    private boolean defaultUDP = false;
+    private boolean defaultSwitchProtocol = false;
+
+    private int maxUDPPayloadSize = -1; // -1 means no limit
+    private int maxUDPPacketSize = -1; // -1 means no limit
+
+    private final ByteBuffer tcpBuffer;
+
+
+    public BaseChannel(NetworkSide networkSide, ScheduledExecutorService executor) {
+        this.networkSide = networkSide;
         this.executor = executor;
         packetResponseManager = new PacketResponseManager(executor);
+        optionObjectMap = new ConcurrentHashMap<>();
+        tcpBuffer = getSide().getBufferFactory().circularBuffer(256);
+        clientListenerHandler = new ChannelListenerHandler<>();
     }
 
-    protected PacketHandlerContext<?> getNewPacketHandlerContext(Packet packet, PacketRegistry registry) {
-        PacketHandlerContext context = new PacketHandlerContext<>();
+    protected <P extends Packet> PacketHandlerContext<P> getNewPacketHandlerContext(P packet, PacketRegistry registry) {
+        PacketHandlerContext<P> context = new PacketHandlerContext<>();
         context.channel = this;
         context.packet = packet;
         context.networkSide = getSide();
@@ -38,11 +61,20 @@ public abstract class BaseChannel implements Channel {
     }
 
     @Override
-    public RestFuture<?, PacketHandlerContext<?>> sendTCP(Packet packet, PacketRegistry registry) {
-        return RestFuture.create(()->{
-            PacketHandlerContext context = getNewPacketHandlerContext(packet, registry);
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP(P packet, PacketRegistry registry) {
+        if(supportsTCP()) {
+            return sendTCP0(packet, registry);
+        }else if(supportsUDP() && (defaultSwitchProtocol || defaultUDP)){
+            return sendTCP0(packet, registry);
+        }
+        throw new UnsupportedOperationException("Cannot send a UDP Packet on this channel");
+    }
+
+    private <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP0(P packet, PacketRegistry registry) {
+        return RestFuture.create(() -> {
+            PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
             ByteBuffer buffer = toBytes(packet, registry);
-            if(buffer.hasArray()) {
+            if (buffer.hasArray()) {
                 sendTCP(buffer.array(), buffer.readerIndex(), buffer.readableBytes());
             } else {
                 byte[] bytes = new byte[buffer.readableBytes()];
@@ -51,7 +83,10 @@ public abstract class BaseChannel implements Channel {
             }
             getListenerHandler().onTCPSent(context);
             getListenerHandler().onSent(context);
-            return (PacketHandlerContext<?>) context;
+            getSide().getListenerHandler().onTCPSent(context);
+            getSide().getListenerHandler().onSent(context);
+            if(autoFlushTCP) flushTCP().perform();
+            return context;
         });
     }
 
@@ -64,11 +99,20 @@ public abstract class BaseChannel implements Channel {
     }
 
     @Override
-    public RestFuture<?, PacketHandlerContext<?>> sendUDP(Packet packet, PacketRegistry registry) {
-        return RestFuture.create(()->{
-            PacketHandlerContext context = getNewPacketHandlerContext(packet, registry);
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP(P packet, PacketRegistry registry) {
+        if(supportsUDP()) {
+            return sendUDP0(packet, registry);
+        }else if(supportsTCP() && (defaultSwitchProtocol || defaultTCP)){
+            return sendTCP0(packet, registry);
+        }
+        throw new UnsupportedOperationException("Cannot send a UDP Packet on this channel");
+    }
+
+    private <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP0(P packet, PacketRegistry registry){
+        return RestFuture.create(() -> {
+            PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
             ByteBuffer buffer = toBytes(packet, registry);
-            if(buffer.hasArray()) {
+            if (buffer.hasArray()) {
                 sendUDP(buffer.array(), buffer.readerIndex(), buffer.readableBytes());
             } else {
                 byte[] bytes = new byte[buffer.readableBytes()];
@@ -77,7 +121,10 @@ public abstract class BaseChannel implements Channel {
             }
             getListenerHandler().onUDPSent(context);
             getListenerHandler().onSent(context);
-            return (PacketHandlerContext<?>) context;
+            getSide().getListenerHandler().onUDPSent(context);
+            getSide().getListenerHandler().onSent(context);
+            if (autoFlushUDP) flushUDP().perform();
+            return context;
         });
     }
 
@@ -85,7 +132,7 @@ public abstract class BaseChannel implements Channel {
     public RestFuture<?, PacketHandlerContext<?>> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
         return RestFuture.create((future, input)->{
             packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS, future);
-            sendUDP(packet, registry).perform();
+            sendUDP(packet, registry);
         });
     }
 
@@ -119,7 +166,7 @@ public abstract class BaseChannel implements Channel {
         clientListenerHandler.removeAll(listeners);
     }
 
-    protected ChannelListener getListenerHandler() {
+    public ChannelListenerHandler<ChannelListener> getListenerHandler() {
         return clientListenerHandler;
     }
 
@@ -133,12 +180,90 @@ public abstract class BaseChannel implements Channel {
     protected void onPacketReceived(PacketHandlerContext<?> context) {
         packetResponseManager.success(context);
         getListenerHandler().onReceived(context);
+        getSide().getListenerHandler().onReceived(context);
         if(context.packetType==PacketType.TCP) {
             getListenerHandler().onTCPReceived(context);
+            getSide().getListenerHandler().onTCPReceived(context);
         } else {
             getListenerHandler().onUDPReceived(context);
+            getSide().getListenerHandler().onUDPReceived(context);
         }
         context.handle();
+    }
+
+    protected void onUDPPacketReceived(ByteBuffer packet) {
+        if(packet.readableBytes()>maxUDPPayloadSize) return;
+        PacketEncoderDecoder encoderDecoder = getSide().getNetworkData().getPacketEncoderDecoder();
+
+        PacketHandlerContext context = encoderDecoder.decode(getSide().getNetworkData().getPacketRegistryContainer(), tcpBuffer, null);
+        if (context != null) {
+            context.packetType = PacketType.TCP;
+            context.channel = this;
+            context.networkSide = getSide();
+            onPacketReceived(context);
+        }
+    }
+
+    protected void onTCPBytesReceived(ByteBuffer bytes) {
+        tcpBuffer.writeBytes(bytes);
+
+        while(true) {
+            tcpBuffer.markReaderIndex();
+            PacketEncoderDecoder encoderDecoder = getSide().getNetworkData().getPacketEncoderDecoder();
+            PacketHandlerContext context = encoderDecoder.decode(getSide().getNetworkData().getPacketRegistryContainer(), tcpBuffer, null);
+            if (context != null) {
+                context.packetType = PacketType.TCP;
+                context.channel = this;
+                context.networkSide = getSide();
+                onPacketReceived(context);
+            } else {
+                tcpBuffer.resetReaderIndex();
+                break;
+            }
+        }
+    }
+
+    /**
+     * Override {@link #activateOption(ChannelOption, Object)} to handle setting options.
+     * @param option
+     * @param value
+     * @param <T>
+     */
+    @Override
+    public final <T> void setChannelOption(ChannelOption<T> option, T value) {
+        optionObjectMap.put(option, value);
+        activateOption(option, value);
+    }
+
+    @Override
+    public final <T> T getChannelOption(ChannelOption<T> option) {
+        return (T) optionObjectMap.get(option);
+    }
+
+
+
+    /**
+     * Overriding methods should call super.activateOption(option, value)
+     * Ex:
+     * if(super.activateOption(option, value)) return true;
+     * //otherwise, do your own stuff/test other options
+     * @param option
+     * @param value
+     * @param <T>
+     * @return true if the option was activated, false if it was not supported
+     */
+    protected <T> boolean activateOption(ChannelOption<T> option, T value){
+        if(option==ChannelOption.MAX_UDP_PAYLOAD_SIZE){ maxUDPPayloadSize = (Integer) value; return true; }
+        else if(option==ChannelOption.MAX_UDP_PACKET_SIZE){ maxUDPPayloadSize = (Integer) value; return true; }
+
+        else if(option==ChannelOption.DEFAULT_TCP){ defaultTCP = (Boolean) value; return true; }
+        else if(option==ChannelOption.DEFAULT_UDP){ defaultUDP = (Boolean) value; return true; }
+        else if(option==ChannelOption.DEFAULT_SWITCH_PROTOCOL){ defaultSwitchProtocol = (Boolean) value; return true; }
+
+        else if(option==ChannelOption.TCP_AUTO_FLUSH){ autoFlushTCP = (Boolean) value; return true; }
+        else if(option==ChannelOption.UDP_AUTO_FLUSH){ autoFlushUDP = (Boolean) value; return true; }
+
+        return false;
     }
 
     @Override
@@ -159,6 +284,20 @@ public abstract class BaseChannel implements Channel {
     @Override
     public boolean isUDPClosed() {
         return !isUDPOpen();
+    }
+
+    @Override
+    public NetworkSide getSide() {
+        return networkSide;
+    }
+
+    public abstract RestFuture<?, Channel> flushUDP();
+
+    public abstract RestFuture<?, Channel> flushTCP();
+
+    @Override
+    public RestFuture<?, Channel> flush() {
+        return flushTCP().then((RestFuture<Channel, ?>) flushUDP());
     }
 
     protected abstract void sendTCP(byte[] data, int offset, int length) throws IOException;

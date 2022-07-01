@@ -1,7 +1,7 @@
 package com.hirshi001.networking.network.client;
 
 import com.hirshi001.networking.network.channel.Channel;
-import com.hirshi001.networking.network.NetworkSide;
+import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelListener;
 import com.hirshi001.networking.network.channel.ChannelOption;
@@ -28,11 +28,11 @@ public interface Client extends NetworkSide{
 
     Channel getChannel();
 
-    public RestFuture<?, PacketHandlerContext<?>> sendTCP(Packet packet, PacketRegistry registry);
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP(P packet, PacketRegistry registry);
 
     public RestFuture<?, PacketHandlerContext<?>> sendTCPWithResponse(Packet packet, PacketRegistry registry, long timeout);
 
-    public RestFuture<?, PacketHandlerContext<?>> sendUDP(Packet packet, PacketRegistry registry);
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP(P packet, PacketRegistry registry);
 
     public RestFuture<?, PacketHandlerContext<?>> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout);
 

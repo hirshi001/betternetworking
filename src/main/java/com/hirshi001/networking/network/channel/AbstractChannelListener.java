@@ -1,6 +1,7 @@
-package com.hirshi001.networking.network.client;
+package com.hirshi001.networking.network.channel;
 
 import com.hirshi001.networking.network.channel.ChannelListener;
+import com.hirshi001.networking.network.client.Client;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 
 public class AbstractChannelListener implements ChannelListener {

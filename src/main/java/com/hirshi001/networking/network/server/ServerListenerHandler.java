@@ -2,17 +2,18 @@ package com.hirshi001.networking.network.server;
 
 import com.hirshi001.networking.network.ListenerHandler;
 import com.hirshi001.networking.network.channel.Channel;
+import com.hirshi001.networking.network.networkside.NetworkSideListenerHandler;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 
 import java.util.Collection;
 
-public class ServerListenerHandler extends ListenerHandler<ServerListener> implements ServerListener {
+public class ServerListenerHandler<T extends ServerListener> extends NetworkSideListenerHandler<T> implements ServerListener {
 
     public ServerListenerHandler() {
         super();
     }
 
-    public ServerListenerHandler(Collection<ServerListener> listeners) {
+    public ServerListenerHandler(Collection<T> listeners) {
         super(listeners);
     }
 

@@ -5,13 +5,12 @@ import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelListener;
 import com.hirshi001.networking.network.channel.ChannelListenerHandler;
 import com.hirshi001.networking.network.channel.ChannelOption;
+import com.hirshi001.networking.network.networkside.NetworkSideListener;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.restapi.RestFuture;
-
-import java.net.InetAddress;
 
 public abstract class BaseClient implements Client {
 
@@ -19,14 +18,14 @@ public abstract class BaseClient implements Client {
     private final BufferFactory bufferFactory;
     private final String host;
     private final int port;
-    protected final ChannelListenerHandler clientListenerHandler;
+    protected final ChannelListenerHandler<ChannelListener> clientListenerHandler;
     protected ChannelInitializer channelInitializer;
 
 
     public BaseClient(NetworkData networkData, BufferFactory bufferFactory, String host, int port) {
         this.networkData = networkData;
         this.bufferFactory = bufferFactory;
-        this.clientListenerHandler = new ChannelListenerHandler();
+        this.clientListenerHandler = new ChannelListenerHandler<>();
         this.host = host;
         this.port = port;
     }
@@ -63,7 +62,7 @@ public abstract class BaseClient implements Client {
     }
 
     @Override
-    public RestFuture<?, PacketHandlerContext<?>> sendTCP(Packet packet, PacketRegistry registry) {
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP(P packet, PacketRegistry registry) {
         return getChannel().sendTCP(packet, registry);
     }
 
@@ -73,7 +72,7 @@ public abstract class BaseClient implements Client {
     }
 
     @Override
-    public RestFuture<?, PacketHandlerContext<?>> sendUDP(Packet packet, PacketRegistry registry) {
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP(P packet, PacketRegistry registry) {
         return getChannel().sendUDP(packet, registry);
     }
 
@@ -117,4 +116,8 @@ public abstract class BaseClient implements Client {
         clientListenerHandler.removeAll(listeners);
     }
 
+    @Override
+    public ChannelListenerHandler<ChannelListener> getListenerHandler() {
+        return clientListenerHandler;
+    }
 }

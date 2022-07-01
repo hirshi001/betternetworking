@@ -13,6 +13,12 @@ public interface ChannelSet<T extends Channel> extends Set<T> {
 
     public RestFuture<?, DefaultChannelSet<T>> sendUDPToAll(Packet packet, PacketRegistry packetRegistry);
 
+    public void flushTCP();
+
+    public void flushUDP();
+
+    public void flush();
+
     public Server getServer();
 
     public void setMaxSize(int size);
