@@ -12,14 +12,11 @@ public abstract class Packet implements ByteBufSerializable {
 
     @Override
     public void writeBytes(ByteBuffer out){
-        out.writeInt(sendingId);
-        out.writeInt(receivingId);
+
     }
 
     @Override
     public void readBytes(ByteBuffer in){
-        sendingId = in.readInt();
-        receivingId = in.readInt();
     }
 
     /**
