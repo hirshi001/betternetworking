@@ -197,7 +197,7 @@ public abstract class BaseChannel implements Channel {
         if(maxUDPPayloadSize >=0 && packet.readableBytes()>maxUDPPayloadSize) return;
         PacketEncoderDecoder encoderDecoder = getSide().getNetworkData().getPacketEncoderDecoder();
 
-        PacketHandlerContext context = encoderDecoder.decode(getSide().getNetworkData().getPacketRegistryContainer(), tcpBuffer, null);
+        PacketHandlerContext context = encoderDecoder.decode(getSide().getNetworkData().getPacketRegistryContainer(), packet, null);
         if (context != null) {
             context.packetType = PacketType.UDP;
             context.channel = this;
