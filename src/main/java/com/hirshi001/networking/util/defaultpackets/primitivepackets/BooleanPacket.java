@@ -5,7 +5,7 @@ import com.hirshi001.networking.packet.Packet;
 
 public class BooleanPacket extends Packet {
 
-    private boolean value;
+    public boolean value;
 
     public BooleanPacket() {
         super();
