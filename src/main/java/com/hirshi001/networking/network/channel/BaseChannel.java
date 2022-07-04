@@ -199,7 +199,7 @@ public abstract class BaseChannel implements Channel {
 
         PacketHandlerContext context = encoderDecoder.decode(getSide().getNetworkData().getPacketRegistryContainer(), tcpBuffer, null);
         if (context != null) {
-            context.packetType = PacketType.TCP;
+            context.packetType = PacketType.UDP;
             context.channel = this;
             context.networkSide = getSide();
             onPacketReceived(context);
