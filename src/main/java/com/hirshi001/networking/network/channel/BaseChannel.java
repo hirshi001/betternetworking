@@ -56,7 +56,7 @@ public abstract class BaseChannel implements Channel {
         context.networkSide = getSide();
         context.packetRegistry = registry;
         context.packetHandler = null;
-        context.packetType = PacketType.TCP;
+        context.packetType = null;
         return context;
     }
 
@@ -73,6 +73,7 @@ public abstract class BaseChannel implements Channel {
     private <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP0(P packet, PacketRegistry registry) {
         return RestFuture.create(() -> {
             PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
+            context.packetType = PacketType.TCP;
             ByteBuffer buffer = toBytes(packet, registry);
             if (buffer.hasArray()) {
                 sendTCP(buffer.array(), buffer.readerIndex(), buffer.readableBytes());
@@ -111,6 +112,7 @@ public abstract class BaseChannel implements Channel {
     private <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP0(P packet, PacketRegistry registry){
         return RestFuture.create(() -> {
             PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
+            context.packetType = PacketType.UDP;
             ByteBuffer buffer = toBytes(packet, registry);
             if (buffer.hasArray()) {
                 sendUDP(buffer.array(), buffer.readerIndex(), buffer.readableBytes());
