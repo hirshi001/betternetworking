@@ -25,5 +25,7 @@ public interface ChannelSet<T extends Channel> extends Set<T> {
 
     public int getMaxSize();
 
+    public Object getLock();
+
 
 }

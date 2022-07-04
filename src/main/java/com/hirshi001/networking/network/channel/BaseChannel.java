@@ -298,6 +298,18 @@ public abstract class BaseChannel implements Channel {
     public abstract RestFuture<?, Channel> flushTCP();
 
     @Override
+    public RestFuture<?, Channel> close() {
+        return RestFuture.create(()->{
+            stopTCP().perform();
+            stopUDP().perform();
+            if(getSide().isServer()){
+                getSide().asServer().getClients().remove(this);
+            }
+            return this;
+        });
+    }
+
+    @Override
     public RestFuture<?, Channel> flush() {
         return flushTCP().then((RestFuture<Channel, ?>) flushUDP());
     }

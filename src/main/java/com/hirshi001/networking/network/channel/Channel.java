@@ -87,6 +87,12 @@ public interface Channel{
 
     public RestFuture<?, Channel> stopUDP();
 
+    /**
+     * Once closed, a server cannot reopen the channel and the channel will be removed, however a client can reopen the channel.
+     * @return A RestFuture which will close the channel when performed.
+     */
+    public RestFuture<?, Channel> close();
+
     public boolean isTCPOpen();
 
     public boolean isUDPOpen();
