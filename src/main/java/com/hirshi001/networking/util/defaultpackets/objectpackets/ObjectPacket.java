@@ -7,7 +7,7 @@ import java.io.*;
 
 public class ObjectPacket<T> extends Packet {
 
-    private T object;
+    public T object;
     private Throwable cause;
     private boolean failed;
 
