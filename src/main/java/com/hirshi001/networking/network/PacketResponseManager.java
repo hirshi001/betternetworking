@@ -39,7 +39,8 @@ public class PacketResponseManager {
         if(receivingId<0) return;
         RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> future = packetResponses.remove(context.packet.receivingId);
         if(future!=null){
-            future.taskFinished(context);
+            future.perform(context);
+            //future.taskFinished(context);
         }
     }
 
