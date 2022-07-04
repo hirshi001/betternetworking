@@ -132,7 +132,7 @@ public abstract class BaseChannel implements Channel {
     public RestFuture<?, PacketHandlerContext<?>> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
         return RestFuture.create((future, input)->{
             packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS, future);
-            sendUDP(packet, registry);
+            sendUDP(packet, registry).perform();
         });
     }
 
