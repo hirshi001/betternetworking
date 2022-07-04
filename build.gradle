@@ -29,7 +29,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.1"
 
-    api 'com.github.hirshi001:restapi:b50be1d3cd'
+    api 'com.github.hirshi001:restapi:75488bbbdf'
     api 'com.github.hirshi001:bytebuffer:556c6ade18'
 }
 
