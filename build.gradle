@@ -29,11 +29,20 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.1"
 
-    api 'com.github.hirshi001:restapi:-SNAPSHOT'
-    api 'com.github.hirshi001:bytebuffer:-SNAPSHOT'
+    api('com.github.hirshi001:restapi:-SNAPSHOT'){
+        changing = true
+    }
+    api('com.github.hirshi001:bytebuffer:-SNAPSHOT'){
+        changing = true
+    }
 }
 
 test {
     useJUnitPlatform()
     testLogging.showStandardStreams = true
+}
+
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }

@@ -1,16 +1,17 @@
 package com.hirshi001.networking.network.channel;
 
-import com.hirshi001.networking.network.client.Client;
 import com.hirshi001.networking.network.networkside.NetworkSideListener;
 
 public interface ChannelListener extends NetworkSideListener {
 
-    public void onTCPConnect(Client client);
+    public void onTCPConnect(Channel channel);
 
-    public void onTCPDisconnect(Client client);
+    public void onTCPDisconnect(Channel channel);
 
-    public void onUDPStart(Client client);
+    public void onUDPStart(Channel channel);
 
-    public void onUDPStop(Client client);
+    public void onUDPStop(Channel channel);
+
+    public void onChannelClose(Channel channel);
 
 }

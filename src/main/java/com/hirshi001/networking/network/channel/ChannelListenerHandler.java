@@ -17,26 +17,6 @@ public class ChannelListenerHandler<T extends ChannelListener> extends NetworkSi
     }
 
     @Override
-    public void onTCPConnect(Client client) {
-        forEachListener(l -> l.onTCPConnect(client));
-    }
-
-    @Override
-    public void onTCPDisconnect(Client client) {
-        forEachListener(l -> l.onTCPDisconnect(client));
-    }
-
-    @Override
-    public void onUDPStart(Client client) {
-        forEachListener(l -> l.onUDPStart(client));
-    }
-
-    @Override
-    public void onUDPStop(Client client) {
-        forEachListener(l -> l.onUDPStop(client));
-    }
-
-    @Override
     public void onTCPSent(PacketHandlerContext<?> context) {
         forEachListener(l -> l.onTCPSent(context));
     }
@@ -64,5 +44,30 @@ public class ChannelListenerHandler<T extends ChannelListener> extends NetworkSi
     @Override
     public void onReceived(PacketHandlerContext<?> context) {
         forEachListener(l -> l.onReceived(context));
+    }
+
+    @Override
+    public void onTCPConnect(Channel channel) {
+        forEachListener(l -> l.onTCPConnect(channel));
+    }
+
+    @Override
+    public void onTCPDisconnect(Channel channel) {
+        forEachListener(l -> l.onTCPDisconnect(channel));
+    }
+
+    @Override
+    public void onUDPStart(Channel channel) {
+        forEachListener(l -> l.onUDPStart(channel));
+    }
+
+    @Override
+    public void onUDPStop(Channel channel) {
+        forEachListener(l -> l.onUDPStop(channel));
+    }
+
+    @Override
+    public void onChannelClose(Channel channel) {
+        forEachListener(l -> l.onChannelClose(channel));
     }
 }

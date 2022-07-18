@@ -27,6 +27,8 @@ public abstract class BaseChannel implements Channel {
 
     private final Map<ChannelOption, Object> optionObjectMap;
 
+    private Object attachedObject;
+
     private boolean autoFlushTCP = false;
     private boolean autoFlushUDP = false;
 
@@ -305,6 +307,7 @@ public abstract class BaseChannel implements Channel {
             if(getSide().isServer()){
                 getSide().asServer().getClients().remove(this);
             }
+            getListenerHandler().onChannelClose(this);
             return this;
         });
     }
@@ -312,6 +315,17 @@ public abstract class BaseChannel implements Channel {
     @Override
     public RestFuture<?, Channel> flush() {
         return flushTCP().then((RestFuture<Channel, ?>) flushUDP());
+    }
+
+    @Override
+    public Channel attach(Object attachment) {
+        this.attachedObject = attachment;
+        return this;
+    }
+
+    @Override
+    public Object getAttachment() {
+        return attachedObject;
     }
 
     protected abstract void sendTCP(byte[] data, int offset, int length) throws IOException;

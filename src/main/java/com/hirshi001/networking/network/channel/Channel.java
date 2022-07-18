@@ -112,4 +112,8 @@ public interface Channel{
     default boolean supportsTCP(){
         return getSide().supportsTCP();
     }
+
+    public Channel attach(Object attachment);
+
+    public Object getAttachment();
 }
