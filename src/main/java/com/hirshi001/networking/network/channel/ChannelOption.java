@@ -36,6 +36,11 @@ public class ChannelOption<T> extends Option<T> {
     public static final ChannelOption<Boolean> TCP_AUTO_FLUSH = new ChannelOption<>("tcp_auto_flush", Boolean.class); //if true, will flush tcp packets automatically
     public static final ChannelOption<Boolean> UDP_AUTO_FLUSH = new ChannelOption<>("udp_auto_flush", Boolean.class); //if true, will flush udp packets automatically
 
+    //timeout for when a packet is not received
+    public static final ChannelOption<Integer> PACKET_TIMEOUT = new ChannelOption<>("packet_timeout", Integer.class);
+    public static final ChannelOption<Integer> UDP_PACKET_TIMEOUT = new ChannelOption<>("udp_packet_timeout", Integer.class);
+    public static final ChannelOption<Integer> TCP_PACKET_TIMEOUT = new ChannelOption<>("tcp_packet_timeout", Integer.class);
+
 
     public ChannelOption(String name, Class<T> type) {
         super(name, type);
