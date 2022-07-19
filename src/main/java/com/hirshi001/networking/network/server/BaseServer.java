@@ -83,6 +83,7 @@ public abstract class BaseServer<T extends Channel> implements Server{
             if (channelInitializer != null) {
                 channelInitializer.initChannel(channel);
             }
+            getListenerHandler().onClientConnect(this, channel);
             return true;
         }
         return false;

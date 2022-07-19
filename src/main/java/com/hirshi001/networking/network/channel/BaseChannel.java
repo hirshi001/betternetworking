@@ -3,6 +3,7 @@ package com.hirshi001.networking.network.channel;
 import com.hirshi001.buffer.buffers.ByteBuffer;
 import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.network.PacketResponseManager;
+import com.hirshi001.networking.network.server.Server;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packetdecoderencoder.PacketEncoderDecoder;
@@ -310,10 +311,12 @@ public abstract class BaseChannel implements Channel {
     @Override
     public RestFuture<?, Channel> close() {
         return RestFuture.create(()->{
-            stopTCP().perform();
-            stopUDP().perform();
+            if(!isTCPClosed()) stopTCP().perform();
+            if(!isUDPClosed()) stopUDP().perform();
             if(getSide().isServer()){
-                getSide().asServer().getClients().remove(this);
+                Server server = getSide().asServer();
+                server.getClients().remove(this);
+                server.getListenerHandler().onClientDisconnect(server, this);
             }
             getListenerHandler().onChannelClose(this);
             return this;
