@@ -29,15 +29,19 @@ public abstract class BaseChannel implements Channel {
 
     private Object attachedObject;
 
-    private boolean autoFlushTCP = false;
-    private boolean autoFlushUDP = false;
+    protected boolean autoFlushTCP = false;
+    protected boolean autoFlushUDP = false;
 
-    private boolean defaultTCP = false;
-    private boolean defaultUDP = false;
-    private boolean defaultSwitchProtocol = false;
+    protected boolean defaultTCP = false;
+    protected boolean defaultUDP = false;
+    protected boolean defaultSwitchProtocol = false;
 
-    private int maxUDPPayloadSize = -1; // -1 means no limit
-    private int maxUDPPacketSize = -1; // -1 means no limit
+    protected int maxUDPPayloadSize = -1; // -1 means no limit
+    protected int maxUDPPacketSize = -1; // -1 means no limit
+
+    protected int packetTimeout = -1; // -1 means no timeout
+    protected int udpPacketTimeout = -1; // -1 means no timeout
+    protected int tcpPacketTimeout = -1; // -1 means no timeout
 
     private final ByteBuffer tcpBuffer;
 
@@ -266,6 +270,10 @@ public abstract class BaseChannel implements Channel {
 
         else if(option==ChannelOption.TCP_AUTO_FLUSH){ autoFlushTCP = (Boolean) value; return true; }
         else if(option==ChannelOption.UDP_AUTO_FLUSH){ autoFlushUDP = (Boolean) value; return true; }
+
+        else if(option==ChannelOption.PACKET_TIMEOUT){ packetTimeout = (Integer) value; return true; }
+        else if(option==ChannelOption.UDP_PACKET_TIMEOUT){ udpPacketTimeout = (Integer) value; return true; }
+        else if(option==ChannelOption.TCP_PACKET_TIMEOUT){ udpPacketTimeout = (Integer) value; return true; }
 
         return false;
     }
