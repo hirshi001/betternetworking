@@ -46,11 +46,7 @@ public class ExampleUsage {
                 IntegerPacket random = new IntegerPacket(ThreadLocalRandom.current().nextInt(packet.value));
                 random.setResponsePacket(packet);
                 context.channel.sendTCP(random, null).perform();
-            try {
                 context.channel.flushTCP();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }, IntegerPacket.class, 0);
         NetworkData serverNetworkData = new DefaultNetworkData(packetEncoderDecoder, serverContainer);
 
