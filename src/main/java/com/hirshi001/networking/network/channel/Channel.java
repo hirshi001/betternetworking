@@ -51,12 +51,12 @@ public interface Channel{
     /**
      * Attempts to send all bytes in the channel's buffer.
      */
-    public RestFuture<?, Channel> flushUDP() throws IOException;
+    public RestFuture<?, Channel> flushUDP();
 
     /**
      * Attempts to send all bytes in the channel's buffer.
      */
-    public RestFuture<?, ?> flushTCP() throws IOException;
+    public RestFuture<?, ?> flushTCP();
 
     /**
      * Flushes tcp and udp.

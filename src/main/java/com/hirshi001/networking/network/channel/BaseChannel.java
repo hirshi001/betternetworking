@@ -311,6 +311,7 @@ public abstract class BaseChannel implements Channel {
     @Override
     public RestFuture<?, Channel> close() {
         return RestFuture.create(()->{
+            if(isClosed()) return this;
             if(!isTCPClosed()) stopTCP().perform();
             if(!isUDPClosed()) stopUDP().perform();
             if(getSide().isServer()){
