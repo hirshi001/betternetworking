@@ -3,10 +3,10 @@ A networking library interface/template for Java to be used on any platform.
 
 ## Sections
 * [Features](#Features)
-* [Example](#Examples)
-  * [Shared](#Shared Module)
-  * [Core](#Core Module)
-  * [Platform-Dependent Core Initializer](#Core Initializer (Platform Dependent))
+* [Example](#Example)
+  * [Shared](#Shared-Module)
+  * [Core](#Core-Module)
+  * [Platform-Dependent Core Initializer](#Platform-Dependent-Core-Initializer)
   * [Server](#Server Module)
 
 ## Features
@@ -148,16 +148,22 @@ and then we handle it. In the end, we call .perform() to start the task.
 8. Because the call to .perform() is non-blocking, the current thread will continue to execute.
 
 
-### Core Initializer (Platform Dependent)
+### Platform Dependent Core Initializer
+This example is for when using a JavaNetworkingLibrary.
 
 ```java
-
+public class JavaCoreInitializer{
+    public static void main(String[] args) {
+        NetworkFactory networkFactory = new JavaNetworkFactory();
+        BufferFactory bufferFactory = new DefaultBufferFactory();
+        new Core().start(networkFactory, bufferFactory);
+    }
+}
 ```
 
 ### Server Module
 
 ```java
-
 import java.util.concurrent.TimeUnit;
 
 public class MainServer implements Runnable {
