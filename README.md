@@ -3,8 +3,11 @@ A networking library interface/template for Java to be used on any platform.
 
 ## Sections
 * [Features](#Features)
-* [Examples](#Examples)
-* [Server](#Server Module)
+* [Example](#Examples)
+  * [Shared](#Shared Module)
+  * [Core](#Core Module)
+  * [Platform-Dependent Core Initializer](#Core Initializer (Platform Dependent))
+  * [Server](#Server Module)
 
 ## Features
 - Single-threaded functionality \(it can be implemented on Html/GWT\)
@@ -143,6 +146,13 @@ max time to wait for a response from the server before the onFailure callback is
 since we know that the server should respond with a StringPacket, we use the map method to map the response to a StringPacket,
 and then we handle it. In the end, we call .perform() to start the task.
 8. Because the call to .perform() is non-blocking, the current thread will continue to execute.
+
+
+### Core Initializer (Platform Dependent)
+
+```java
+
+```
 
 ### Server Module
 
