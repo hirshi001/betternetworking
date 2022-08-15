@@ -7,7 +7,10 @@ A networking library interface/template for Java to be used on any platform.
   * [Shared](#Shared-Module)
   * [Core](#Core-Module)
   * [Platform-Dependent Core Initializer](#Platform-Dependent-Core-Initializer)
-  * [Server](#Server Module)
+  * [Server](#Server-Module)
+* [Platform Dependent Implemented Libraries](#Platform-Dependent-Implemented-Libraries)
+* [Dependencies](#Dependencies)
+
 
 ## Features
 - Single-threaded functionality \(it can be implemented on Html/GWT\)
@@ -218,7 +221,9 @@ public class MainServer implements Runnable {
     public void handleDatePacket(PacketHandlerContext<DatePacket> ctx) {
         System.out.println("Server received: " + ctx.packet.value);
         Date date = ctx.packet.date;
-        ctx.channel.sendTCP(new StringPacket("Hello from the server. Client's date is " + date).setResponsePacket(ctx.packet), null).perform;
+        Packet packet = new StringPacket("Hello from the server. Client's date is " + date);
+        packet.setResponsePacket(ctx.packet);
+        ctx.channel.sendTCP(packet, null).perform();
     }
 
 }
@@ -236,3 +241,30 @@ we make sure to register a handler for that packet type \(this::handleDatePacket
 5. Set the channelInitializer which is called whenever a client connects to the Server.
 6. This options makes it so the Server will close the channel after 1 minute of not receiving packets on the channel.
 7. Start receiving TCP connections/packets.
+
+## Platform Dependent Implemented Libraries
+You can use these already implemented platform dependent libraries.
+* [JavaNetworkingLibrary](https://github.com/hirshi001/JavaNetworkingLibrary) - For Java
+* HTML/GWT Library- For GWT projects \(not implemented yet\)
+
+## Dependencies
+This library and [Platform Dependent Implemented Libraries](#platform-dependent-implemented-libraries) can be implemented through Jitpack.
+Make sure the Platform Dependent Library has the same corresponding version of this Library as implemented in the Core module.
+* [Jitpack](https://jitpack.io/)
+* [BetterNetworking](https://jitpack.io/#hirshi001/betternetworking)
+* [JavaNetworkingLibrary](https://jitpack.io/#hirshi001/JavaNetworkingLibrary)
+
+### Versions
+These are the corresponding versions of each library on jitpack.io. Make sure you only use the versions in the same row.
+The top most row is the latest/most up to date version. Other versions found on jitpack.io are not guaranteed to work.
+
+|NetworkingLibrary|JavaNetworkingLibrary|HTML/GWT Library|ByteBuffer|RestAPI|
+|---|---|---|---|---|
+|917245e07f (Latest Version)|848bc95c99|N/A|c7cecbed69|9d6f540f25|
+
+### Other Libraries
+These are some libraries this library depends on. These libraries are relatively new and may contain bugs, thus affecting
+this NetworkingLibrary and implementations of it.
+* [ByteBuffer](https://github.com/hirshi001/ByteBuffer)
+* [RestAPI](https://github.com/hirshi001/RestAPI)
+
