@@ -193,7 +193,7 @@ dependencies{
 public class JavaCoreInitializer{
     public static void main(String[] args) {
       BufferFactory bufferFactory = new DefaultBufferFactory();
-      ScheduledExecutorService executorService = Executors.newScheduledThreadPool(3);
+      ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
       NetworkFactory networkFactory = new JavaNetworkFactory(executorService);
       new Core().start(networkFactory, bufferFactory);
     }
