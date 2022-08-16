@@ -8,8 +8,22 @@ A networking library interface/template for Java to be used on any platform.
   * [Core](#Core-Module)
   * [Platform-Dependent Core Initializer](#Platform-Dependent-Core-Initializer)
   * [Server](#Server-Module)
+* [In-Depth Explation](#In-Depth-Explation)
+  * [NetworkingSide](#NetworkingSide)
+  * [Client](#Client)
+  * [Server](#Server)
+  * [Channel](#Chanel)
+  * [TCP](#TCP)
+  * [UDP](#UDP)
+  * [Packet](#Packet)
+  * [PacketHandlerContext](#PacketHandlerContext)
+  * [PacketRegistry](#PacketRegistry)
+  * [PacketRegistryContainer](#PacketRegistryContainer)
+  * [PacketEncoderDecoder](#PacketEncoderDecoder)
+  * [NetworkData](#NetworkData)
 * [Platform Dependent Implemented Libraries](#Platform-Dependent-Implemented-Libraries)
 * [Dependencies](#Dependencies)
+* [License](#License)
 
 
 ## Features
@@ -20,9 +34,23 @@ A networking library interface/template for Java to be used on any platform.
 - Mulit platform support \(needs to be implemented\)
 
 ## Example
-Here we have a program where the Client (Core Module) sends a DatePacket to Server (Server Module) and the Server responds with a StringPacket.
+Here we have a program where the Client (Core Module) sends a DatePacket to Server (Server Module) and the Server responds with a StringPacket.   
 
+Implemented using gradle. Make sure to add jitpack.io to your repositories.                                                                                
+gradle.properties file: (Check [Dependencies](#Dependencies) section for the latest versions)
+```properties
+javaNetworkingLibraryVersion=848bc95c99                           
+betterNetworkingVersion=917245e07f
+```
 ### Shared Module
+build.gradle file:
+```groovy
+dependencies{
+    api "com.github.hirshi001:betternetworking:$betterNetworkingVersion"    
+}
+```
+
+Classes
 ```java
 public class NetworkSettings{
     public static final int PORT = 5555;
@@ -32,16 +60,13 @@ public class NetworkSettings{
 
 
 ```java
-import java.util.Date;
-import com.hirshi001.networking.packet.Packet;
-
 public class DatePacket extends Packet { // (1)
 
     public Date date; // (2)
 
-    public ExamplePacket() {}
+    public DatePacket() {}
 
-    public ExamplePacket(Date date) {
+    public DatePacket(Date date) {
         this.date = date;
     }
 
@@ -64,11 +89,15 @@ public class DatePacket extends Packet { // (1)
 
 ### Core Module
 
-```java
-import com.hirshi001.networking.network.NetworkFactory;
-import com.hirshi001.networking.network.client.Client;
-import com.hirshi001.buffer.bufferfactory.BufferFactory;
+build.gradle file:
+```groovy                                                                      
+dependencies{                                                                  
+    api project('shared') //depency on the shared module       
+}                                                                            
+```
 
+Classes
+```java
 public class Core {
 
     public NetworkFactory networkFactory; //use this to create clients and servers (if supported)
@@ -152,7 +181,13 @@ and then we handle it. In the end, we call .perform() to start the task.
 
 
 ### Platform Dependent Core Initializer
-This example is for when using a JavaNetworkingLibrary.
+
+```groovy                                                                      
+dependencies{                                                                  
+    api "com.github.hirshi001:betternetworking:$javaNetworkingLibraryVersion" //platform dependent dependency
+    api project('core') //depency on the core module       
+}
+```                                                                              
 
 ```java
 public class JavaCoreInitializer{
@@ -165,10 +200,13 @@ public class JavaCoreInitializer{
 ```
 
 ### Server Module
-
+```groovy                                                                      
+dependencies{                                                                  
+    api "com.github.hirshi001:betternetworking:$javaNetworkingLibraryVersion" //platform dependent dependency
+    api project('shared') //depency on the shared module       
+}
+```                                                                              
 ```java
-import java.util.concurrent.TimeUnit;
-
 public class MainServer implements Runnable {
 
     public static NetworkFactory networkFactory;
@@ -242,6 +280,104 @@ we make sure to register a handler for that packet type \(this::handleDatePacket
 6. This options makes it so the Server will close the channel after 1 minute of not receiving packets on the channel.
 7. Start receiving TCP connections/packets.
 
+## In Depth Explanation
+
+### Network Side
+A network side is an object responsible for making connections, sending and receiving packets, and closing connections.
+Server and Client are examples of network sides.
+### Client
+A network side which can connect to a server. When a connection is made, a channel is created which can be used to 
+send packets to the server. The same channel is used to send/receive udp and tcp packets.
+Clients can reopen tcp and udp connections to a server after they are closed.
+
+### Server
+A network side which can accept connections from clients. When a connection is made, a channel is created which can
+be used to receive packets from the client. The same channel is used to send/receive udp and tcp packets.
+A server can only reopen a udp connection to a client after it is closed by using the corresponding channel object to the client.
+
+### Channel
+A channel is a communication channel between a client and a server. A channel is created when a connection is made, 
+and is used to send and receive tcp and udp packets.
+
+### UDP
+A protocol which is used to send and receive packets over a network. UDP packets are not guaranteed to arrive and may 
+arrive in a different order than they were sent. UDP connections are not supported on HTML/GWT/JavaScript platforms,
+however, by setting ChannelOption.DEFAULT_SWITCH_PROTOCOL or ChannelOption.DEFAULT_TCP, if udp is not supported, when a
+udp packet is sent it will be sent over tcp.
+
+### TCP
+A protocol which is used to send and receive packets over a network. TCP packets are guaranteed to arrive in the same order
+they were sent. TCP connections are usually supported on all platforms, but by using ChannelOption.DEFAULT_SWITCH_PROTOCOL or
+ChannelOption.DEFAULT_UDP, if tcp is not supported, when a tcp packet is sent it will be sent over udp.
+
+### ChannelOption
+A set of options which can be used to configure a channel.
+
+### Packets
+A packet is a data structure which is used to send and receive data over a network. All packets must extend the Packet
+class and should override the writeBytes and readBytes methods. They should also have an empty constructor, but it is not
+required.  
+Example:
+
+```java
+public class DatePacket extends Packet {
+  public Date date;
+
+  public DatePacket() {
+  }
+  
+  public DatePacket(Date date) {
+    this.date = date;
+  }
+
+  @Override
+  public void writeBytes(ByteBuffer buffer){
+    buffer.writeLong(date.getTime());
+  }
+  @Override
+  public void readBytes(ByteBuffer buffer){
+    date = new Date(buffer.readLong());
+  }
+}
+```
+
+### PacketHandlerContext
+When a packet is received or sent, a packet handler context is created. It provides additional data about the packet, such as
+the channel it was sent on, the protocol (tcp vs udp), the network side (client or server), the packet registry, and the
+packet itself. When handling a packet, the packet handler context is passed to the handler method.
+
+```java
+public class MainServer {
+  public static void handleDataPacket(PacketHandlerContext<DatePacket> ctx) {
+    DatePacket packet = ctx.packet;
+    Channel channel = ctx.channel;
+    NetworkSide side = ctx.networkSide;
+    Server server = side.asServer(); // we can do this since we know this is a server
+    PacketRegistry registry = ctx.packetRegistry;
+  }
+}
+```
+
+### PacketRegistry
+Used to register packets which you want to send and receive on a network side.
+
+### PacketRegistryContainer
+Used to create and store multiple packet registries. A network side can have multiple packet registries, so it uses a 
+PacketRegistryContainer to do so. There are 2 types of PacketRegistryContainers:
+1. SinglePacketRegistryContainer - used when you only want to use one packet registry. Use getDefaultRegistry() to get the default registry.
+2. MultiPacketRegistryContainer - used when you want to use multiple packet registries. You can add your own PacketRegistries
+or use the default registry.
+
+### PacketEncoderDecoder
+Used to encode and decode packets to and from bytes. You can create and use your own PacketEncoderDecoder or use the
+default one, SimplePacketEncoderDecoder.
+
+### NetworkData
+A light wrapper over PacketEncodeDecoder and PacketRegistryContainer. This is passed to the network side when it is created.
+Use DefaultNetworkData to create a NetworkData object.
+
+
+
 ## Platform Dependent Implemented Libraries
 You can use these already implemented platform dependent libraries.
 * [JavaNetworkingLibrary](https://github.com/hirshi001/JavaNetworkingLibrary) - For Java
@@ -267,4 +403,7 @@ These are some libraries this library depends on. These libraries are relatively
 this NetworkingLibrary and implementations of it.
 * [ByteBuffer](https://github.com/hirshi001/ByteBuffer)
 * [RestAPI](https://github.com/hirshi001/RestAPI)
+
+### License
+This library is released under the Apache 2.0 license found [here](LICENCE).
 
