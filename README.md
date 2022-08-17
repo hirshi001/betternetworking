@@ -397,7 +397,7 @@ The top most row is the latest/most up to date version. Other versions found on 
 
 |NetworkingLibrary|JavaNetworkingLibrary|HTML/GWT Library|ByteBuffer|RestAPI|
 |---|---|---|---|---|
-|917245e07f (Latest Version)|848bc95c99|N/A|c7cecbed69|9d6f540f25|
+|917245e07f (Latest Version)|564d952667|N/A|c7cecbed69|9d6f540f25|
 
 ### Other Libraries
 These are some libraries this library depends on. These libraries are relatively new and may contain bugs, thus affecting
