@@ -31,6 +31,7 @@ public class CharArrayPacket extends Packet {
     public void readBytes(ByteBuffer in) {
         super.readBytes(in);
         int size = in.readInt();
+        array = new int[size];
         for (int i = 0; i < size; i++) {
             array[i] = in.readChar();
         }
