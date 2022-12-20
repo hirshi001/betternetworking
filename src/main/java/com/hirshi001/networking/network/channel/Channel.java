@@ -73,6 +73,25 @@ public interface Channel {
      * @param registry The registry to use for the packet. If null, the default registry will be used.
      * @return A RestFuture which will be performed when the packet is sent
      */
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP(DataPacket<P> packet,
+                                                                             PacketRegistry registry);
+    /**
+     * Writes the given packet to the channel. The contents may or may not be sent immediately.
+     *
+     * @param packet   The packet to write.
+     * @param registry The registry to use for the packet. If null, the default registry will be used.
+     * @return A RestFuture which will be performed when the packet is sent
+     */
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP(DataPacket<P> packet,
+                                                                             PacketRegistry registry);
+
+    /**
+     * Writes the given packet to the channel. The contents may or may not be sent immediately.
+     *
+     * @param packet   The packet to write.
+     * @param registry The registry to use for the packet. If null, the default registry will be used.
+     * @return A RestFuture which will be performed when the packet is sent
+     */
     public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP(P packet,
                                                                              PacketRegistry registry);
 

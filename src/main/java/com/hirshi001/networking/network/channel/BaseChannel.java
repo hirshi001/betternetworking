@@ -99,10 +99,33 @@ public abstract class BaseChannel implements Channel {
             if (defaultTCP) packetType = PacketType.TCP;
             else if (defaultUDP) packetType = PacketType.UDP;
         }
-        if (packetType == PacketType.TCP) return sendTCP0(packet.packet, packet, registry);
-        if (packetType == PacketType.UDP) return sendUDP0(packet.packet, packet, registry);
+        if (packetType == PacketType.TCP) return sendTCP(packet, registry);
+        if (packetType == PacketType.UDP) return sendUDP(packet, registry);
         throw new IllegalArgumentException("PacketType cannot be null unless a proper default type is set");
     }
+
+
+    @Override
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP(DataPacket<P> packet, PacketRegistry registry) {
+        if (supportsTCP()) {
+            return sendTCP0(packet.packet, packet, registry);
+        } else if (supportsUDP() && (defaultSwitchProtocol || defaultUDP)) {
+            return sendUDP0(packet.packet, packet, registry);
+        }
+        throw new UnsupportedOperationException("Cannot send a UDP Packet on this channel");
+    }
+
+    @Override
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP(DataPacket<P> packet, PacketRegistry registry) {
+        if (supportsUDP()) {
+            return sendUDP0(packet.packet, packet, registry);
+        } else if (supportsTCP() && (defaultSwitchProtocol || defaultTCP)) {
+            return sendTCP0(packet.packet, packet, registry);
+        }
+        throw new UnsupportedOperationException("Cannot send a UDP Packet on this channel");
+
+    }
+
 
     // Basic Send
     @Override
@@ -110,7 +133,7 @@ public abstract class BaseChannel implements Channel {
         if (supportsTCP()) {
             return sendTCP0(packet, null, registry);
         } else if (supportsUDP() && (defaultSwitchProtocol || defaultUDP)) {
-            return sendTCP0(packet, null, registry);
+            return sendUDP0(packet, null, registry);
         }
         throw new UnsupportedOperationException("Cannot send a UDP Packet on this channel");
     }

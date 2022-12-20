@@ -115,7 +115,7 @@ public class SimplePacketEncoderDecoder implements PacketEncoderDecoder {
             ByteBuffer buffer = dataPacket.buffer;
             int bufferReaderIndex = buffer.readerIndex();
             out.ensureWritable(buffer.readableBytes());
-            buffer.writeBytes(out);
+            out.writeBytes(buffer);
             buffer.readerIndex(bufferReaderIndex);
         } else packet.writeBytes(out);
 
