@@ -42,9 +42,9 @@ public abstract class BaseChannel implements Channel {
     protected int maxUDPPayloadSize = -1; // -1 means no limit
     protected int maxUDPPacketSize = -1; // -1 means no limit
 
-    protected int packetTimeout = -1; // -1 means no timeout
-    protected int udpPacketTimeout = -1; // -1 means no timeout
-    protected int tcpPacketTimeout = -1; // -1 means no timeout
+    protected long packetTimeout = -1; // -1 means no timeout
+    protected long udpPacketTimeout = -1; // -1 means no timeout
+    protected long tcpPacketTimeout = -1; // -1 means no timeout
 
     private final ByteBuffer tcpBuffer;
 
@@ -372,13 +372,13 @@ public abstract class BaseChannel implements Channel {
             autoFlushUDP = (Boolean) value;
             return true;
         } else if (option == ChannelOption.PACKET_TIMEOUT) {
-            packetTimeout = (Integer) value;
+            packetTimeout = ((Number) value).longValue();
             return true;
         } else if (option == ChannelOption.UDP_PACKET_TIMEOUT) {
-            udpPacketTimeout = (Integer) value;
+            udpPacketTimeout = ((Number) value).longValue();
             return true;
         } else if (option == ChannelOption.TCP_PACKET_TIMEOUT) {
-            udpPacketTimeout = (Integer) value;
+            tcpPacketTimeout = ((Number) value).longValue();
             return true;
         }
 
