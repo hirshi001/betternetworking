@@ -1,7 +1,10 @@
 package com.hirshi001.networking.util;
 
-/*
-A static helper class for putting multiple booleans into a byte and retrieving the booleans from a byte
+/**
+ * A utility class that can be used to compress booleans into bytes and decompress the bytes
+ * back into booleans.
+ *
+ * @author Hirshi001
  */
 public class BooleanCompression {
 

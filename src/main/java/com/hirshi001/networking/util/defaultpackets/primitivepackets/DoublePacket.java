@@ -3,15 +3,24 @@ package com.hirshi001.networking.util.defaultpackets.primitivepackets;
 import com.hirshi001.buffer.buffers.ByteBuffer;
 import com.hirshi001.networking.packet.Packet;
 
+/**
+ * A packet that contains a double.
+ *
+ * @author Hirshi001
+ */
 public class DoublePacket extends Packet {
 
     public double value;
 
+    /**
+     * Creates a new DoublePacket with the value set to 0.
+     */
     public DoublePacket(){
-
+        super();
     }
 
     public DoublePacket(double value){
+        super();
         this.value = value;
     }
 
@@ -29,7 +38,6 @@ public class DoublePacket extends Packet {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) return false;
         if (obj == this) return true;
         if (!(obj instanceof DoublePacket)) return false;
         DoublePacket packet = (DoublePacket) obj;

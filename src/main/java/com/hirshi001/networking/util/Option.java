@@ -1,5 +1,11 @@
 package com.hirshi001.networking.util;
 
+/**
+ * A class where instances of this class should be used to represent an option.
+ * @param <T> The type of the value
+ *
+ * @author Hirshi001
+ */
 public class Option<T> {
 
     private final String name;

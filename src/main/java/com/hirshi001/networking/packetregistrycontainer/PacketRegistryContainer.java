@@ -6,9 +6,10 @@ import com.hirshi001.networking.packetregistry.PacketRegistry;
 import java.util.Collection;
 
 /**
- * @author Hrishikesh Ingle
  * Inteface for classes which store packet registries
  * The default registry will typically have an integer id of 0 and name of "default"
+ *
+ * @author Hrishikesh Ingle
  */
 public interface PacketRegistryContainer {
 

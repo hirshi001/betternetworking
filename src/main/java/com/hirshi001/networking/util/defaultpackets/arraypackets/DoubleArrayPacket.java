@@ -5,13 +5,26 @@ import com.hirshi001.networking.packet.Packet;
 
 import java.util.Arrays;
 
+/**
+ * A packet that contains an array of doubles.
+ *
+ * @author Hirshi001
+ */
 public class DoubleArrayPacket extends Packet {
+
     public double[] array;
 
+    /**
+     * Creates a new DoubleArrayPacket without instantiating the array.
+     */
     public DoubleArrayPacket() {
         super();
     }
 
+    /**
+     * Creates a new DoubleArrayPacket with a reference to the array argument.
+     * @param array the array to reference
+     */
     public DoubleArrayPacket(double[] array) {
         super();
         this.array = array;
@@ -30,8 +43,8 @@ public class DoubleArrayPacket extends Packet {
     public void writeBytes(ByteBuffer buf) {
         super.writeBytes(buf);
         buf.writeInt(array.length);
-        for (int i = 0; i < array.length; i++) {
-            buf.writeDouble(array[i]);
+        for (double d : array) {
+            buf.writeDouble(d);
         }
     }
 

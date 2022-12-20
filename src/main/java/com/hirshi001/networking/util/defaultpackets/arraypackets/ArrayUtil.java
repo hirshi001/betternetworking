@@ -1,8 +1,13 @@
 package com.hirshi001.networking.util.defaultpackets.arraypackets;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 
+/**
+ * A utility class that contains methods for working with arrays, mainly used for array packets but
+ * can be used for other things.
+ *
+ * @author Hirshi001
+ */
 public class ArrayUtil {
 
     public static String toString(Object object, Object array) {

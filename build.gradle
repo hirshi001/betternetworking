@@ -31,6 +31,11 @@ dependencies {
 
     api('com.github.hirshi001:restapi:c7cecbed69')
     api('com.github.hirshi001:bytebuffer:972ce15ed9')
+
+    api 'org.jetbrains:annotations:23.0.0'
+
+    // api 'com.google.guava:guava-gwt:27.0.1-jre'
+
 }
 
 test {

@@ -3,15 +3,28 @@ package com.hirshi001.networking.util.defaultpackets.primitivepackets;
 import com.hirshi001.buffer.buffers.ByteBuffer;
 import com.hirshi001.networking.packet.Packet;
 
+/**
+ * A packet that contains a short.
+ *
+ * @author Hirshi001
+ */
 public class ShortPacket extends Packet {
 
     public short value;
 
+    /**
+     * Creates a new ShortPacket with the value set to 0.
+     */
     public ShortPacket(){
-
+        super();
     }
 
+    /**
+     * Creates a new ShortPacket with the value set to the given value.
+     * @param value the value to set the packet to.
+     */
     public ShortPacket(short value){
+        super();
         this.value = value;
     }
 
@@ -29,7 +42,6 @@ public class ShortPacket extends Packet {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) return false;
         if (obj == this) return true;
         if (!(obj instanceof ShortPacket)) return false;
         ShortPacket packet = (ShortPacket) obj;

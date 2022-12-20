@@ -2,11 +2,13 @@ package com.hirshi001.networking.network.channel;
 
 import com.hirshi001.networking.network.server.Server;
 import com.hirshi001.networking.packet.Packet;
+import com.hirshi001.networking.packethandlercontext.PacketType;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.restapi.RestFuture;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Predicate;
 
 public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
 
@@ -38,7 +40,6 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
         return maxSize;
     }
 
-    @Override
     public RestFuture<?, DefaultChannelSet<T>> sendTCPToAll(Packet packet, PacketRegistry packetRegistry) {
         return RestFuture.create(()->{
             synchronized (lock) {
@@ -50,7 +51,6 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
         });
     }
 
-    @Override
     public RestFuture<?, DefaultChannelSet<T>> sendUDPToAll(Packet packet, PacketRegistry packetRegistry) {
         return RestFuture.create(()->{
             synchronized (lock) {
@@ -62,7 +62,6 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
         });
     }
 
-    @Override
     public void flushTCP() {
         synchronized (lock) {
             for(Channel channel:channels){
@@ -71,13 +70,36 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
         }
     }
 
-    @Override
     public void flushUDP() {
         synchronized (lock) {
             for(Channel channel:channels){
                 channel.flushUDP().perform();
             }
         }
+    }
+
+    @Override
+    public RestFuture<?, DefaultChannelSet<T>> sendToAll(Packet packet, PacketType packetType, PacketRegistry packetRegistry) {
+        return RestFuture.create(()->{
+            synchronized (lock) {
+                for (T channel : channels) {
+                    channel.send(packet, packetRegistry, packetType).perform();
+                }
+            }
+            return this;
+        });
+    }
+
+
+    @Override
+    public RestFuture<?, DefaultChannelSet<T>> sendIf(Packet packet, PacketType packetType, PacketRegistry packetRegistry, Predicate<Channel> predicate) {
+        return null;
+    }
+
+    @Override
+    public void flush(PacketType type) {
+        if(type==PacketType.TCP) flushTCP();
+        else if(type==PacketType.UDP) flushUDP();
     }
 
     @Override

@@ -38,9 +38,9 @@ public class ChannelOption<T> extends Option<T> {
 
     //timeout for when a packet is not received
     //only used on server side, client must manually disconnect
-    public static final ChannelOption<Integer> PACKET_TIMEOUT = new ChannelOption<>("packet_timeout", Integer.class);
-    public static final ChannelOption<Integer> UDP_PACKET_TIMEOUT = new ChannelOption<>("udp_packet_timeout", Integer.class);
-    public static final ChannelOption<Integer> TCP_PACKET_TIMEOUT = new ChannelOption<>("tcp_packet_timeout", Integer.class);
+    public static final ChannelOption<Long> PACKET_TIMEOUT = new ChannelOption<>("packet_timeout", Long.class);
+    public static final ChannelOption<Long> UDP_PACKET_TIMEOUT = new ChannelOption<>("udp_packet_timeout", Long.class);
+    public static final ChannelOption<Long> TCP_PACKET_TIMEOUT = new ChannelOption<>("tcp_packet_timeout", Long.class);
 
 
     public ChannelOption(String name, Class<T> type) {

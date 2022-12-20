@@ -5,13 +5,26 @@ import com.hirshi001.networking.packet.Packet;
 
 import java.util.Arrays;
 
+/**
+ * A packet that contains an array of shorts.
+ *
+ * @author Hirshi001
+ */
 public class ShortArrayPacket extends Packet {
+
     public short[] array;
 
+    /**
+     * Creates a new ShortArrayPacket without instantiating the array.
+     */
     public ShortArrayPacket() {
         super();
     }
 
+    /**
+     * Creates a new ShortArrayPacket with a reference to the array argument.
+     * @param array the array to reference
+     */
     public ShortArrayPacket(short[] array) {
         super();
         this.array = array;
@@ -30,8 +43,8 @@ public class ShortArrayPacket extends Packet {
     public void writeBytes(ByteBuffer buf) {
         super.writeBytes(buf);
         buf.writeInt(array.length);
-        for (int i = 0; i < array.length; i++) {
-            buf.writeShort(array[i]);
+        for (short s : array) {
+            buf.writeShort(s);
         }
     }
 

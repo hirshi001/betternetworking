@@ -5,17 +5,38 @@ import com.hirshi001.networking.packet.Packet;
 
 import java.util.Arrays;
 
+/**
+ * A packet that contains an array of ints.
+ *
+ * @author Hirshi001
+ */
 public class IntegerArrayPacket extends Packet {
 
     public int[] array;
 
+    /**
+     * Creates a new IntegerArrayPacket without instantiating the array.
+     */
     public IntegerArrayPacket() {
         super();
     }
 
+    /**
+     * Creates a new IntegerArrayPacket with a reference to the array argument.
+     * @param array the array to reference
+     */
     public IntegerArrayPacket(int[] array) {
         super();
         this.array = array;
+    }
+
+    @Override
+    public void readBytes(ByteBuffer in) {
+        super.readBytes(in);
+        array = new int[in.readInt()];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = in.readInt();
+        }
     }
 
     @Override
@@ -24,16 +45,6 @@ public class IntegerArrayPacket extends Packet {
         out.writeInt(array.length);
         for (int j : array) {
             out.writeInt(j);
-        }
-    }
-
-    @Override
-    public void readBytes(ByteBuffer in) {
-        super.readBytes(in);
-        int size = in.readInt();
-        array = new int[size];
-        for (int i = 0; i < size; i++) {
-            array[i] = in.readInt();
         }
     }
 

@@ -29,19 +29,33 @@ import com.hirshi001.networking.packet.Packet;
  *  }
  *  }
  *  </pre>
- * @param <T>
+ * @param <T> the type of object to be serialized
+ *
+ * @author Hirshi001
  */
 public abstract class ByteBufSerializableObjectPacket<T extends ByteBufSerializable> extends Packet {
 
     private T object;
 
+    /**
+     * Creates a new ByteBufSerializableObjectPacket with the object set to null.
+     */
+    public ByteBufSerializableObjectPacket(){
+        super();
+    }
+
+
+    /**
+     * Creates a new ByteBufSerializableObjectPacket with the object intended to be sent as an
+     * argument.
+     * @param object the object intended to be sent
+     */
     public ByteBufSerializableObjectPacket(T object){
+        super();
         this.object = object;
     }
 
-    public ByteBufSerializableObjectPacket(){
 
-    }
 
     @Override
     public final void writeBytes(ByteBuffer out) {
@@ -60,8 +74,16 @@ public abstract class ByteBufSerializableObjectPacket<T extends ByteBufSerializa
         return object;
     }
 
+    /**
+     * Creates a new object of type T.
+     * @return a new object of type T
+     */
     protected abstract T supply();
 
+    /**
+     * Sets the object of this packet to the argument.
+     * @param object the object to set
+     */
     public final void set(T object){
         this.object = object;
     }

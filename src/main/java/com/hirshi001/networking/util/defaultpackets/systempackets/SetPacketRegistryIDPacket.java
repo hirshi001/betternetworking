@@ -7,10 +7,36 @@ import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
 
+/**
+ * A helper packet which should be sent from the server to the client to set the id of a new
+ * packet registry which was just added.
+ *
+ * @author Hirshi001
+ */
 public class SetPacketRegistryIDPacket extends Packet {
 
     public String registryName;
     public int registryId;
+
+    /**
+     * Creates a new SetPacketRegistryIDPacket with the registryName set to null and registryId set
+     * to 0.
+     */
+    public SetPacketRegistryIDPacket(){
+        super();
+    }
+
+    /**
+     * Creates a new SetPacketRegistryIDPacket with the registryName and registryId set to the
+     * given values.
+     * @param registryName the name of the registry
+     * @param registryId the id of the registry
+     */
+    public SetPacketRegistryIDPacket(String registryName, int registryId){
+        super();
+        this.registryName = registryName;
+        this.registryId = registryId;
+    }
 
     @Override
     public void writeBytes(ByteBuffer out) {
@@ -26,6 +52,10 @@ public class SetPacketRegistryIDPacket extends Packet {
         registryId = in.readInt();
     }
 
+    /**
+     * When registering this packet in the client, use this for the packet handler
+     * @param context
+     */
     public static void clientHandle(PacketHandlerContext<SetPacketRegistryIDPacket> context) {
         PacketRegistryContainer container = context.networkSide.getNetworkData().getPacketRegistryContainer();
         PacketRegistry registry = container.get(context.packet.registryName);

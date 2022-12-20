@@ -6,16 +6,32 @@ import com.hirshi001.networking.util.BooleanCompression;
 
 import java.util.Arrays;
 
+/**
+ * A packet that contains an array of booleans.
+ *
+ * @author Hirshi001
+ */
 public class BooleanArrayPacket extends Packet {
 
     public boolean[] array;
 
+    /**
+     * Creates a new BooleanArrayPacket without instantiating the array.
+     */
+    public BooleanArrayPacket() {
+        super();
+    }
+
+    /**
+     * Creates a new BooleanArrayPacket with a reference to the array argument.
+     * @param array the array to reference
+     */
     public BooleanArrayPacket(boolean[] array) {
+        super();
         this.array = array;
     }
 
-    public BooleanArrayPacket() {
-    }
+
 
     @Override
     public void writeBytes(ByteBuffer out) {

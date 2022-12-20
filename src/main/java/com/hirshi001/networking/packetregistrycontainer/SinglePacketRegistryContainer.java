@@ -6,6 +6,11 @@ import com.hirshi001.networking.packetregistry.PacketRegistry;
 import java.util.Collection;
 import java.util.Collections;
 
+/**
+ * A PacketRegistryContainer that contains only one packet registry, the default registry.
+ *
+ * @author Hrishikesh Ingle
+ */
 public class SinglePacketRegistryContainer implements PacketRegistryContainer{
 
     PacketRegistry registry = new DefaultPacketRegistry(DEFAULT_REGISTRY_NAME);

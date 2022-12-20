@@ -1,8 +1,12 @@
 package com.hirshi001.networking.network.server;
 
+import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelSet;
+import com.hirshi001.networking.packet.DataPacket;
+import com.hirshi001.networking.packet.Packet;
+import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.restapi.RestFuture;
 
 public interface Server extends NetworkSide {
@@ -19,7 +23,7 @@ public interface Server extends NetworkSide {
 
     public int getPort();
 
-    public ChannelSet getClients();
+    public ChannelSet<Channel> getClients();
 
     @Override
     public RestFuture<?, Server> startTCP();

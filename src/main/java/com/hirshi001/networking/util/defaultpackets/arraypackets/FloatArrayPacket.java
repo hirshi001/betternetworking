@@ -5,13 +5,26 @@ import com.hirshi001.networking.packet.Packet;
 
 import java.util.Arrays;
 
+/**
+ * A packet that contains an array of floats.
+ *
+ * @author Hirshi001
+ */
 public class FloatArrayPacket extends Packet {
+
     public float[] array;
 
+    /**
+     * Creates a new FloatArrayPacket without instantiating the array.
+     */
     public FloatArrayPacket() {
         super();
     }
 
+    /**
+     * Creates a new FloatArrayPacket with a reference to the array argument.
+     * @param array the array to reference
+     */
     public FloatArrayPacket(float[] array) {
         super();
         this.array = array;
@@ -20,9 +33,8 @@ public class FloatArrayPacket extends Packet {
     @Override
     public void readBytes(ByteBuffer buf) {
         super.readBytes(buf);
-        int length = buf.readInt();
-        array = new float[length];
-        for (int i = 0; i < length; i++) {
+        array = new float[buf.readInt()];
+        for (int i = 0; i < array.length; i++) {
             array[i] = buf.readFloat();
         }
     }
@@ -31,8 +43,8 @@ public class FloatArrayPacket extends Packet {
     public void writeBytes(ByteBuffer buf) {
         super.writeBytes(buf);
         buf.writeInt(array.length);
-        for (int i = 0; i < array.length; i++) {
-            buf.writeFloat(array[i]);
+        for (float f : array) {
+            buf.writeFloat(f);
         }
     }
 

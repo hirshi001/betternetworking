@@ -5,17 +5,30 @@ import com.hirshi001.networking.packet.Packet;
 
 import java.util.Arrays;
 
+/**
+ * A packet that contains an array of bytes
+ *
+ * @author Hirshi001
+ */
 public class ByteArrayPacket extends Packet {
+
     public byte[] array;
 
+    /**
+     * Creates a new ByteArrayPacket without instantiating the array.
+     */
     public ByteArrayPacket() {
         super();
     }
 
+    /**
+     * Creates a new ByteArrayPacket with a reference to the array argument.
+     */
     public ByteArrayPacket(byte[] array) {
         super();
         this.array = array;
     }
+
 
     @Override
     public void readBytes(ByteBuffer buf) {
@@ -30,8 +43,8 @@ public class ByteArrayPacket extends Packet {
     public void writeBytes(ByteBuffer buf) {
         super.writeBytes(buf);
         buf.writeInt(array.length);
-        for (int i = 0; i < array.length; i++) {
-            buf.writeByte(array[i]);
+        for (byte b : array) {
+            buf.writeByte(b);
         }
     }
 

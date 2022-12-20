@@ -5,13 +5,26 @@ import com.hirshi001.networking.packet.Packet;
 
 import java.util.Arrays;
 
+/**
+ * A packet that contains an array of longs.
+ *
+ * @author Hirshi001
+ */
 public class LongArrayPacket extends Packet {
+
     public long[] array;
 
+    /**
+     * Creates a new LongArrayPacket without instantiating the array.
+     */
     public LongArrayPacket() {
         super();
     }
 
+    /**
+     * Creates a new LongArrayPacket with a reference to the array argument.
+     * @param array the array to reference
+     */
     public LongArrayPacket(long[] array) {
         super();
         this.array = array;
@@ -20,9 +33,8 @@ public class LongArrayPacket extends Packet {
     @Override
     public void readBytes(ByteBuffer buf) {
         super.readBytes(buf);
-        int size = buf.readInt();
-        array = new long[size];
-        for (int i = 0; i < size; i++) {
+        array = new long[buf.readInt()];
+        for (int i = 0; i < array.length; i++) {
             array[i] = buf.readLong();
         }
     }

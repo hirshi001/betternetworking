@@ -3,16 +3,25 @@ package com.hirshi001.networking.util.defaultpackets.primitivepackets;
 import com.hirshi001.buffer.buffers.ByteBuffer;
 import com.hirshi001.networking.packet.Packet;
 
+/**
+ * A packet that contains a float.
+ *
+ * @author Hirshi001
+ */
 public class FloatPacket extends Packet {
 
     public float value;
 
+    /**
+     * Creates a new FloatPacket with the value set to 0.
+     */
     public FloatPacket(){
-
+        super();
     }
 
     public FloatPacket(float value){
-
+        super();
+        this.value = value;
     }
 
     @Override
@@ -29,7 +38,6 @@ public class FloatPacket extends Packet {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) return false;
         if (obj == this) return true;
         if (!(obj instanceof FloatPacket)) return false;
         FloatPacket packet = (FloatPacket) obj;

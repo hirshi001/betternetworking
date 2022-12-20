@@ -62,26 +62,6 @@ public abstract class BaseClient implements Client {
     }
 
     @Override
-    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP(P packet, PacketRegistry registry) {
-        return getChannel().sendTCP(packet, registry);
-    }
-
-    @Override
-    public RestFuture<?, PacketHandlerContext<?>> sendTCPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
-        return getChannel().sendTCPWithResponse(packet, registry, timeout);
-    }
-
-    @Override
-    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP(P packet, PacketRegistry registry) {
-        return getChannel().sendUDP(packet, registry);
-    }
-
-    @Override
-    public RestFuture<?, PacketHandlerContext<?>> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
-        return getChannel().sendUDPWithResponse(packet, registry, timeout);
-    }
-
-    @Override
     public void setChannelInitializer(ChannelInitializer initializer) {
         this.channelInitializer = initializer;
     }

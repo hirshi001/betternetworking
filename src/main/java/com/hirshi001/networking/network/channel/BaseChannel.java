@@ -5,6 +5,7 @@ import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.network.PacketResponseManager;
 import com.hirshi001.networking.network.server.Server;
 import com.hirshi001.networking.networkdata.NetworkData;
+import com.hirshi001.networking.packet.DataPacket;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packetdecoderencoder.PacketEncoderDecoder;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
@@ -12,6 +13,7 @@ import com.hirshi001.networking.packethandlercontext.PacketType;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
 import com.hirshi001.restapi.RestFuture;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Map;
@@ -68,20 +70,110 @@ public abstract class BaseChannel implements Channel {
     }
 
     @Override
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> send(P packet,
+                                                                          PacketRegistry registry, PacketType packetType) {
+        if (packetType == null) {
+            if (defaultTCP) packetType = PacketType.TCP;
+            else if (defaultUDP) packetType = PacketType.UDP;
+        }
+        if (packetType == PacketType.TCP) return sendTCP(packet, registry);
+        if (packetType == PacketType.UDP) return sendUDP(packet, registry);
+        throw new IllegalArgumentException("PacketType cannot be null unless a proper default type is set");
+    }
+
+    @Override
+    public <T extends Packet> RestFuture<?, PacketHandlerContext<T>> waitFor(Class<T> packetClass, long timeout) {
+        // TODO: 1/29/2019 implement this
+        return null;
+    }
+
+    @Override
+    public <T extends Packet> RestFuture<?, PacketHandlerContext<T>> waitFor(T packet, long timeout) {
+        // TODO: 1/29/2019 implement this
+        return null;
+    }
+
+    @Override
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> send(DataPacket<P> packet, PacketRegistry registry, PacketType packetType) {
+        if (packetType == null) {
+            if (defaultTCP) packetType = PacketType.TCP;
+            else if (defaultUDP) packetType = PacketType.UDP;
+        }
+        if (packetType == PacketType.TCP) return sendTCP0(packet.packet, packet, registry);
+        if (packetType == PacketType.UDP) return sendUDP0(packet.packet, packet, registry);
+        throw new IllegalArgumentException("PacketType cannot be null unless a proper default type is set");
+    }
+
+    // Basic Send
+    @Override
     public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP(P packet, PacketRegistry registry) {
-        if(supportsTCP()) {
-            return sendTCP0(packet, registry);
-        }else if(supportsUDP() && (defaultSwitchProtocol || defaultUDP)){
-            return sendTCP0(packet, registry);
+        if (supportsTCP()) {
+            return sendTCP0(packet, null, registry);
+        } else if (supportsUDP() && (defaultSwitchProtocol || defaultUDP)) {
+            return sendTCP0(packet, null, registry);
         }
         throw new UnsupportedOperationException("Cannot send a UDP Packet on this channel");
     }
 
-    private <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP0(P packet, PacketRegistry registry) {
+
+    @Override
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP(P packet, PacketRegistry registry) {
+        if (supportsUDP()) {
+            return sendUDP0(packet, null, registry);
+        } else if (supportsTCP() && (defaultSwitchProtocol || defaultTCP)) {
+            return sendTCP0(packet, null, registry);
+        }
+        throw new UnsupportedOperationException("Cannot send a UDP Packet on this channel");
+    }
+
+
+    // Send with Response
+    @Override
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendWithResponse(Packet packet,
+                                                                                      PacketRegistry registry, PacketType packetType, long timeout) {
+        if (packetType == null) {
+            if (defaultTCP) packetType = PacketType.TCP;
+            else if (defaultUDP) packetType = PacketType.UDP;
+        }
+        if (packetType == PacketType.TCP) return sendTCPWithResponse(packet, registry, timeout);
+        if (packetType == PacketType.UDP) return sendUDPWithResponse(packet, registry, timeout);
+        throw new IllegalArgumentException("PacketType cannot be null unless a proper default type is set");
+    }
+
+    @Override
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
+        return RestFuture.create((future, input) -> {
+            packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS, future);
+            sendTCP(packet, registry).perform();
+        });
+    }
+
+    @Override
+    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
+        return RestFuture.create((future, input) -> {
+            packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS, future);
+            sendUDP(packet, registry).perform();
+        });
+    }
+
+    // Basic Send operations
+
+    /**
+     * Sends a packet over TCP
+     *
+     * @param packet     the packet to send
+     * @param dataPacket the data packet to send
+     * @param registry   the registry to use
+     * @param <P>        the packet type
+     * @return the future
+     */
+
+    private <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP0(P packet, @Nullable DataPacket dataPacket,
+                                                                               PacketRegistry registry) {
         return RestFuture.create(() -> {
             PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
             context.packetType = PacketType.TCP;
-            ByteBuffer buffer = toBytes(packet, registry);
+            ByteBuffer buffer = toBytes(context, dataPacket);
             if (buffer.hasArray()) {
                 sendTCP(buffer.array(), buffer.readerIndex(), buffer.readableBytes());
             } else {
@@ -93,34 +185,26 @@ public abstract class BaseChannel implements Channel {
             getListenerHandler().onSent(context);
             getSide().getListenerHandler().onTCPSent(context);
             getSide().getListenerHandler().onSent(context);
-            if(autoFlushTCP) flushTCP().perform();
+            if (autoFlushTCP) flushTCP().perform();
             return context;
         });
     }
 
-    @Override
-    public RestFuture<?, PacketHandlerContext<?>> sendTCPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
-        return RestFuture.create((future, input)->{
-            packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS, future);
-            sendTCP(packet, registry).perform();
-        });
-    }
-
-    @Override
-    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP(P packet, PacketRegistry registry) {
-        if(supportsUDP()) {
-            return sendUDP0(packet, registry);
-        }else if(supportsTCP() && (defaultSwitchProtocol || defaultTCP)){
-            return sendTCP0(packet, registry);
-        }
-        throw new UnsupportedOperationException("Cannot send a UDP Packet on this channel");
-    }
-
-    private <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP0(P packet, PacketRegistry registry){
+    /**
+     * Sends a packet over UDP
+     *
+     * @param packet     the packet to send
+     * @param dataPacket the data packet to send
+     * @param registry   the registry to use
+     * @param <P>        the packet type
+     * @return the future
+     */
+    private <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP0(P packet, @Nullable DataPacket dataPacket,
+                                                                               PacketRegistry registry) {
         return RestFuture.create(() -> {
             PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
             context.packetType = PacketType.UDP;
-            ByteBuffer buffer = toBytes(packet, registry);
+            ByteBuffer buffer = toBytes(context, dataPacket);
             if (buffer.hasArray()) {
                 sendUDP(buffer.array(), buffer.readerIndex(), buffer.readableBytes());
             } else {
@@ -137,21 +221,24 @@ public abstract class BaseChannel implements Channel {
         });
     }
 
-    @Override
-    public RestFuture<?, PacketHandlerContext<?>> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
-        return RestFuture.create((future, input)->{
-            packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS, future);
-            sendUDP(packet, registry).perform();
-        });
-    }
 
-    private ByteBuffer toBytes(Packet packet, PacketRegistry registry) {
+    // Encoding
+
+    /**
+     * Encodes a packet to a byte buffer
+     *
+     * @param context    the context
+     * @param dataPacket the data packet
+     * @return the byte buffer
+     */
+    private ByteBuffer toBytes(PacketHandlerContext<?> context, @Nullable DataPacket dataPacket) {
         NetworkSide side = getSide();
-        if(registry==null) registry = side.getNetworkData().getPacketRegistryContainer().getDefaultRegistry();
+        if (context.packetRegistry == null)
+            context.packetRegistry = side.getNetworkData().getPacketRegistryContainer().getDefaultRegistry();
         NetworkData data = side.getNetworkData();
         ByteBuffer buffer = side.getBufferFactory().buffer();
         PacketRegistryContainer container = data.getPacketRegistryContainer();
-        data.getPacketEncoderDecoder().encode(packet, container, registry, buffer);
+        data.getPacketEncoderDecoder().encode(context, dataPacket, container, buffer);
         return buffer;
     }
 
@@ -190,18 +277,18 @@ public abstract class BaseChannel implements Channel {
         packetResponseManager.success(context);
         getListenerHandler().onReceived(context);
         getSide().getListenerHandler().onReceived(context);
-        if(context.packetType==PacketType.TCP) {
+        if (context.packetType == PacketType.TCP) {
             getListenerHandler().onTCPReceived(context);
             getSide().getListenerHandler().onTCPReceived(context);
         } else {
             getListenerHandler().onUDPReceived(context);
             getSide().getListenerHandler().onUDPReceived(context);
         }
-        context.handle();
+        if (context.shouldHandle()) context.handle();
     }
 
     protected void onUDPPacketReceived(ByteBuffer packet) {
-        if(maxUDPPayloadSize >=0 && packet.readableBytes()>maxUDPPayloadSize) return;
+        if (maxUDPPayloadSize >= 0 && packet.readableBytes() > maxUDPPayloadSize) return;
         PacketEncoderDecoder encoderDecoder = getSide().getNetworkData().getPacketEncoderDecoder();
 
         PacketHandlerContext context = encoderDecoder.decode(getSide().getNetworkData().getPacketRegistryContainer(), packet, null);
@@ -216,7 +303,7 @@ public abstract class BaseChannel implements Channel {
     protected void onTCPBytesReceived(ByteBuffer bytes) {
         tcpBuffer.writeBytes(bytes);
 
-        while(true) {
+        while (true) {
             tcpBuffer.markReaderIndex();
             PacketEncoderDecoder encoderDecoder = getSide().getNetworkData().getPacketEncoderDecoder();
             PacketHandlerContext context = encoderDecoder.decode(getSide().getNetworkData().getPacketRegistryContainer(), tcpBuffer, null);
@@ -234,6 +321,7 @@ public abstract class BaseChannel implements Channel {
 
     /**
      * Override {@link #activateOption(ChannelOption, Object)} to handle setting options.
+     *
      * @param option
      * @param value
      * @param <T>
@@ -250,31 +338,49 @@ public abstract class BaseChannel implements Channel {
     }
 
 
-
     /**
      * Overriding methods should call super.activateOption(option, value)
      * Ex:
      * if(super.activateOption(option, value)) return true;
      * //otherwise, do your own stuff/test other options
+     *
      * @param option
      * @param value
      * @param <T>
      * @return true if the option was activated, false if it was not supported
      */
-    protected <T> boolean activateOption(ChannelOption<T> option, T value){
-        if(option==ChannelOption.MAX_UDP_PAYLOAD_SIZE){ maxUDPPayloadSize = (Integer) value; return true; }
-        else if(option==ChannelOption.MAX_UDP_PACKET_SIZE){ maxUDPPayloadSize = (Integer) value; return true; }
-
-        else if(option==ChannelOption.DEFAULT_TCP){ defaultTCP = (Boolean) value; return true; }
-        else if(option==ChannelOption.DEFAULT_UDP){ defaultUDP = (Boolean) value; return true; }
-        else if(option==ChannelOption.DEFAULT_SWITCH_PROTOCOL){ defaultSwitchProtocol = (Boolean) value; return true; }
-
-        else if(option==ChannelOption.TCP_AUTO_FLUSH){ autoFlushTCP = (Boolean) value; return true; }
-        else if(option==ChannelOption.UDP_AUTO_FLUSH){ autoFlushUDP = (Boolean) value; return true; }
-
-        else if(option==ChannelOption.PACKET_TIMEOUT){ packetTimeout = (Integer) value; return true; }
-        else if(option==ChannelOption.UDP_PACKET_TIMEOUT){ udpPacketTimeout = (Integer) value; return true; }
-        else if(option==ChannelOption.TCP_PACKET_TIMEOUT){ udpPacketTimeout = (Integer) value; return true; }
+    protected <T> boolean activateOption(ChannelOption<T> option, T value) {
+        if (option == ChannelOption.MAX_UDP_PAYLOAD_SIZE) {
+            maxUDPPayloadSize = (Integer) value;
+            return true;
+        } else if (option == ChannelOption.MAX_UDP_PACKET_SIZE) {
+            maxUDPPayloadSize = (Integer) value;
+            return true;
+        } else if (option == ChannelOption.DEFAULT_TCP) {
+            defaultTCP = (Boolean) value;
+            return true;
+        } else if (option == ChannelOption.DEFAULT_UDP) {
+            defaultUDP = (Boolean) value;
+            return true;
+        } else if (option == ChannelOption.DEFAULT_SWITCH_PROTOCOL) {
+            defaultSwitchProtocol = (Boolean) value;
+            return true;
+        } else if (option == ChannelOption.TCP_AUTO_FLUSH) {
+            autoFlushTCP = (Boolean) value;
+            return true;
+        } else if (option == ChannelOption.UDP_AUTO_FLUSH) {
+            autoFlushUDP = (Boolean) value;
+            return true;
+        } else if (option == ChannelOption.PACKET_TIMEOUT) {
+            packetTimeout = (Integer) value;
+            return true;
+        } else if (option == ChannelOption.UDP_PACKET_TIMEOUT) {
+            udpPacketTimeout = (Integer) value;
+            return true;
+        } else if (option == ChannelOption.TCP_PACKET_TIMEOUT) {
+            udpPacketTimeout = (Integer) value;
+            return true;
+        }
 
         return false;
     }
@@ -310,11 +416,11 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public RestFuture<?, Channel> close() {
-        return RestFuture.create(()->{
-            if(isClosed()) return this;
-            if(!isTCPClosed()) stopTCP().perform();
-            if(!isUDPClosed()) stopUDP().perform();
-            if(getSide().isServer()){
+        return RestFuture.create(() -> {
+            if (isClosed()) return this;
+            if (!isTCPClosed()) stopTCP().perform();
+            if (!isUDPClosed()) stopUDP().perform();
+            if (getSide().isServer()) {
                 Server server = getSide().asServer();
                 server.getClients().remove(this);
                 server.getListenerHandler().onClientDisconnect(server, this);

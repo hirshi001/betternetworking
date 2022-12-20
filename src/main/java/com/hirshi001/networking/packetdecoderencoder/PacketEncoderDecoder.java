@@ -2,11 +2,16 @@ package com.hirshi001.networking.packetdecoderencoder;
 
 
 import com.hirshi001.buffer.buffers.ByteBuffer;
-import com.hirshi001.networking.packet.Packet;
+import com.hirshi001.networking.packet.DataPacket;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
-import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * A class which is used to decode and encode packets.
+ *
+ * @author Hirshi001
+ */
 public interface PacketEncoderDecoder {
 
     /**
@@ -21,10 +26,11 @@ public interface PacketEncoderDecoder {
 
     /**
      * Encodes a single packet into the given ByteBuf.
-     * @param packet the packet to encode
-     * @param out the ByteBuf to write to
+     * @param ctx the PacketHandlerContext to encode
+     * @param dataPacket the DataPacket to encode, if available
      * @param container the SidedPacketRegistryContainer which contains the packet registries
+     * @param out the ByteBuf to write to
      */
-    public void encode(Packet packet, PacketRegistryContainer container, PacketRegistry packetRegistry, ByteBuffer out);
+    public void encode(PacketHandlerContext<?> ctx, @Nullable DataPacket dataPacket, PacketRegistryContainer container, ByteBuffer out);
 
 }

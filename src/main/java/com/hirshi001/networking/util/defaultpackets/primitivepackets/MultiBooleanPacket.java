@@ -5,9 +5,22 @@ import com.hirshi001.networking.util.BooleanCompression;
 /**
  * A class that represents a packet that contains multiple booleans.
  * The booleans are stored in a byte.
+ *
+ * @author Hirshi001
  */
 public class MultiBooleanPacket extends BytePacket {
 
+    /**
+     * Creates a new MultiBooleanPacket with the value set to 0.
+     */
+    public MultiBooleanPacket() {
+        super();
+    }
+
+    /**
+     * Creates a new MultiBooleanPacket with the value set to the argument.
+     * @param value the value to set
+     */
     public MultiBooleanPacket(byte value) {
         super(value);
     }
@@ -102,7 +115,6 @@ public class MultiBooleanPacket extends BytePacket {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) return false;
         if (obj == this) return true;
         if (!(obj instanceof MultiBooleanPacket)) return false;
         MultiBooleanPacket packet = (MultiBooleanPacket) obj;

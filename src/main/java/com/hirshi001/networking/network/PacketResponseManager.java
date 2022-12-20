@@ -13,7 +13,7 @@ public class PacketResponseManager {
 
 
     private final AtomicInteger packetResponseId;
-    private final Map<Integer, RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>>> packetResponses;
+    private final Map<Integer, RestFuture> packetResponses;
     private final ScheduledExecutorService executorService;
 
     public PacketResponseManager(ScheduledExecutorService executorService) {
@@ -23,7 +23,7 @@ public class PacketResponseManager {
         this.executorService = executorService;
     }
 
-    public void submit(Packet packet, long timeout, TimeUnit unit, RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> successFuture) {
+    public <P extends Packet> void submit(Packet packet, long timeout, TimeUnit unit, RestFuture successFuture) {
         int id = getNextPacketResponseId();
         packet.sendingId = id;
         packetResponses.put(id, successFuture);

@@ -6,14 +6,24 @@ import com.hirshi001.networking.packet.Packet;
 
 import java.util.Objects;
 
+/**
+ * A packet that contains a string.
+ */
 public class StringPacket extends Packet {
 
     public String value;
 
+    /**
+     * Creates a new StringPacket with the value set to null.
+     */
     public StringPacket(){
 
     }
 
+    /**
+     * Creates a new StringPacket with the value set to the given value.
+     * @param value
+     */
     public StringPacket(String value){
         this.value = value;
     }
@@ -32,7 +42,6 @@ public class StringPacket extends Packet {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) return false;
         if (obj == this) return true;
         if (!(obj instanceof StringPacket)) return false;
         StringPacket packet = (StringPacket) obj;

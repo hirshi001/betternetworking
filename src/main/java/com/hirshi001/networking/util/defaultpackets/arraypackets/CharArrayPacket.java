@@ -5,17 +5,38 @@ import com.hirshi001.networking.packet.Packet;
 
 import java.util.Arrays;
 
+/**
+ * A packet that contains an array of chars.
+ *
+ * @author Hirshi001
+ */
 public class CharArrayPacket extends Packet {
 
     public int[] array;
 
+    /**
+     * Creates a new CharArrayPacket without instantiating the array.
+     */
     public CharArrayPacket() {
         super();
     }
 
+    /**
+     * Creates a new CharArrayPacket with a reference to the array argument.
+     * @param array the array to reference
+     */
     public CharArrayPacket(int[] array) {
         super();
         this.array = array;
+    }
+
+    @Override
+    public void readBytes(ByteBuffer in) {
+        super.readBytes(in);
+        array = new int[in.readInt()];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = in.readChar();
+        }
     }
 
     @Override
@@ -27,15 +48,6 @@ public class CharArrayPacket extends Packet {
         }
     }
 
-    @Override
-    public void readBytes(ByteBuffer in) {
-        super.readBytes(in);
-        int size = in.readInt();
-        array = new int[size];
-        for (int i = 0; i < size; i++) {
-            array[i] = in.readChar();
-        }
-    }
 
     @Override
     public boolean equals(Object obj) {

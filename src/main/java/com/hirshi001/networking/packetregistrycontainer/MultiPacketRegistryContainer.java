@@ -9,8 +9,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * A PacketRegistryContainer that contains multiple registries.
+ *
+ * @author Hrishikesh Ingle
+ */
 public class MultiPacketRegistryContainer implements PacketRegistryContainer{
-
 
     private final Map<String, PacketRegistry> packetRegistryMap = new HashMap<>();
     private final Map<Integer, PacketRegistry> integerToPacketRegistryMap = new ConcurrentHashMap<>();

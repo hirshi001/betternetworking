@@ -3,9 +3,9 @@ package com.hirshi001.networking.network.server;
 import com.hirshi001.buffer.bufferfactory.BufferFactory;
 import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
+import com.hirshi001.networking.network.channel.ChannelSet;
 import com.hirshi001.networking.network.channel.DefaultChannelSet;
 import com.hirshi001.networking.networkdata.NetworkData;
-
 public abstract class BaseServer<T extends Channel> implements Server{
 
     private final NetworkData networkData;
@@ -49,8 +49,9 @@ public abstract class BaseServer<T extends Channel> implements Server{
     }
 
     @Override
-    public DefaultChannelSet<T> getClients() {
-        return channelSet;
+    @SuppressWarnings("unchecked")
+    public ChannelSet<Channel> getClients() {
+        return (ChannelSet<Channel>) channelSet;
     }
 
     @Override
