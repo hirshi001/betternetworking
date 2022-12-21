@@ -34,6 +34,10 @@ public interface Client extends NetworkSide{
 
     public <T> void setChannelOption(ChannelOption<T> option, T value);
 
+    public <T> void setClientOption(ClientOption<T> option, T value);
+
+    public <T> T getClientOption(ClientOption<T> option);
+
     public <T> T getChannelOption(ChannelOption<T> option);
 
     public void addClientListener(ChannelListener listener);
