@@ -70,7 +70,7 @@ public class ExampleUsage {
         server.setServerOption(ServerOption.RECEIVE_BUFFER_SIZE, 1024);
 
         // never check for packets automatically, need to manually tell server to check for packets
-        server.setServerOption(ServerOption.TCP_PACKET_CHECK_INTERVAL, -1L);
+        server.setServerOption(ServerOption.TCP_PACKET_CHECK_INTERVAL, -1);
 
 
 
@@ -140,7 +140,7 @@ public class ExampleUsage {
 
         Client client = serverFactory.createClient(clientNetworkData, bufferFactory, "localhost", 8080);
 
-        client.setClientOption(ClientOption.TCP_PACKET_CHECK_INTERVAL, -1L);
+        client.setClientOption(ClientOption.TCP_PACKET_CHECK_INTERVAL, -1);
         client.setChannelInitializer((channel) -> {
             channel.setChannelOption(ChannelOption.TCP_SO_TIMEOUT, 1000);
             channel.setChannelOption(ChannelOption.TCP_NODELAY, true); // idk what this does
