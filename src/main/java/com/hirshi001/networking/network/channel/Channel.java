@@ -231,7 +231,7 @@ public interface Channel {
 
     public Object getAttachment();
 
-    public void checkUDPPackets();
+    public RestFuture<Channel, Channel> checkUDPPackets();
 
-    public void checkTCPPackets();
+    public RestFuture<Channel, Channel> checkTCPPackets();
 }

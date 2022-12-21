@@ -45,8 +45,8 @@ public interface NetworkSide {
     public NetworkSideListener getListenerHandler();
 
 
-    public void checkUDPPackets();
+    public RestFuture<? extends NetworkSide, ? extends NetworkSide> checkUDPPackets();
 
-    public void checkTCPPackets();
+    public RestFuture<? extends NetworkSide, ? extends NetworkSide> checkTCPPackets();
 
 }

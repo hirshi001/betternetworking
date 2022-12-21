@@ -59,4 +59,9 @@ public interface Server extends NetworkSide {
 
     public boolean isClosed();
 
+    @Override
+    RestFuture<Server, Server> checkUDPPackets();
+
+    @Override
+    RestFuture<Server, Server> checkTCPPackets();
 }
