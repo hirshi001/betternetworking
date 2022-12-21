@@ -59,5 +59,4 @@ public interface Server extends NetworkSide {
 
     public boolean isClosed();
 
-
 }

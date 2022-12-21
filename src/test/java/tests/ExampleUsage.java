@@ -140,7 +140,7 @@ public class ExampleUsage {
 
         Client client = serverFactory.createClient(clientNetworkData, bufferFactory, "localhost", 8080);
 
-        client.setClientOption(ClientOption.TCP_PACKET_CHECK_INTERVAL, -1);
+        client.setClientOption(ClientOption.TCP_PACKET_CHECK_INTERVAL, -1); // don't check for packets automatically
         client.setChannelInitializer((channel) -> {
             channel.setChannelOption(ChannelOption.TCP_SO_TIMEOUT, 1000);
             channel.setChannelOption(ChannelOption.TCP_NODELAY, true); // idk what this does
@@ -165,6 +165,11 @@ public class ExampleUsage {
         IntegerPacket integerPacket = new IntegerPacket(10);
         for (Channel channel : server.getClients()) {
             channel.send(integerPacket, null, PacketType.TCP).perform();
+        }
+
+        while(true){
+            client.checkTCPPackets();
+            Thread.sleep(100); // have client check for tcp packets every 100 ms
         }
 
 

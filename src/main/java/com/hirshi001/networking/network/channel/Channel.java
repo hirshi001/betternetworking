@@ -230,4 +230,8 @@ public interface Channel {
     public Channel attach(Object attachment);
 
     public Object getAttachment();
+
+    public void checkUDPPackets();
+
+    public void checkTCPPackets();
 }

@@ -44,4 +44,9 @@ public interface NetworkSide {
 
     public NetworkSideListener getListenerHandler();
 
+
+    public void checkUDPPackets();
+
+    public void checkTCPPackets();
+
 }
