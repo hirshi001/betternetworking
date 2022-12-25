@@ -28,6 +28,12 @@ import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.restapi.RestFuture;
 
+/**
+ * A base class for a client that can connect to a server. Some methods are implemented but the rest are left to the
+ * user to implement.
+ *
+ * @author Hrishikesh Ingle
+ */
 public abstract class BaseClient implements Client {
 
     private final NetworkData networkData;
@@ -37,7 +43,14 @@ public abstract class BaseClient implements Client {
     protected final ChannelListenerHandler<ChannelListener> clientListenerHandler;
     protected ChannelInitializer channelInitializer;
 
-
+    /**
+     * Creates a new BaseClient with the given NetworkData, BufferFactory, host, and port
+     *
+     * @param networkData the NetworkData to use
+     * @param bufferFactory the BufferFactory to use
+     * @param host the host to connect to
+     * @param port the port to connect to
+     */
     public BaseClient(NetworkData networkData, BufferFactory bufferFactory, String host, int port) {
         this.networkData = networkData;
         this.bufferFactory = bufferFactory;
@@ -83,12 +96,12 @@ public abstract class BaseClient implements Client {
     }
 
     @Override
-    public <T> void setChannelOption(ChannelOption<T> option, T value){
+    public <T> void setChannelOption(ChannelOption<T> option, T value) {
         getChannel().setChannelOption(option, value);
     }
 
     @Override
-    public <T> T getChannelOption(ChannelOption<T> option){
+    public <T> T getChannelOption(ChannelOption<T> option) {
         return getChannel().getChannelOption(option);
     }
 

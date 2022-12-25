@@ -18,6 +18,12 @@ package com.hirshi001.networking.network.networkside;
 
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 
+/**
+ * An abstract implementation of {@link NetworkSideListener} that provides default emptyv implementations
+ * for all methods.
+ *
+ * @author Hrishikesh Ingle
+ */
 public class AbstractNetworkSideListener implements NetworkSideListener{
 
     @Override

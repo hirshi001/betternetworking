@@ -18,18 +18,53 @@ package com.hirshi001.networking.network.networkside;
 
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 
+/**
+ * A listener which listens to events on a {@link NetworkSide}.
+ *
+ * @author Hrishikesh Ingle
+ */
 public interface NetworkSideListener {
 
-     void onTCPReceived(PacketHandlerContext<?> context);
+    /**
+     * A callback method that is called when a TCP packet is received on the {@link NetworkSide}.
+     *
+     * @param context the context of the packet
+     */
+    void onTCPReceived(PacketHandlerContext<?> context);
 
-     void onTCPSent(PacketHandlerContext<?> context);
+    /**
+     * A callback method that is called when a TCP packet is sent on the {@link NetworkSide}.
+     *
+     * @param context the context of the packet
+     */
+    void onTCPSent(PacketHandlerContext<?> context);
 
-     void onUDPReceived(PacketHandlerContext<?> context);
+    /**
+     * A callback method that is called when a UDP packet is received on the {@link NetworkSide}.
+     *
+     * @param context
+     */
+    void onUDPReceived(PacketHandlerContext<?> context);
 
-     void onUDPSent(PacketHandlerContext<?> context);
+    /**
+     * A callback method that is called when a UDP packet is sent on the {@link NetworkSide}.
+     *
+     * @param context the context of the packet
+     */
+    void onUDPSent(PacketHandlerContext<?> context);
 
-     void onSent(PacketHandlerContext<?> context);
+    /**
+     * A callback method that is called when a packet is received on the {@link NetworkSide}.
+     *
+     * @param context the context of the packet
+     */
+    void onSent(PacketHandlerContext<?> context);
 
-     void onReceived(PacketHandlerContext<?> context);
+    /**
+     * A callback method that is called when a packet is sent on the {@link NetworkSide}.
+     *
+     * @param context the context of the packet
+     */
+    void onReceived(PacketHandlerContext<?> context);
 
 }

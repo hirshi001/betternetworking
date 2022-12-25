@@ -21,12 +21,26 @@ import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 
 import java.util.Collection;
 
+/**
+ * A {@link ListenerHandler} that handles {@link NetworkSideListener}s.
+ *
+ * @param <T> the type of the {@link NetworkSideListener}
+ * @author Hrishikesh Ingle
+ */
 public class NetworkSideListenerHandler<T extends NetworkSideListener> extends ListenerHandler<T> implements NetworkSideListener {
 
+    /**
+     * Creates a new {@link NetworkSideListenerHandler} with no listeners.
+     */
     public NetworkSideListenerHandler() {
         super();
     }
 
+    /**
+     * Creates a new {@link NetworkSideListenerHandler} with the given listeners.
+     *
+     * @param listeners the listeners to add
+     */
     public NetworkSideListenerHandler(Collection<T> listeners) {
         super(listeners);
     }
