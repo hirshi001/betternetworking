@@ -24,7 +24,7 @@ import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
  *
  * @author Hrishikesh Ingle
  */
-public class AbstractNetworkSideListener implements NetworkSideListener{
+public abstract class AbstractNetworkSideListener implements NetworkSideListener{
 
     @Override
     public void onTCPReceived(PacketHandlerContext<?> context) {

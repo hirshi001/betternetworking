@@ -20,7 +20,12 @@ import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.networkside.AbstractNetworkSideListener;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 
-public class AbstractServerListener extends AbstractNetworkSideListener implements ServerListener {
+/**
+ * An abstract implementation of {@link ServerListener} that provides default empty implementations
+ *
+ * @author Hrishikesh Ingle
+ */
+public abstract class AbstractServerListener extends AbstractNetworkSideListener implements ServerListener {
 
     @Override
     public void onTCPStart(Server server) {
