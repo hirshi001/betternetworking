@@ -1,3 +1,19 @@
+/*
+   Copyright 2022 Hrishikesh Ingle
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 package com.hirshi001.networking.packetregistrycontainer;
 
 import com.hirshi001.networking.packetregistry.DefaultPacketRegistry;
@@ -13,50 +29,51 @@ import java.util.Collection;
  */
 public interface PacketRegistryContainer {
 
-    public static final String DEFAULT_REGISTRY_NAME = "default";
+    String DEFAULT_REGISTRY_NAME = "default";
 
 
     /**
      * Adds a PacketRegistry to this PacketRegistryContainer if this PacketRegistryContainer supports multiple PacketRegistries
+     *
      * @param registry
      * @return
      */
-    public PacketRegistry addRegistry(PacketRegistry registry);
+    PacketRegistry addRegistry(PacketRegistry registry);
 
     /**
      * Gets the PacketRegistry with the given name
+     *
      * @param name
      * @return the PacketRegistry with the given name, or null if no PacketRegistry with the given name exists
      */
-    public PacketRegistry get(String name);
+    PacketRegistry get(String name);
 
     /**
-     *
      * @return the default PacketRegistry created when this PacketRegistryContainer is created
      */
-    public PacketRegistry getDefaultRegistry();
+    PacketRegistry getDefaultRegistry();
 
     /**
      * Creates a new PacketRegistry which is then added to this PacketRegistryContainer
      * The method {@link PacketRegistryContainer#supportsMultipleRegistries()} must return true for this method to work
+     *
      * @param registryName
      * @return the newly created PacketRegistry
      * @throws UnsupportedOperationException if this PacketRegistryContainer does not support multiple PacketRegistries
      */
-    default PacketRegistry newRegistry(String registryName){
-        if(supportsMultipleRegistries()) return addRegistry(new DefaultPacketRegistry(registryName));
+    default PacketRegistry newRegistry(String registryName) {
+        if (supportsMultipleRegistries()) return addRegistry(new DefaultPacketRegistry(registryName));
         else throw new UnsupportedOperationException("This container does not support multiple registries");
     }
 
     /**
-     *
      * @return true if this PacketRegistryContainer supports multiple PacketRegistries
      */
-    public boolean supportsMultipleRegistries();
+    boolean supportsMultipleRegistries();
 
-    public void setPacketRegistryID(PacketRegistry registry, int id);
+    void setPacketRegistryID(PacketRegistry registry, int id);
 
-    public PacketRegistry get(int id);
+    PacketRegistry get(int id);
 
-    public Collection<PacketRegistry> registries();
+    Collection<PacketRegistry> registries();
 }

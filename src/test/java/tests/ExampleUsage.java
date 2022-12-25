@@ -168,7 +168,7 @@ public class ExampleUsage {
         }
 
         while(true){
-            client.checkTCPPackets();
+            client.checkTCPPackets().perform();
             Thread.sleep(100); // have client check for tcp packets every 100 ms
         }
 

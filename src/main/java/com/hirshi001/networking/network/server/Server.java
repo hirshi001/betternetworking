@@ -1,3 +1,19 @@
+/*
+   Copyright 2022 Hrishikesh Ingle
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 package com.hirshi001.networking.network.server;
 
 import com.hirshi001.networking.network.channel.Channel;
@@ -21,43 +37,44 @@ public interface Server extends NetworkSide {
         return true;
     }
 
-    public int getPort();
+    int getPort();
 
-    public ChannelSet<Channel> getClients();
+    ChannelSet<Channel> getClients();
+
 
     @Override
-    public RestFuture<?, Server> startTCP();
+    RestFuture<?, Server> startTCP();
 
-    public RestFuture<?, Server> startUDP();
+    RestFuture<?, Server> startUDP();
 
-    public RestFuture<?, Server> stopTCP();
+    RestFuture<?, Server> stopTCP();
 
-    public RestFuture<?, Server> stopUDP();
+    RestFuture<?, Server> stopUDP();
 
-    public <T> void setServerOption(ServerOption<T> option, T value);
+    <T> void setServerOption(ServerOption<T> option, T value);
 
-    public <T> T getServerOption(ServerOption<T> option);
+    <T> T getServerOption(ServerOption<T> option);
 
-    public void addServerListener(ServerListener listener);
+    void addServerListener(ServerListener listener);
 
-    public void addServerListeners(ServerListener... listeners);
+    void addServerListeners(ServerListener... listeners);
 
-    public boolean removeServerListener(ServerListener listener);
+    boolean removeServerListener(ServerListener listener);
 
-    public void removeServerListeners(ServerListener... listeners);
+    void removeServerListeners(ServerListener... listeners);
 
-    public void setChannelInitializer(ChannelInitializer initializer);
+    void setChannelInitializer(ChannelInitializer initializer);
 
-    public ChannelInitializer getChannelInitializer();
+    ChannelInitializer getChannelInitializer();
 
-    public ServerListenerHandler getListenerHandler();
+    ServerListenerHandler getListenerHandler();
 
     /**
      * Disconnects TCP and UDP if they are connected and removes all ClientInstances
      */
-    public void close();
+    void close();
 
-    public boolean isClosed();
+    boolean isClosed();
 
     @Override
     RestFuture<Server, Server> checkUDPPackets();

@@ -1,3 +1,19 @@
+/*
+   Copyright 2022 Hrishikesh Ingle
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 package com.hirshi001.networking.network.channel;
 
 import com.hirshi001.networking.network.networkside.NetworkSide;
@@ -10,13 +26,34 @@ import com.hirshi001.restapi.RestFuture;
 
 import java.io.IOException;
 
+/**
+ * A simple interface which represents a channel.
+ *
+ * @author Hirshi001
+ */
 public interface Channel {
 
-    public String getIp();
+    /**
+     * Returns the IP this channel is connected to.
+     *
+     * @return A string representing the IP address.
+     */
+    String getIp();
 
-    public int getPort();
+    /**
+     * Returns the port this channel is connected to. If the channel is not connected to a port,
+     * then this method will return -1.
+     *
+     * @return An integer representing the port.
+     */
+    int getPort();
 
-    public byte[] getAddress();
+    /**
+     * Returns the address this channel is connected to
+     *
+     * @return a byte array representing the address this channel is connected to.
+     */
+    byte[] getAddress();
 
     /**
      * Writes the given packet to the channel. The contents may or may not be sent immediately.
@@ -26,8 +63,8 @@ public interface Channel {
      * @param packetType The protocol used to send the packet. If null, the default protocol will be used.
      * @return A RestFuture which will be performed when the packet is sent
      */
-    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> send(P packet,
-                                                                          PacketRegistry registry, PacketType packetType);
+    <P extends Packet> RestFuture<?, PacketHandlerContext<P>> send(P packet,
+                                                                   PacketRegistry registry, PacketType packetType);
 
     /**
      * Writes the given packet to the channel. The contents may or may not be sent immediately.
@@ -37,7 +74,7 @@ public interface Channel {
      * @param packetType The protocol used to send the packet. If null, the default protocol will be used.
      * @return A RestFuture which will be performed when the packet is sent
      */
-    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> send(DataPacket<P> packet, PacketRegistry registry, PacketType packetType);
+    <P extends Packet> RestFuture<?, PacketHandlerContext<P>> send(DataPacket<P> packet, PacketRegistry registry, PacketType packetType);
 
     /**
      * Writes the given packet to the channel and waits for a response packet before performing the
@@ -52,8 +89,8 @@ public interface Channel {
      * @param <P>        The type of packet to you expect to receive. It is ok if it is not defined.
      * @return A RestFuture that will be performed when a response is received or the timeout is reached
      */
-    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendWithResponse(Packet packet,
-                                                                                      PacketRegistry registry, PacketType packetType, long timeout);
+    <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendWithResponse(Packet packet,
+                                                                               PacketRegistry registry, PacketType packetType, long timeout);
 
 
     /**
@@ -63,8 +100,8 @@ public interface Channel {
      * @param registry The registry to use for the packet. If null, the default registry will be used.
      * @return A RestFuture which will be performed when the packet is sent
      */
-    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP(P packet,
-                                                                             PacketRegistry registry);
+    <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP(P packet,
+                                                                      PacketRegistry registry);
 
     /**
      * Writes the given packet to the channel. The contents may or may not be sent immediately.
@@ -73,17 +110,8 @@ public interface Channel {
      * @param registry The registry to use for the packet. If null, the default registry will be used.
      * @return A RestFuture which will be performed when the packet is sent
      */
-    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP(DataPacket<P> packet,
-                                                                             PacketRegistry registry);
-    /**
-     * Writes the given packet to the channel. The contents may or may not be sent immediately.
-     *
-     * @param packet   The packet to write.
-     * @param registry The registry to use for the packet. If null, the default registry will be used.
-     * @return A RestFuture which will be performed when the packet is sent
-     */
-    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP(DataPacket<P> packet,
-                                                                             PacketRegistry registry);
+    <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP(DataPacket<P> packet,
+                                                                      PacketRegistry registry);
 
     /**
      * Writes the given packet to the channel. The contents may or may not be sent immediately.
@@ -92,8 +120,18 @@ public interface Channel {
      * @param registry The registry to use for the packet. If null, the default registry will be used.
      * @return A RestFuture which will be performed when the packet is sent
      */
-    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP(P packet,
-                                                                             PacketRegistry registry);
+    <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP(DataPacket<P> packet,
+                                                                      PacketRegistry registry);
+
+    /**
+     * Writes the given packet to the channel. The contents may or may not be sent immediately.
+     *
+     * @param packet   The packet to write.
+     * @param registry The registry to use for the packet. If null, the default registry will be used.
+     * @return A RestFuture which will be performed when the packet is sent
+     */
+    <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP(P packet,
+                                                                      PacketRegistry registry);
 
     /**
      * Writes the given packet to the channel and waits for a response packet before performing the
@@ -107,8 +145,8 @@ public interface Channel {
      * @param <P>      The type of packet to you expect to receive. It is ok if it is not defined.
      * @return A RestFuture that will be performed when a response is received or the timeout is reached
      */
-    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCPWithResponse(Packet packet,
-                                                                                         PacketRegistry registry, long timeout);
+    <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCPWithResponse(Packet packet,
+                                                                                  PacketRegistry registry, long timeout);
 
     /**
      * Writes the given packet to the channel and waits for a response packet before performing the
@@ -122,8 +160,8 @@ public interface Channel {
      * @param <P>      The type of packet to you expect to receive. It is ok if it is not defined.
      * @return A RestFuture that will be performed when a response is received or the timeout is reached
      */
-    public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDPWithResponse(Packet packet,
-                                                                                         PacketRegistry registry, long timeout);
+    <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDPWithResponse(Packet packet,
+                                                                                  PacketRegistry registry, long timeout);
 
     /**
      * Waits for a packet on this channel which comes from the given class. It will not be handled
@@ -136,8 +174,8 @@ public interface Channel {
      * @return A {@link RestFuture} that will be performed when a packet is received or the timeout
      * is reached
      */
-    public <T extends Packet> RestFuture<?, PacketHandlerContext<T>> waitFor(Class<T> packetClass,
-                                                                             long timeout);
+    <T extends Packet> RestFuture<?, PacketHandlerContext<T>> waitFor(Class<T> packetClass,
+                                                                      long timeout);
 
     /**
      * Waits for a packet on this channel which comes from the class of the given packet. The
@@ -151,53 +189,118 @@ public interface Channel {
      * @return A {@link RestFuture} that will be performed when a packet is received or the timeout
      * is reached
      */
-    public <T extends Packet> RestFuture<?, PacketHandlerContext<T>> waitFor(T packet,
-                                                                             long timeout);
+    <T extends Packet> RestFuture<?, PacketHandlerContext<T>> waitFor(T packet,
+                                                                      long timeout);
 
     /**
      * Attempts to send all bytes in the channel's buffer.
      *
      * @return a RestFuture that will be performed when the udp bytes are sent
      */
-    public RestFuture<?, Channel> flushUDP();
+    RestFuture<?, Channel> flushUDP();
 
     /**
      * Attempts to send all bytes in the channel's buffer.
      *
      * @return a RestFuture that will be performed when the tcp bytes are sent
      */
-    public RestFuture<?, ?> flushTCP();
+    RestFuture<?, ?> flushTCP();
 
     /**
      * Flushes tcp and udp.
      *
      * @return a RestFuture that will be performed when the bytes are sent
      */
-    public RestFuture<?, ?> flush();
+    RestFuture<?, ?> flush();
 
-    public <T> void setChannelOption(ChannelOption<T> option, T value);
+    /**
+     * Set a value for a channel option
+     *
+     * @param option the option to set
+     * @param value  the value of the option
+     * @param <T>    the type of the option
+     */
+    <T> void setChannelOption(ChannelOption<T> option, T value);
 
-    public <T> T getChannelOption(ChannelOption<T> option);
+    /**
+     * Retrieves the value for a channel option
+     *
+     * @param option the option for the value to retrieve
+     * @param <T>    the type of the option
+     * @return the value of the option
+     */
+    <T> T getChannelOption(ChannelOption<T> option);
 
-    public void addChannelListener(ChannelListener listener);
+    /**
+     * Add a ChannelListener to this channel
+     *
+     * @param listener the listener to add
+     */
+    void addChannelListener(ChannelListener listener);
 
-    public void addChannelListeners(ChannelListener... listeners);
+    /**
+     * Add multiple ChannelListeners to this channel
+     *
+     * @param listeners the listeners to add
+     */
+    void addChannelListeners(ChannelListener... listeners);
 
-    public boolean removeChannelListener(ChannelListener listener);
+    /**
+     * Remove a ChannelListener from this channel
+     *
+     * @param listener the listener to remove
+     * @return true if the listener was successfully removed, false otherwise
+     */
+    boolean removeChannelListener(ChannelListener listener);
 
-    public void removeChannelListeners(ChannelListener... listeners);
+    /**
+     * Remove multiple ChannelListeners from this channel
+     *
+     * @param listeners the listeners to remove
+     */
+    void removeChannelListeners(ChannelListener... listeners);
 
-    public ChannelListener getListenerHandler();
+    /**
+     * Gets the ChannelListener responsible for delegating events to the channel's listeners
+     *
+     * @return the ChannelListener responsible for delegating events to the channel's listeners
+     */
+    ChannelListener getListenerHandler();
 
-    public NetworkSide getSide();
+    /**
+     * Gets the {@link NetworkSide} this channel belongs to.
+     *
+     * @return the {@link NetworkSide} this channel belongs to
+     */
+    NetworkSide getSide();
 
-    public RestFuture<?, Channel> startTCP();
+    /**
+     * Attempts to start a TCP connection with the other side of the channel.
+     *
+     * @return a RestFuture that will attempt to create a TCP connection when performed
+     */
+    RestFuture<?, Channel> startTCP();
 
-    public RestFuture<?, Channel> stopTCP();
+    /**
+     * Stops the TCP connection with the other side of the channel.
+     *
+     * @return a RestFuture that will attempt to close the TCP connection when performed
+     */
+    RestFuture<?, Channel> stopTCP();
 
-    public RestFuture<?, Channel> startUDP();
+    /**
+     * Attempts to start a UDP connection with the other side of the channel.
+     *
+     * @return a RestFuture that will attempt to create a UDP connection when performed
+     */
+    RestFuture<?, Channel> startUDP();
 
-    public RestFuture<?, Channel> stopUDP();
+    /**
+     * Stops the UDP connection with the other side of the channel.
+     *
+     * @return a RestFuture that will attempt to close the UDP connection when performed
+     */
+    RestFuture<?, Channel> stopUDP();
 
     /**
      * Once closed, a server cannot reopen the channel and the channel will be removed, however a
@@ -205,33 +308,95 @@ public interface Channel {
      *
      * @return A RestFuture which will close the channel when performed.
      */
-    public RestFuture<?, Channel> close();
+    RestFuture<?, Channel> close();
 
-    public boolean isTCPOpen();
+    /**
+     * Returns true if the TCP connection is open (ie: send/receive tcp packets)
+     *
+     * @return true if the TCP connection is open, false if otherwise
+     */
+    boolean isTCPOpen();
 
-    public boolean isUDPOpen();
+    /**
+     * Returns true if the UDP connection is open (ie: send/receive udp packets)
+     *
+     * @return true if the UDP connection is open, false if otherwise
+     */
+    boolean isUDPOpen();
 
-    public boolean isTCPClosed();
+    /**
+     * Returns true if the TCP connection is close (ie: send/receive tcp packets)
+     *
+     * @return true if the TCP connection is close, false if otherwise
+     */
+    boolean isTCPClosed();
 
-    public boolean isUDPClosed();
+    /**
+     * Returns true if the UDP connection is close (ie: send/receive udp packets)
+     *
+     * @return true if the UDP connection is close, false if otherwise
+     */
+    boolean isUDPClosed();
 
-    public boolean isOpen();
+    /**
+     * Returns true if either the TCP or UDP connection is open
+     *
+     * @return true if either the TCP or UDP connection is open, false if otherwise
+     * @see #isTCPOpen()
+     * @see #isUDPOpen()
+     */
+    boolean isOpen();
 
-    public boolean isClosed();
+    /**
+     * Returns true if both the TCP and UDP connection is closed
+     *
+     * @return true if both the TCP and UDP connection is closed, false if otherwise
+     */
+    boolean isClosed();
 
+    /**
+     * Returns true if this channel supports UDP
+     *
+     * @return true if this channel supports UDP, false if otherwise
+     */
     default boolean supportsUDP() {
         return getSide().supportsUDP();
     }
 
+    /**
+     * Returns true if this channel supports TCP
+     *
+     * @return true if this channel supports TCP, false if otherwise
+     */
     default boolean supportsTCP() {
         return getSide().supportsTCP();
     }
 
-    public Channel attach(Object attachment);
+    /**
+     * Attaches an object to this channel. The object attached doesn't matter and is only for user convenience.
+     *
+     * @param attachment the object to attach
+     */
+    void attach(Object attachment);
 
-    public Object getAttachment();
+    /**
+     * Gets the object attached to this channel.
+     *
+     * @return the object attached to this channel, or null if no object is attached
+     */
+    Object getAttachment();
 
-    public RestFuture<Channel, Channel> checkUDPPackets();
+    /**
+     * Checks for incoming udp packets and handles them.
+     *
+     * @return a RestFuture that will check for incoming udp packets when performed
+     */
+    RestFuture<Channel, Channel> checkUDPPackets();
 
-    public RestFuture<Channel, Channel> checkTCPPackets();
+    /**
+     * Checks for incoming tcp packets and handles them.
+     *
+     * @return a RestFuture that will check for incoming tcp packets when performed
+     */
+    RestFuture<Channel, Channel> checkTCPPackets();
 }

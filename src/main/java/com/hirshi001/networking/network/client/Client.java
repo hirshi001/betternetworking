@@ -1,3 +1,19 @@
+/*
+   Copyright 2022 Hrishikesh Ingle
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 package com.hirshi001.networking.network.client;
 
 import com.hirshi001.networking.network.channel.Channel;
@@ -12,15 +28,15 @@ import com.hirshi001.networking.packethandlercontext.PacketType;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.restapi.RestFuture;
 
-public interface Client extends NetworkSide{
+public interface Client extends NetworkSide {
 
     @Override
-    default boolean isClient(){
+    default boolean isClient() {
         return true;
     }
 
     @Override
-    default boolean isServer(){
+    default boolean isServer() {
         return false;
     }
 
@@ -30,35 +46,35 @@ public interface Client extends NetworkSide{
 
     Channel getChannel();
 
-    public void setChannelInitializer(ChannelInitializer initializer);
+    void setChannelInitializer(ChannelInitializer initializer);
 
-    public <T> void setChannelOption(ChannelOption<T> option, T value);
+    <T> void setChannelOption(ChannelOption<T> option, T value);
 
-    public <T> void setClientOption(ClientOption<T> option, T value);
+    <T> void setClientOption(ClientOption<T> option, T value);
 
-    public <T> T getClientOption(ClientOption<T> option);
+    <T> T getClientOption(ClientOption<T> option);
 
-    public <T> T getChannelOption(ChannelOption<T> option);
+    <T> T getChannelOption(ChannelOption<T> option);
 
-    public void addClientListener(ChannelListener listener);
+    void addClientListener(ChannelListener listener);
 
-    public void addClientListeners(ChannelListener... listeners);
+    void addClientListeners(ChannelListener... listeners);
 
-    public boolean removeClientListener(ChannelListener listener);
+    boolean removeClientListener(ChannelListener listener);
 
-    public void removeClientListeners(ChannelListener... listeners);
-
-    @Override
-    public RestFuture<?, Client> startTCP();
+    void removeClientListeners(ChannelListener... listeners);
 
     @Override
-    public RestFuture<?, Client> startUDP();
+    RestFuture<?, Client> startTCP();
 
     @Override
-    public RestFuture<?, Client> stopTCP();
+    RestFuture<?, Client> startUDP();
 
     @Override
-    public RestFuture<?, Client> stopUDP();
+    RestFuture<?, Client> stopTCP();
+
+    @Override
+    RestFuture<?, Client> stopUDP();
 
     @Override
     RestFuture<Client, Client> checkUDPPackets();

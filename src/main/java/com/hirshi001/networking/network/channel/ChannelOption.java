@@ -1,8 +1,29 @@
+/*
+   Copyright 2022 Hrishikesh Ingle
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 package com.hirshi001.networking.network.channel;
 
-import com.hirshi001.networking.network.channel.ChannelOption;
 import com.hirshi001.networking.util.Option;
 
+/**
+ * An interface used for setting options on a channel
+ * @param <T> the type of the option
+ *
+ * @author Hrishikesh Ingle
+ */
 public class ChannelOption<T> extends Option<T> {
 
     //found in socket.java
@@ -42,7 +63,11 @@ public class ChannelOption<T> extends Option<T> {
     public static final ChannelOption<Long> UDP_PACKET_TIMEOUT = new ChannelOption<>("udp_packet_timeout", Long.class);
     public static final ChannelOption<Long> TCP_PACKET_TIMEOUT = new ChannelOption<>("tcp_packet_timeout", Long.class);
 
-
+    /**
+     * Creates a new ChannelOption
+     * @param name the name of the option
+     * @param type the type of the option
+     */
     public ChannelOption(String name, Class<T> type) {
         super(name, type);
     }

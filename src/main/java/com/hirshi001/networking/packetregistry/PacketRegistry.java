@@ -1,3 +1,19 @@
+/*
+   Copyright 2022 Hrishikesh Ingle
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 package com.hirshi001.networking.packetregistry;
 
 import com.hirshi001.networking.packet.Packet;
@@ -14,62 +30,69 @@ import java.util.function.Supplier;
  * A registry that holds packets used in a networking system.
  * Using the register"Type"Packet methods will register packets of that Type to a default negative
  * id.
- * @author Hirshi001
+ *
+ * @author Hrishikesh Ingle
  */
 public interface PacketRegistry {
 
-    default public <T extends Packet> PacketRegistry register(Supplier<T> supplier, PacketHandler<T> handler, Class<T> packetClass, int id){
+    default <T extends Packet> PacketRegistry register(Supplier<T> supplier, PacketHandler<T> handler, Class<T> packetClass, int id) {
         return register(new PacketHolder<>(supplier, handler, packetClass), id);
     }
 
     /**
      * Registers a packet with the given id.
+     *
      * @param holder the packet holder to register
-     * @param id the id to register the packet with
+     * @param id     the id to register the packet with
      * @return this
      */
-    public PacketRegistry register(PacketHolder<?> holder, int id);
+    PacketRegistry register(PacketHolder<?> holder, int id);
 
     /**
      * Gets the packet holder for the given id.
+     *
      * @param id the id to get the packet holder for
      * @return the packet holder for the given id
      */
-    public PacketHolder<?> getPacketHolder(int id);
+    PacketHolder<?> getPacketHolder(int id);
 
     /**
      * Gets the id for the given packet holder.
+     *
      * @param holder the packet holder to get the id for
      * @return the id for the given packet holder
      */
-    public int getId(PacketHolder<?> holder);
+    int getId(PacketHolder<?> holder);
 
     /**
      * Gets the id for the given packet class.
+     *
      * @param clazz the packet class to get the id for
      * @return the id for the given packet class
      */
-    public int getId(Class<? extends Packet> clazz);
+    int getId(Class<? extends Packet> clazz);
 
     /**
      * @return the name of the registry
      */
-    public String getRegistryName();
+    String getRegistryName();
 
     /**
      * Helper method to register SystemPackets.
+     *
      * @return this
      */
-    default PacketRegistry registerSystemPackets(){
+    default PacketRegistry registerSystemPackets() {
         // there are no system packets yet
         return this;
     }
 
     /**
      * Helper method to register PrimitivePackets to ids between -101 and -200 inclusive.
+     *
      * @return this
      */
-    default PacketRegistry registerDefaultPrimitivePackets(){
+    default PacketRegistry registerDefaultPrimitivePackets() {
         register(new PacketHolder<>(BooleanPacket::new, null, BooleanPacket.class), -101);
         register(new PacketHolder<>(BytePacket::new, null, BytePacket.class), -102);
         register(new PacketHolder<>(CharPacket::new, null, CharPacket.class), -103);
@@ -85,9 +108,10 @@ public interface PacketRegistry {
 
     /**
      * Helper method to register ArrayPrimitivePackets to ids between -201 and -300 inclusive.
+     *
      * @return this
      */
-    default PacketRegistry registerDefaultArrayPrimitivePackets(){
+    default PacketRegistry registerDefaultArrayPrimitivePackets() {
         register(new PacketHolder<>(BooleanArrayPacket::new, null, BooleanArrayPacket.class), -201);
         register(new PacketHolder<>(ByteArrayPacket::new, null, ByteArrayPacket.class), -202);
         register(new PacketHolder<>(CharArrayPacket::new, null, CharArrayPacket.class), -203);
@@ -101,9 +125,10 @@ public interface PacketRegistry {
 
     /**
      * Helper method to register ObjectPackets to ids between -301 and -400 inclusive.
+     *
      * @return this
      */
-    default PacketRegistry registerDefaultObjectPackets(){
+    default PacketRegistry registerDefaultObjectPackets() {
         register(new PacketHolder<>(ObjectPacket::new, null, ObjectPacket.class), -301);
         //maybe add ObjectArrayPacket
         return this;
@@ -111,15 +136,16 @@ public interface PacketRegistry {
 
     /**
      * Helper method to register UDPHelperPackets to ids between -401 and -500 inclusive.
+     *
      * @return this
      */
-    default PacketRegistry registerUDPHelperPackets(){
+    default PacketRegistry registerUDPHelperPackets() {
         register(new PacketHolder<>(UDPInitialConnectionPacket::new, null, UDPInitialConnectionPacket.class), -401);
         return this;
     }
 
-    public int getId();
+    int getId();
 
-    public PacketRegistry setId(int id);
+    PacketRegistry setId(int id);
 
 }
