@@ -482,9 +482,8 @@ public abstract class BaseChannel implements Channel {
     }
 
     @Override
-    public Channel attach(Object attachment) {
+    public void attach(Object attachment) {
         this.attachedObject = attachment;
-        return this;
     }
 
     @Override

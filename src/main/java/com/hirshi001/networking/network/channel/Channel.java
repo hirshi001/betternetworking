@@ -387,13 +387,6 @@ public interface Channel {
     Object getAttachment();
 
     /**
-     * Checks for incoming udp packets and handles them.
-     *
-     * @return a RestFuture that will check for incoming udp packets when performed
-     */
-    RestFuture<Channel, Channel> checkUDPPackets();
-
-    /**
      * Checks for incoming tcp packets and handles them.
      *
      * @return a RestFuture that will check for incoming tcp packets when performed

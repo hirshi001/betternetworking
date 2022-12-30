@@ -22,7 +22,16 @@ import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelSet;
 import com.hirshi001.networking.network.channel.DefaultChannelSet;
 import com.hirshi001.networking.networkdata.NetworkData;
-public abstract class BaseServer<T extends Channel> implements Server{
+import com.hirshi001.restapi.RestFuture;
+
+/**
+ * A base implementation of the {@link Server} interface. This class provides some implementations of methods but the
+ * rest are left to the user to implement.
+ *
+ * @param <T> the type of {@link Channel} this server will use
+ * @author Hrishikesh Ingle
+ */
+public abstract class BaseServer<T extends Channel> implements Server {
 
     private final NetworkData networkData;
     private final BufferFactory bufferFactory;
@@ -31,6 +40,13 @@ public abstract class BaseServer<T extends Channel> implements Server{
     protected ChannelInitializer channelInitializer;
     private final int port;
 
+    /**
+     * Creates a new BaseServer with the given NetworkData, BufferFactory, and port
+     *
+     * @param networkData   the NetworkData to use
+     * @param bufferFactory the BufferFactory to use
+     * @param port          the port to listen on
+     */
     public BaseServer(NetworkData networkData, BufferFactory bufferFactory, int port) {
         this.networkData = networkData;
         this.bufferFactory = bufferFactory;
@@ -95,8 +111,14 @@ public abstract class BaseServer<T extends Channel> implements Server{
         return serverListenerHandler;
     }
 
-    public boolean addChannel(T channel){
-        if(channelSet.add(channel)) {
+    /**
+     * Adds a channel to the channel set
+     *
+     * @param channel the channel to add
+     * @return true if the channel was added
+     */
+    protected boolean addChannel(T channel) {
+        if (channelSet.add(channel)) {
             if (channelInitializer != null) {
                 channelInitializer.initChannel(channel);
             }
@@ -106,8 +128,25 @@ public abstract class BaseServer<T extends Channel> implements Server{
         return false;
     }
 
-    public boolean removeChannel(Channel channel){
+    /**
+     * Removes a channel from the channel set
+     *
+     * @param channel the channel to remove
+     * @return true if the channel was removed
+     */
+    protected boolean removeChannel(Channel channel) {
         return channelSet.remove(channel);
     }
 
+    @Override
+    public RestFuture<Server, Server> checkTCPPackets() {
+        return RestFuture.create(()->{
+            synchronized (channelSet.getLock()){
+                for(T channel : channelSet){
+                    channel.checkTCPPackets().perform();
+                }
+            }
+            return this;
+        });
+    }
 }

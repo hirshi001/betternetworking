@@ -25,6 +25,12 @@ import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.restapi.RestFuture;
 
+/**
+ * An interface representing a Server which allows for sending, receiving, and creating connections with
+ * {@link com.hirshi001.networking.network.client.Client}s.
+ *
+ * @author Hrishikesh Ingle
+ */
 public interface Server extends NetworkSide {
 
     @Override
@@ -37,16 +43,41 @@ public interface Server extends NetworkSide {
         return true;
     }
 
+    /**
+     * Returns the port that this server is listening on for tcp connections and UDP packets
+     *
+     * @return an int representing the port that this server is listening on for tcp connections and UDP packets
+     */
     int getPort();
 
+    /**
+     * Returns a ChannelSet representing all client currently connected to this server. All channels in this set are open.
+     *
+     * @return a ChannelSet representing all client currently connected to this server.
+     */
     ChannelSet<Channel> getClients();
 
-
+    /**
+     * Has the server start listening for TCP connections
+     *
+     * @return a RestFuture that will have the server start listening for TCP connections when performed
+     */
     @Override
     RestFuture<?, Server> startTCP();
 
+    /**
+     * Has the server start listening for UDP packets
+     *
+     * @return a RestFuture that will have the server start listening for UDP packets when performed
+     */
     RestFuture<?, Server> startUDP();
 
+    /**
+     * Has the server stop listening for TCP connections (Does not close any existing connections).
+     * To close existing connections, call {@link Channel#closeTCP()}
+     *
+     * @return a RestFuture that will have the server stop listening for TCP connections when performed
+     */
     RestFuture<?, Server> stopTCP();
 
     RestFuture<?, Server> stopUDP();
@@ -75,9 +106,6 @@ public interface Server extends NetworkSide {
     void close();
 
     boolean isClosed();
-
-    @Override
-    RestFuture<Server, Server> checkUDPPackets();
 
     @Override
     RestFuture<Server, Server> checkTCPPackets();
