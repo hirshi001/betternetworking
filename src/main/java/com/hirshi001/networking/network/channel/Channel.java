@@ -392,4 +392,11 @@ public interface Channel {
      * @return a RestFuture that will check for incoming tcp packets when performed
      */
     RestFuture<Channel, Channel> checkTCPPackets();
+
+    /**
+     * Checks for incoming udp packets and handles them.
+     *
+     * @return a RestFuture that will check for incoming udp packets when performed
+     */
+    RestFuture<Channel, Channel> checkUDPPackets();
 }

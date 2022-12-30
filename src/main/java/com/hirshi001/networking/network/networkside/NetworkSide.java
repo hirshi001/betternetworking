@@ -171,4 +171,11 @@ public interface NetworkSide {
      */
     RestFuture<? extends NetworkSide, ? extends NetworkSide> checkTCPPackets();
 
+    /**
+     * Checks if there are any UDP packets received and handles them
+     *
+     * @return a RestFuture that will check for UDP packets when performed
+     */
+    RestFuture<? extends NetworkSide, ? extends NetworkSide> checkUDPPackets();
+
 }

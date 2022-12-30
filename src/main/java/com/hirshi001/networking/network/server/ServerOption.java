@@ -26,6 +26,9 @@ public class ServerOption<T> extends Option<T> {
     // Time interval in ms to check for tcp packets. If negative, server will never automatically check for packets
     public static final ServerOption<Integer> TCP_PACKET_CHECK_INTERVAL = new ServerOption<>("tcp_packet_check_interval", Integer.class);
 
+    // Time interval in ms to check for udp packets. If negative, client will never automatically check for udp packets
+    public static final ServerOption<Integer> UDP_PACKET_CHECK_INTERVAL = new ServerOption<>("udp_packet_check_interval", Integer.class);
+
 
     protected ServerOption(String name, Class<T> type) {
         super(name, type);

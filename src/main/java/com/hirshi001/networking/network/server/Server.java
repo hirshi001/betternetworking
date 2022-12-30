@@ -74,7 +74,7 @@ public interface Server extends NetworkSide {
 
     /**
      * Has the server stop listening for TCP connections (Does not close any existing connections).
-     * To close existing connections, call {@link Channel#closeTCP()}
+     * To close existing connections, call {@link Channel#startTCP()}
      *
      * @return a RestFuture that will have the server stop listening for TCP connections when performed
      */
@@ -109,4 +109,7 @@ public interface Server extends NetworkSide {
 
     @Override
     RestFuture<Server, Server> checkTCPPackets();
+
+    @Override
+    RestFuture<Server, Server> checkUDPPackets();
 }

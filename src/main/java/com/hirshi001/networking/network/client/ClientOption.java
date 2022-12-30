@@ -29,6 +29,9 @@ public class ClientOption<T> extends com.hirshi001.networking.util.Option<T> {
     // Time interval in ms to check for tcp packets. If negative, client will never automatically check for tcp packets
     public static final ClientOption<Integer> TCP_PACKET_CHECK_INTERVAL = new ClientOption<>("tcp_packet_check_interval", Integer.class);
 
+    // Time interval in ms to check for udp packets. If negative, client will never automatically check for udp packets
+    public static final ClientOption<Integer> UDP_PACKET_CHECK_INTERVAL = new ClientOption<>("udp_packet_check_interval", Integer.class);
+
     /**
      * Creates a new ClientOption with the given name and type
      *
