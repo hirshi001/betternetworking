@@ -26,6 +26,7 @@ import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
+import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
 
 /**
@@ -132,7 +133,7 @@ public abstract class BaseClient implements Client {
 
     @Override
     public RestFuture<Client, Client> checkTCPPackets() {
-        return RestFuture.create( ()->{
+        return RestAPI.create( ()->{
             getChannel().checkTCPPackets().perform().get();
             return this;
         });

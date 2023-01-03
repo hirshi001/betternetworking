@@ -28,6 +28,7 @@ import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.networking.packethandlercontext.PacketType;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
+import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
 import org.jetbrains.annotations.Nullable;
 
@@ -188,7 +189,7 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
-        return RestFuture.create((future, input) -> {
+        return RestAPI.create((future, input) -> {
             packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS, future);
             sendTCP(packet, registry).perform();
         });
@@ -196,7 +197,7 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
-        return RestFuture.create((future, input) -> {
+        return RestAPI.create((future, input) -> {
             packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS, future);
             sendUDP(packet, registry).perform();
         });
@@ -216,7 +217,7 @@ public abstract class BaseChannel implements Channel {
 
     private <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP0(P packet, @Nullable DataPacket dataPacket,
                                                                                PacketRegistry registry) {
-        return RestFuture.create(() -> {
+        return RestAPI.create(() -> {
             PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
             context.packetType = PacketType.TCP;
             ByteBuffer buffer = toBytes(context, dataPacket);
@@ -247,7 +248,7 @@ public abstract class BaseChannel implements Channel {
      */
     private <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP0(P packet, @Nullable DataPacket dataPacket,
                                                                                PacketRegistry registry) {
-        return RestFuture.create(() -> {
+        return RestAPI.create(() -> {
             PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
             context.packetType = PacketType.UDP;
             ByteBuffer buffer = toBytes(context, dataPacket);
@@ -462,7 +463,7 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public RestFuture<?, Channel> close() {
-        return RestFuture.create(() -> {
+        return RestAPI.create(() -> {
             if (isClosed()) return this;
             if (!isTCPClosed()) stopTCP().perform();
             if (!isUDPClosed()) stopUDP().perform();

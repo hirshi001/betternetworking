@@ -22,6 +22,7 @@ import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelSet;
 import com.hirshi001.networking.network.channel.DefaultChannelSet;
 import com.hirshi001.networking.networkdata.NetworkData;
+import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
 
 /**
@@ -140,7 +141,7 @@ public abstract class BaseServer<T extends Channel> implements Server {
 
     @Override
     public RestFuture<Server, Server> checkTCPPackets() {
-        return RestFuture.create(()->{
+        return RestAPI.create(()->{
             synchronized (channelSet.getLock()){
                 for(T channel : channelSet){
                     channel.checkTCPPackets().perform();

@@ -20,6 +20,7 @@ import com.hirshi001.networking.network.server.Server;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packethandlercontext.PacketType;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
+import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
 
 import java.io.IOException;
@@ -69,7 +70,7 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
 
     @Override
     public RestFuture<?, DefaultChannelSet<T>> sendTCPToAll(Packet packet, PacketRegistry packetRegistry) {
-        return RestFuture.create(() -> {
+        return RestAPI.create(() -> {
             synchronized (lock) {
                 for (T channel : channels) {
                     channel.sendTCP(packet, packetRegistry).perform();
@@ -81,7 +82,7 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
 
     @Override
     public RestFuture<?, DefaultChannelSet<T>> sendUDPToAll(Packet packet, PacketRegistry packetRegistry) {
-        return RestFuture.create(() -> {
+        return RestAPI.create(() -> {
             synchronized (lock) {
                 for (T channel : channels) {
                     channel.sendUDP(packet, packetRegistry).perform();
@@ -115,7 +116,7 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
 
     @Override
     public RestFuture<?, DefaultChannelSet<T>> sendToAll(Packet packet, PacketType packetType, PacketRegistry packetRegistry) {
-        return RestFuture.create(() -> {
+        return RestAPI.create(() -> {
             synchronized (lock) {
                 for (T channel : channels) {
                     channel.send(packet, packetRegistry, packetType).perform();
