@@ -144,8 +144,8 @@ public class ExampleUsage {
         client.setChannelInitializer((channel) -> {
             channel.setChannelOption(ChannelOption.TCP_SO_TIMEOUT, 1000);
             channel.setChannelOption(ChannelOption.TCP_NODELAY, true); // idk what this does
-            channel.setChannelOption(ChannelOption.UDP_AUTO_FLUSH, true);
-            channel.setChannelOption(ChannelOption.TCP_AUTO_FLUSH, true);
+            channel.setChannelOption(ChannelOption.UDP_AUTO_FLUSH, 0);
+            channel.setChannelOption(ChannelOption.TCP_AUTO_FLUSH, 0);
         });
 
         client.startTCP().perform().get();

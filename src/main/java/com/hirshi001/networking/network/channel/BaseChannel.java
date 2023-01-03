@@ -56,8 +56,8 @@ public abstract class BaseChannel implements Channel {
 
     private Object attachedObject;
 
-    protected boolean autoFlushTCP = false;
-    protected boolean autoFlushUDP = false;
+    protected int autoFlushTCP = -1;
+    protected int autoFlushUDP = -1;
 
     protected boolean defaultTCP = false;
     protected boolean defaultUDP = false;
@@ -232,7 +232,6 @@ public abstract class BaseChannel implements Channel {
             getListenerHandler().onSent(context);
             getSide().getListenerHandler().onTCPSent(context);
             getSide().getListenerHandler().onSent(context);
-            if (autoFlushTCP) flushTCP().perform();
             return context;
         });
     }
@@ -263,7 +262,6 @@ public abstract class BaseChannel implements Channel {
             getListenerHandler().onSent(context);
             getSide().getListenerHandler().onUDPSent(context);
             getSide().getListenerHandler().onSent(context);
-            if (autoFlushUDP) flushUDP().perform();
             return context;
         });
     }
@@ -413,10 +411,10 @@ public abstract class BaseChannel implements Channel {
             defaultSwitchProtocol = (Boolean) value;
             return true;
         } else if (option == ChannelOption.TCP_AUTO_FLUSH) {
-            autoFlushTCP = (Boolean) value;
+            autoFlushTCP = (Integer) value;
             return true;
         } else if (option == ChannelOption.UDP_AUTO_FLUSH) {
-            autoFlushUDP = (Boolean) value;
+            autoFlushUDP = (Integer) value;
             return true;
         } else if (option == ChannelOption.PACKET_TIMEOUT) {
             packetTimeout = ((Number) value).longValue();
