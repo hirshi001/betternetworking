@@ -31,15 +31,6 @@ import com.hirshi001.restapi.RestFuture;
  */
 public interface Client extends NetworkSide {
 
-    @Override
-    default boolean isClient() {
-        return true;
-    }
-
-    @Override
-    default boolean isServer() {
-        return false;
-    }
 
     /**
      * Returns the port that this client is connected to on the server

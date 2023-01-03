@@ -33,15 +33,6 @@ import com.hirshi001.restapi.RestFuture;
  */
 public interface Server extends NetworkSide {
 
-    @Override
-    default boolean isClient() {
-        return false;
-    }
-
-    @Override
-    default boolean isServer() {
-        return true;
-    }
 
     /**
      * Returns the port that this server is listening on for tcp connections and UDP packets

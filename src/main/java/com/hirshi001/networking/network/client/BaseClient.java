@@ -28,8 +28,6 @@ import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.restapi.RestFuture;
 
-import java.net.Socket;
-
 /**
  * A base class for a client that can connect to a server. Some methods are implemented but the rest are left to the
  * user to implement.
@@ -138,5 +136,15 @@ public abstract class BaseClient implements Client {
             getChannel().checkTCPPackets().perform().get();
             return this;
         });
+    }
+
+    @Override
+    public boolean isClient() {
+        return true;
+    }
+
+    @Override
+    public boolean isServer() {
+        return false;
     }
 }

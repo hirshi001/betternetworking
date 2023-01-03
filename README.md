@@ -383,6 +383,8 @@ Use DefaultNetworkData to create a NetworkData object.
 You can use these already implemented platform dependent libraries.
 * [JavaNetworkingLibrary](https://github.com/hirshi001/JavaNetworkingLibrary) - For Java
 * HTML/GWT Library- For GWT projects \(not implemented yet\)
+* [JavaRestAPI](https://github.com/hirshi001/JavaRestAPI) - Rest API for Java
+* [GWTRestAPI](https://github.com/hirshi001/GWTRestAPI) - Rest API for GWT projects
 
 ## Dependencies
 This library and [Platform Dependent Implemented Libraries](#platform-dependent-implemented-libraries) can be implemented through Jitpack.
@@ -395,10 +397,11 @@ Make sure the Platform Dependent Library has the same corresponding version of t
 These are the corresponding versions of each library on jitpack.io. Make sure you only use the versions in the same row.
 The top most row is the latest/most up to date version. Other versions found on jitpack.io are not guaranteed to work.
 
-|NetworkingLibrary|JavaNetworkingLibrary|HTML/GWT Library|ByteBuffer|RestAPI|
-|---|---|---|---|---|
-|de3537b0aa (Latest Version)|0f5f756978|N/A|c7cecbed69|9d6f540f25|
-|56a9acbde2|564d952667|N/A|c7cecbed69|9d6f540f25|
+| NetworkingLibrary           | JavaNetworkingLibrary | HTML/GWT Library | ByteBuffer | RestAPI    | JavaRestAPI | GWTRestAPI |
+|-----------------------------|-----------------------|------------------|------------|------------|-------------|------------|
+| de3537b0aa (Latest Version) | 0f5f756978            | N/A              | ea62bf49b9 | 5a472485ef | 34f03f9507  | 3e36bcaeb7 |
+| de3537b0aa                  | 0f5f756978            | N/A              | c7cecbed69 | 9d6f540f25 | N/A         | N/A        |
+| 56a9acbde2                  | 564d952667            | N/A              | c7cecbed69 | 9d6f540f25 | N/A         | N/A        |
 
 ### Other Libraries
 These are some libraries this library depends on. These libraries are relatively new and may contain bugs, thus affecting

@@ -151,4 +151,15 @@ public abstract class BaseServer<T extends Channel> implements Server {
     }
 
 
+    @Override
+    public boolean isClient() {
+        return false;
+    }
+
+    @Override
+    public boolean isServer() {
+        return true;
+    }
+
+
 }

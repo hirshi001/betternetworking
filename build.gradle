@@ -34,16 +34,9 @@ dependencies {
 
     api 'org.jetbrains:annotations:23.0.0'
 
-    // api 'com.google.guava:guava-gwt:27.0.1-jre'
-
 }
 
 test {
     useJUnitPlatform()
     testLogging.showStandardStreams = true
-}
-
-
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
