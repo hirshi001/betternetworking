@@ -18,10 +18,6 @@ package com.hirshi001.networking.packetregistry;
 
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packet.PacketHolder;
-import com.hirshi001.networking.util.defaultpackets.objectpackets.ObjectPacket;
-import com.hirshi001.networking.util.defaultpackets.primitivepackets.*;
-import com.hirshi001.networking.util.defaultpackets.arraypackets.*;
-import com.hirshi001.networking.util.defaultpackets.udppackets.UDPInitialConnectionPacket;
 
 import java.util.HashMap;
 import java.util.Map;

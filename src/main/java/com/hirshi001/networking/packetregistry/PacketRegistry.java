@@ -20,7 +20,6 @@ import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packet.PacketHandler;
 import com.hirshi001.networking.packet.PacketHolder;
 import com.hirshi001.networking.util.defaultpackets.arraypackets.*;
-import com.hirshi001.networking.util.defaultpackets.objectpackets.ObjectPacket;
 import com.hirshi001.networking.util.defaultpackets.primitivepackets.*;
 import com.hirshi001.networking.util.defaultpackets.udppackets.UDPInitialConnectionPacket;
 
@@ -129,7 +128,6 @@ public interface PacketRegistry {
      * @return this
      */
     default PacketRegistry registerDefaultObjectPackets() {
-        register(new PacketHolder<>(ObjectPacket::new, null, ObjectPacket.class), -301);
         //maybe add ObjectArrayPacket
         return this;
     }
