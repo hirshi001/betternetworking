@@ -25,12 +25,18 @@ publishing {
     }
 }
 
+ext {
+    restAPIVersion="5a472485ef"
+    byteBufferVersion="ea62bf49b9"
+}
+
+
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.1"
 
-    api('com.github.hirshi001:restapi:c7cecbed69')
-    api('com.github.hirshi001:bytebuffer:972ce15ed9')
+    api "com.github.hirshi001:restapi:$restAPIVersion"
+    api "com.github.hirshi001:bytebuffer:$byteBufferVersion"
 
     api 'org.jetbrains:annotations:23.0.0'
 
