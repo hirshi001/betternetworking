@@ -73,6 +73,7 @@ public abstract class BaseChannel implements Channel {
     private final ByteBuffer tcpBuffer;
 
 
+
     public BaseChannel(NetworkSide networkSide, ScheduledExecutorService executor) {
         this.networkSide = networkSide;
         this.executor = executor;
@@ -80,6 +81,8 @@ public abstract class BaseChannel implements Channel {
         optionObjectMap = new ConcurrentHashMap<>();
         tcpBuffer = getSide().getBufferFactory().circularBuffer(256);
         clientListenerHandler = new ChannelListenerHandler<>();
+
+
     }
 
     protected <P extends Packet> PacketHandlerContext<P> getNewPacketHandlerContext(P packet, PacketRegistry registry) {
@@ -107,13 +110,13 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public <T extends Packet> RestFuture<?, PacketHandlerContext<T>> waitFor(Class<T> packetClass, long timeout) {
-        // TODO: 1/29/2019 implement this
+        // TODO: implement this
         return null;
     }
 
     @Override
     public <T extends Packet> RestFuture<?, PacketHandlerContext<T>> waitFor(T packet, long timeout) {
-        // TODO: 1/29/2019 implement this
+        // TODO: implement this
         return null;
     }
 
@@ -220,13 +223,11 @@ public abstract class BaseChannel implements Channel {
         return RestAPI.create(() -> {
             PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
             context.packetType = PacketType.TCP;
-            ByteBuffer buffer = toBytes(context, dataPacket);
-            if (buffer.hasArray()) {
-                sendTCP(buffer.array(), buffer.readerIndex(), buffer.readableBytes());
-            } else {
-                byte[] bytes = new byte[buffer.readableBytes()];
-                buffer.getBytes(bytes, buffer.readerIndex(), bytes.length);
-                sendTCP(bytes, 0, bytes.length);
+            synchronized (sendTCPLock) {
+                toBytes(context, dataPacket, tcpBuffer);
+                if(autoFlushTCP>=0 && autoFlushTCP<=tcpBuffer.readableBytes()){
+                    flushTCP().perform();
+                }
             }
             getListenerHandler().onTCPSent(context);
             getListenerHandler().onSent(context);
@@ -276,15 +277,13 @@ public abstract class BaseChannel implements Channel {
      * @param dataPacket the data packet
      * @return the byte buffer
      */
-    private ByteBuffer toBytes(PacketHandlerContext<?> context, @Nullable DataPacket dataPacket) {
+    private void toBytes(PacketHandlerContext<?> context, @Nullable DataPacket dataPacket, ByteBuffer buffer) {
         NetworkSide side = getSide();
         if (context.packetRegistry == null)
             context.packetRegistry = side.getNetworkData().getPacketRegistryContainer().getDefaultRegistry();
         NetworkData data = side.getNetworkData();
-        ByteBuffer buffer = side.getBufferFactory().buffer();
         PacketRegistryContainer container = data.getPacketRegistryContainer();
         data.getPacketEncoderDecoder().encode(context, dataPacket, container, buffer);
-        return buffer;
     }
 
     @Override
@@ -411,6 +410,7 @@ public abstract class BaseChannel implements Channel {
             defaultSwitchProtocol = (Boolean) value;
             return true;
         } else if (option == ChannelOption.TCP_AUTO_FLUSH) {
+            if(sendTCPArray==null)
             autoFlushTCP = (Integer) value;
             return true;
         } else if (option == ChannelOption.UDP_AUTO_FLUSH) {
@@ -457,7 +457,20 @@ public abstract class BaseChannel implements Channel {
 
     public abstract RestFuture<?, Channel> flushUDP();
 
-    public abstract RestFuture<?, Channel> flushTCP();
+    public RestFuture<?, Channel> flushTCP(){
+        return RestAPI.create( ()->{
+            synchronized (sendTCPLock) {
+                if (tcpBuffer.hasArray()) {
+                    sendTCP(tcpBuffer.array(), tcpBuffer.readerIndex(), tcpBuffer.readableBytes());
+                } else {
+                    byte[] bytes = new byte[tcpBuffer.readableBytes()];
+                    tcpBuffer.getBytes(bytes, tcpBuffer.readerIndex(), bytes.length);
+                    sendTCP(bytes, 0, bytes.length);
+                }
+            }
+            return this;
+        });
+    }
 
     @Override
     public RestFuture<?, Channel> close() {

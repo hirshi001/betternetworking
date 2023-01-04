@@ -54,8 +54,8 @@ public class ChannelOption<T> extends Option<T> {
     public static final ChannelOption<Boolean> DEFAULT_SWITCH_PROTOCOL = new ChannelOption<>("default_switch_protocol", Boolean.class); //if true, will switch networking protocols if current one is unavailable
 
     //auto-flushing, more of a convenience option
-    public static final ChannelOption<Integer> TCP_AUTO_FLUSH = new ChannelOption<>("tcp_auto_flush", Integer.class); // Will auto flush once x amount of bytes have been written, -1 for never, 0 for always
-    public static final ChannelOption<Integer> UDP_AUTO_FLUSH = new ChannelOption<>("udp_auto_flush", Integer.class); // Will auto flush once x amount of bytes have been written, -1 for never, 0 for always
+    public static final ChannelOption<Boolean> TCP_AUTO_FLUSH = new ChannelOption<>("tcp_auto_flush", Boolean.class); // auto flush whenever a packet is written
+    public static final ChannelOption<Boolean> UDP_AUTO_FLUSH = new ChannelOption<>("udp_auto_flush", Boolean.class); // auto flush whenever a packet is written
 
     //timeout for when a packet is not received
     //only used on server side, client must manually disconnect

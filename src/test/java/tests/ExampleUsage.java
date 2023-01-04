@@ -25,6 +25,7 @@ import com.hirshi001.networking.util.defaultpackets.primitivepackets.IntegerPack
 import com.hirshi001.networking.util.defaultpackets.primitivepackets.StringPacket;
 import org.junit.jupiter.api.Test;
 
+import java.net.Socket;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
