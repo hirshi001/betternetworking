@@ -17,8 +17,8 @@
 package com.hirshi001.networking.network.channel;
 
 import com.hirshi001.buffer.buffers.ByteBuffer;
-import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.network.PacketResponseManager;
+import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.network.server.Server;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.networking.packet.DataPacket;
@@ -32,7 +32,6 @@ import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -332,16 +331,20 @@ public abstract class BaseChannel implements Channel {
         if (context.shouldHandle()) context.handle();
     }
 
-    protected void onUDPPacketReceived(ByteBuffer packet) {
+    protected void onUDPPacketsReceived(ByteBuffer packet) {
         if (maxUDPPayloadSize >= 0 && packet.readableBytes() > maxUDPPayloadSize) return;
         PacketEncoderDecoder encoderDecoder = getSide().getNetworkData().getPacketEncoderDecoder();
 
-        PacketHandlerContext context = encoderDecoder.decode(getSide().getNetworkData().getPacketRegistryContainer(), packet, null);
-        if (context != null) {
-            context.packetType = PacketType.UDP;
-            context.channel = this;
-            context.networkSide = getSide();
-            onPacketReceived(context);
+        while(true) {
+            PacketHandlerContext context = encoderDecoder.decode(getSide().getNetworkData().getPacketRegistryContainer(), packet, null);
+            if (context != null) {
+                context.packetType = PacketType.UDP;
+                context.channel = this;
+                context.networkSide = getSide();
+                onPacketReceived(context);
+            }else{
+                break;
+            }
         }
     }
 

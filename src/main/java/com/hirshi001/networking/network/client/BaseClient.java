@@ -25,6 +25,8 @@ import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
 
+import java.util.concurrent.ExecutionException;
+
 /**
  * A base class for a client that can connect to a server. Some methods are implemented but the rest are left to the
  * user to implement.
@@ -130,6 +132,35 @@ public abstract class BaseClient implements Client {
     @Override
     public void checkTCPPackets() {
         getChannel().checkTCPPackets();
+    }
+
+    @Override
+    public void checkUDPPackets() {
+        getChannel().checkUDPPackets();
+    }
+
+    @Override
+    public void close() {
+        try {
+            stopTCP().perform().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        try {
+            stopUDP().perform().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean tcpOpen() {
+        return getChannel().isTCPOpen();
+    }
+
+    @Override
+    public boolean udpOpen() {
+        return getChannel().isUDPOpen();
     }
 
     @Override
