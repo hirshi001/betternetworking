@@ -139,8 +139,8 @@ public interface Client extends NetworkSide {
     RestFuture<?, Client> stopUDP();
 
     @Override
-    RestFuture<Client, Client> checkTCPPackets();
+    void checkTCPPackets();
 
     @Override
-    RestFuture<Client, Client> checkUDPPackets();
+    void checkUDPPackets();
 }

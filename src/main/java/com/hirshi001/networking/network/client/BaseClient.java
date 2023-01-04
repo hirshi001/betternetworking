@@ -21,11 +21,7 @@ import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelListener;
 import com.hirshi001.networking.network.channel.ChannelListenerHandler;
 import com.hirshi001.networking.network.channel.ChannelOption;
-import com.hirshi001.networking.network.networkside.NetworkSideListener;
 import com.hirshi001.networking.networkdata.NetworkData;
-import com.hirshi001.networking.packet.Packet;
-import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
-import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
 
@@ -132,11 +128,8 @@ public abstract class BaseClient implements Client {
     }
 
     @Override
-    public RestFuture<Client, Client> checkTCPPackets() {
-        return RestAPI.create( ()->{
-            getChannel().checkTCPPackets().perform().get();
-            return this;
-        });
+    public void checkTCPPackets() {
+        getChannel().checkTCPPackets();
     }
 
     @Override

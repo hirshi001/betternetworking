@@ -98,7 +98,7 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     public void flushTCP() {
         synchronized (lock) {
             for (Channel channel : channels) {
-                channel.flushTCP().perform();
+                channel.flushTCP();
             }
         }
     }
@@ -109,7 +109,7 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     public void flushUDP() {
         synchronized (lock) {
             for (Channel channel : channels) {
-                channel.flushUDP().perform();
+                channel.flushUDP();
             }
         }
     }

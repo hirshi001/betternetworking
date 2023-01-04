@@ -193,25 +193,21 @@ public interface Channel {
                                                                       long timeout);
 
     /**
-     * Attempts to send all bytes in the channel's buffer.
-     *
-     * @return a RestFuture that will be performed when the udp bytes are sent
+     * Sends all bytes in the UDP channel
      */
-    RestFuture<?, Channel> flushUDP();
+    void flushUDP();
 
     /**
-     * Attempts to send all bytes in the channel's buffer.
-     *
-     * @return a RestFuture that will be performed when the tcp bytes are sent
+     * Sends all bytes in the TCP channel
      */
-    RestFuture<?, ?> flushTCP();
+   void flushTCP();
 
     /**
      * Flushes tcp and udp.
      *
      * @return a RestFuture that will be performed when the bytes are sent
      */
-    RestFuture<?, ?> flush();
+    void flush();
 
     /**
      * Set a value for a channel option
@@ -391,12 +387,12 @@ public interface Channel {
      *
      * @return a RestFuture that will check for incoming tcp packets when performed
      */
-    RestFuture<Channel, Channel> checkTCPPackets();
+    void checkTCPPackets();
 
     /**
      * Checks for incoming udp packets and handles them.
      *
      * @return a RestFuture that will check for incoming udp packets when performed
      */
-    RestFuture<Channel, Channel> checkUDPPackets();
+    void checkUDPPackets();
 }

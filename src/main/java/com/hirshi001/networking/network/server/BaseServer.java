@@ -140,17 +140,23 @@ public abstract class BaseServer<T extends Channel> implements Server {
     }
 
     @Override
-    public RestFuture<Server, Server> checkTCPPackets() {
-        return RestAPI.create(()->{
-            synchronized (channelSet.getLock()){
-                for(T channel : channelSet){
-                    channel.checkTCPPackets().perform();
-                }
+    public void checkTCPPackets() {
+
+        synchronized (channelSet.getLock()){
+            for(T channel : channelSet){
+                channel.checkTCPPackets();
             }
-            return this;
-        });
+        }
     }
 
+    @Override
+    public void checkUDPPackets() {
+        synchronized (channelSet.getLock()){
+            for(T channel : channelSet){
+                channel.checkUDPPackets();
+            }
+        }
+    }
 
     @Override
     public boolean isClient() {

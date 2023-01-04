@@ -169,13 +169,13 @@ public interface NetworkSide {
      *
      * @return a RestFuture that will check for TCP packets when performed
      */
-    RestFuture<? extends NetworkSide, ? extends NetworkSide> checkTCPPackets();
+    void checkTCPPackets();
 
     /**
      * Checks if there are any UDP packets received and handles them
      *
      * @return a RestFuture that will check for UDP packets when performed
      */
-    RestFuture<? extends NetworkSide, ? extends NetworkSide> checkUDPPackets();
+    void checkUDPPackets();
 
 }

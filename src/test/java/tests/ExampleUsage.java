@@ -145,8 +145,8 @@ public class ExampleUsage {
         client.setChannelInitializer((channel) -> {
             channel.setChannelOption(ChannelOption.TCP_SO_TIMEOUT, 1000);
             channel.setChannelOption(ChannelOption.TCP_NODELAY, true); // idk what this does
-            channel.setChannelOption(ChannelOption.UDP_AUTO_FLUSH, 0);
-            channel.setChannelOption(ChannelOption.TCP_AUTO_FLUSH, 0);
+            channel.setChannelOption(ChannelOption.UDP_AUTO_FLUSH, true);
+            channel.setChannelOption(ChannelOption.TCP_AUTO_FLUSH, true);
         });
 
         client.startTCP().perform().get();
@@ -169,7 +169,7 @@ public class ExampleUsage {
         }
 
         while(true){
-            client.checkTCPPackets().perform();
+            client.checkTCPPackets();
             Thread.sleep(100); // have client check for tcp packets every 100 ms
         }
 

@@ -56,8 +56,8 @@ public abstract class BaseChannel implements Channel {
 
     private Object attachedObject;
 
-    protected int autoFlushTCP = -1;
-    protected int autoFlushUDP = -1;
+    protected boolean autoFlushTCP = false;
+    protected boolean autoFlushUDP = false;
 
     protected boolean defaultTCP = false;
     protected boolean defaultUDP = false;
@@ -71,6 +71,7 @@ public abstract class BaseChannel implements Channel {
     protected long tcpPacketTimeout = -1; // -1 means no timeout
 
     private final ByteBuffer tcpBuffer;
+    private final ByteBuffer sendTCPBuffer, sendUDPBuffer;
 
 
 
@@ -79,9 +80,11 @@ public abstract class BaseChannel implements Channel {
         this.executor = executor;
         packetResponseManager = new PacketResponseManager(executor);
         optionObjectMap = new ConcurrentHashMap<>();
-        tcpBuffer = getSide().getBufferFactory().circularBuffer(256);
+        tcpBuffer = getSide().getBufferFactory().circularBuffer(64);
         clientListenerHandler = new ChannelListenerHandler<>();
 
+        sendTCPBuffer = getSide().getBufferFactory().circularBuffer(64);
+        sendUDPBuffer = getSide().getBufferFactory().circularBuffer(64);
 
     }
 
@@ -223,10 +226,10 @@ public abstract class BaseChannel implements Channel {
         return RestAPI.create(() -> {
             PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
             context.packetType = PacketType.TCP;
-            synchronized (sendTCPLock) {
-                toBytes(context, dataPacket, tcpBuffer);
-                if(autoFlushTCP>=0 && autoFlushTCP<=tcpBuffer.readableBytes()){
-                    flushTCP().perform();
+            synchronized (sendTCPBuffer) {
+                toBytes(context, dataPacket, sendTCPBuffer);
+                if(autoFlushTCP){
+                    flushTCP();
                 }
             }
             getListenerHandler().onTCPSent(context);
@@ -251,13 +254,11 @@ public abstract class BaseChannel implements Channel {
         return RestAPI.create(() -> {
             PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
             context.packetType = PacketType.UDP;
-            ByteBuffer buffer = toBytes(context, dataPacket);
-            if (buffer.hasArray()) {
-                sendUDP(buffer.array(), buffer.readerIndex(), buffer.readableBytes());
-            } else {
-                byte[] bytes = new byte[buffer.readableBytes()];
-                buffer.getBytes(bytes, buffer.readerIndex(), bytes.length);
-                sendUDP(bytes, 0, bytes.length);
+            synchronized (sendUDPBuffer) {
+                toBytes(context, dataPacket, sendUDPBuffer);
+                if(autoFlushUDP){
+                    flushUDP();
+                }
             }
             getListenerHandler().onUDPSent(context);
             getListenerHandler().onSent(context);
@@ -410,11 +411,10 @@ public abstract class BaseChannel implements Channel {
             defaultSwitchProtocol = (Boolean) value;
             return true;
         } else if (option == ChannelOption.TCP_AUTO_FLUSH) {
-            if(sendTCPArray==null)
-            autoFlushTCP = (Integer) value;
+            autoFlushTCP = (Boolean) value;
             return true;
         } else if (option == ChannelOption.UDP_AUTO_FLUSH) {
-            autoFlushUDP = (Integer) value;
+            autoFlushUDP = (Boolean) value;
             return true;
         } else if (option == ChannelOption.PACKET_TIMEOUT) {
             packetTimeout = ((Number) value).longValue();
@@ -455,21 +455,18 @@ public abstract class BaseChannel implements Channel {
         return networkSide;
     }
 
-    public abstract RestFuture<?, Channel> flushUDP();
+    @Override
+    public void flushUDP(){
+        synchronized (sendUDPBuffer){
+            writeAndFlushUDP(sendUDPBuffer);
+        }
+    }
 
-    public RestFuture<?, Channel> flushTCP(){
-        return RestAPI.create( ()->{
-            synchronized (sendTCPLock) {
-                if (tcpBuffer.hasArray()) {
-                    sendTCP(tcpBuffer.array(), tcpBuffer.readerIndex(), tcpBuffer.readableBytes());
-                } else {
-                    byte[] bytes = new byte[tcpBuffer.readableBytes()];
-                    tcpBuffer.getBytes(bytes, tcpBuffer.readerIndex(), bytes.length);
-                    sendTCP(bytes, 0, bytes.length);
-                }
-            }
-            return this;
-        });
+    @Override
+    public void flushTCP(){
+        synchronized (sendTCPBuffer){
+            writeAndFlushTCP(sendTCPBuffer);
+        }
     }
 
     @Override
@@ -489,8 +486,9 @@ public abstract class BaseChannel implements Channel {
     }
 
     @Override
-    public RestFuture<?, Channel> flush() {
-        return flushTCP().then((RestFuture<Channel, ?>) flushUDP());
+    public void flush() {
+        flushTCP();
+        flushUDP();
     }
 
     @Override
@@ -503,8 +501,8 @@ public abstract class BaseChannel implements Channel {
         return attachedObject;
     }
 
-    protected abstract void sendTCP(byte[] data, int offset, int length) throws IOException;
+    protected abstract void writeAndFlushTCP(ByteBuffer buffer);
 
-    protected abstract void sendUDP(byte[] data, int offset, int length) throws IOException;
+    protected abstract void writeAndFlushUDP(ByteBuffer buffer);
 
 }

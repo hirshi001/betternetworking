@@ -99,8 +99,8 @@ public interface Server extends NetworkSide {
     boolean isClosed();
 
     @Override
-    RestFuture<Server, Server> checkTCPPackets();
+    void checkTCPPackets();
 
     @Override
-    RestFuture<Server, Server> checkUDPPackets();
+    void checkUDPPackets();
 }
