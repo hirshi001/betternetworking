@@ -22,8 +22,6 @@ import com.hirshi001.networking.network.channel.ChannelListener;
 import com.hirshi001.networking.network.channel.ChannelListenerHandler;
 import com.hirshi001.networking.network.channel.ChannelOption;
 import com.hirshi001.networking.networkdata.NetworkData;
-import com.hirshi001.restapi.RestAPI;
-import com.hirshi001.restapi.RestFuture;
 
 import java.util.concurrent.ExecutionException;
 

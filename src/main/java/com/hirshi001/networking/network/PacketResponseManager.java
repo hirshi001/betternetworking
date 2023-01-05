@@ -19,10 +19,12 @@ package com.hirshi001.networking.network;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.restapi.RestFuture;
-import com.hirshi001.restapi.RestFutureConsumer;
+import com.hirshi001.restapi.ScheduledExec;
 
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PacketResponseManager {
@@ -30,9 +32,9 @@ public class PacketResponseManager {
 
     private final AtomicInteger packetResponseId;
     private final Map<Integer, RestFuture> packetResponses;
-    private final ScheduledExecutorService executorService;
 
-    public PacketResponseManager(ScheduledExecutorService executorService) {
+    private ScheduledExec executorService;
+    public PacketResponseManager(ScheduledExec executorService) {
         super();
         packetResponseId = new AtomicInteger(0);
         packetResponses = new ConcurrentHashMap<>();
@@ -43,7 +45,7 @@ public class PacketResponseManager {
         int id = getNextPacketResponseId();
         packet.sendingId = id;
         packetResponses.put(id, successFuture);
-        executorService.schedule(()-> {
+        executorService.run(()-> {
             RestFuture<PacketHandlerContext<?>, ?> sFuture = packetResponses.remove(id);
             if(sFuture!=null && !sFuture.isDone()) sFuture.setCause(new TimeoutException("Packet did not arrive on time"));
         }, timeout, unit);

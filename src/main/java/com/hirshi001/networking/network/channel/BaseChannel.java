@@ -30,6 +30,7 @@ import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
 import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
+import com.hirshi001.restapi.ScheduledExec;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -46,8 +47,8 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class BaseChannel implements Channel {
 
+    private final ScheduledExec executorService;
     protected final PacketResponseManager packetResponseManager;
-    private final ScheduledExecutorService executor;
     private final NetworkSide networkSide;
     protected ChannelListenerHandler<ChannelListener> clientListenerHandler;
 
@@ -74,9 +75,9 @@ public abstract class BaseChannel implements Channel {
 
 
 
-    public BaseChannel(NetworkSide networkSide, ScheduledExecutorService executor) {
+    public BaseChannel(NetworkSide networkSide, ScheduledExec executor) {
         this.networkSide = networkSide;
-        this.executor = executor;
+        this.executorService = executor;
         packetResponseManager = new PacketResponseManager(executor);
         optionObjectMap = new ConcurrentHashMap<>();
         tcpBuffer = getSide().getBufferFactory().circularBuffer(64);
@@ -84,7 +85,6 @@ public abstract class BaseChannel implements Channel {
 
         sendTCPBuffer = getSide().getBufferFactory().circularBuffer(64);
         sendUDPBuffer = getSide().getBufferFactory().circularBuffer(64);
-
     }
 
     protected <P extends Packet> PacketHandlerContext<P> getNewPacketHandlerContext(P packet, PacketRegistry registry) {
@@ -310,8 +310,8 @@ public abstract class BaseChannel implements Channel {
         return clientListenerHandler;
     }
 
-    public ScheduledExecutorService getExecutor() {
-        return executor;
+    public ScheduledExec getExecutor() {
+        return executorService;
     }
 
     /*
