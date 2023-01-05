@@ -26,7 +26,7 @@ publishing {
 }
 
 ext {
-    restAPIVersion="5a472485ef"
+    restAPIVersion="5cb0ab6457"
     byteBufferVersion="ea62bf49b9"
 }
 
