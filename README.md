@@ -399,7 +399,7 @@ The top most row is the latest/most up to date version. Other versions found on 
 
 | NetworkingLibrary           | JavaNetworkingLibrary | HTML/GWT Library | ByteBuffer | RestAPI    | JavaRestAPI | GWTRestAPI |
 |-----------------------------|-----------------------|------------------|------------|------------|-------------|------------|
-| 70c99a1228 (Latest Version) | 0f5f756978            | N/A              | ea62bf49b9 | 5a472485ef | 34f03f9507  | 3e36bcaeb7 |
+| c41eb5a0c4 (Latest Version) | c44c2750b9            | c9bfec6294       | ea62bf49b9 | 5cb0ab6457 | deece2c10c  | 011f30e2fe |
 | de3537b0aa                  | 0f5f756978            | N/A              | c7cecbed69 | 9d6f540f25 | N/A         | N/A        |
 | 56a9acbde2                  | 564d952667            | N/A              | c7cecbed69 | 9d6f540f25 | N/A         | N/A        |
 

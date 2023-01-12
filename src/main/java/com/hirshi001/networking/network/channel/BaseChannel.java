@@ -47,6 +47,8 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class BaseChannel implements Channel {
 
+
+
     private final ScheduledExec executorService;
     protected final PacketResponseManager packetResponseManager;
     private final NetworkSide networkSide;
@@ -75,6 +77,7 @@ public abstract class BaseChannel implements Channel {
 
 
 
+
     public BaseChannel(NetworkSide networkSide, ScheduledExec executor) {
         this.networkSide = networkSide;
         this.executorService = executor;
@@ -83,8 +86,8 @@ public abstract class BaseChannel implements Channel {
         tcpBuffer = getSide().getBufferFactory().circularBuffer(64);
         clientListenerHandler = new ChannelListenerHandler<>();
 
-        sendTCPBuffer = getSide().getBufferFactory().circularBuffer(64);
-        sendUDPBuffer = getSide().getBufferFactory().circularBuffer(64);
+        sendTCPBuffer = getSide().getBufferFactory().buffer(64);
+        sendUDPBuffer = getSide().getBufferFactory().buffer(64);
     }
 
     protected <P extends Packet> PacketHandlerContext<P> getNewPacketHandlerContext(P packet, PacketRegistry registry) {
@@ -98,16 +101,33 @@ public abstract class BaseChannel implements Channel {
         return context;
     }
 
+    private PacketType getPacketTypeHelper(PacketType type){
+        if(type!=null) return type;
+        if(defaultTCP) return PacketType.TCP;
+        if(defaultUDP) return PacketType.UDP;
+        return null;
+    }
+
     @Override
     public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> send(P packet,
                                                                           PacketRegistry registry, PacketType packetType) {
-        if (packetType == null) {
-            if (defaultTCP) packetType = PacketType.TCP;
-            else if (defaultUDP) packetType = PacketType.UDP;
-        }
+        packetType = getPacketTypeHelper(packetType);
         if (packetType == PacketType.TCP) return sendTCP(packet, registry);
         if (packetType == PacketType.UDP) return sendUDP(packet, registry);
         throw new IllegalArgumentException("PacketType cannot be null unless a proper default type is set");
+    }
+
+    @Override
+    public <P extends Packet> void sendDeferred(P packet, PacketRegistry registry, PacketType packetType) {
+        getExecutor().runDeferred(() -> sendNow(packet, registry, packetType));
+    }
+
+    @Override
+    public <P extends Packet> void sendNow(P packet, PacketRegistry registry, PacketType packetType) {
+        packetType = getPacketTypeHelper(packetType);
+        if (packetType == PacketType.TCP) sendTCPNow(packet, null, registry);
+        else if (packetType == PacketType.UDP) sendUDPNow(packet, null, registry);
+        else throw new IllegalArgumentException("PacketType cannot be null unless a proper default type is set");
     }
 
     @Override
@@ -124,10 +144,7 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> send(DataPacket<P> packet, PacketRegistry registry, PacketType packetType) {
-        if (packetType == null) {
-            if (defaultTCP) packetType = PacketType.TCP;
-            else if (defaultUDP) packetType = PacketType.UDP;
-        }
+        packetType = getPacketTypeHelper(packetType);
         if (packetType == PacketType.TCP) return sendTCP(packet, registry);
         if (packetType == PacketType.UDP) return sendUDP(packet, registry);
         throw new IllegalArgumentException("PacketType cannot be null unless a proper default type is set");
@@ -183,10 +200,7 @@ public abstract class BaseChannel implements Channel {
     @Override
     public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendWithResponse(Packet packet,
                                                                                       PacketRegistry registry, PacketType packetType, long timeout) {
-        if (packetType == null) {
-            if (defaultTCP) packetType = PacketType.TCP;
-            else if (defaultUDP) packetType = PacketType.UDP;
-        }
+        packetType = getPacketTypeHelper(packetType);
         if (packetType == PacketType.TCP) return sendTCPWithResponse(packet, registry, timeout);
         if (packetType == PacketType.UDP) return sendUDPWithResponse(packet, registry, timeout);
         throw new IllegalArgumentException("PacketType cannot be null unless a proper default type is set");
@@ -222,21 +236,23 @@ public abstract class BaseChannel implements Channel {
 
     private <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP0(P packet, @Nullable DataPacket dataPacket,
                                                                                PacketRegistry registry) {
-        return RestAPI.create(() -> {
-            PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
-            context.packetType = PacketType.TCP;
-            synchronized (sendTCPBuffer) {
-                toBytes(context, dataPacket, sendTCPBuffer);
-                if(autoFlushTCP){
-                    flushTCP();
-                }
+        return RestAPI.create(() -> sendTCPNow(packet, dataPacket, registry));
+    }
+
+    protected <P extends Packet> PacketHandlerContext<P> sendTCPNow(P packet, @Nullable DataPacket dataPacket, PacketRegistry registry) {
+        PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
+        context.packetType = PacketType.TCP;
+        synchronized (sendTCPBuffer) {
+            toBytes(context, dataPacket, sendTCPBuffer);
+            if(autoFlushTCP){
+                flushTCP();
             }
-            getListenerHandler().onTCPSent(context);
-            getListenerHandler().onSent(context);
-            getSide().getListenerHandler().onTCPSent(context);
-            getSide().getListenerHandler().onSent(context);
-            return context;
-        });
+        }
+        getListenerHandler().onTCPSent(context);
+        getListenerHandler().onSent(context);
+        getSide().getListenerHandler().onTCPSent(context);
+        getSide().getListenerHandler().onSent(context);
+        return context;
     }
 
     /**
@@ -250,21 +266,23 @@ public abstract class BaseChannel implements Channel {
      */
     private <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP0(P packet, @Nullable DataPacket dataPacket,
                                                                                PacketRegistry registry) {
-        return RestAPI.create(() -> {
-            PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
-            context.packetType = PacketType.UDP;
-            synchronized (sendUDPBuffer) {
-                toBytes(context, dataPacket, sendUDPBuffer);
-                if(autoFlushUDP){
-                    flushUDP();
-                }
+        return RestAPI.create(() -> sendUDPNow(packet, dataPacket, registry));
+    }
+
+    protected <P extends Packet> PacketHandlerContext<P> sendUDPNow(P packet, @Nullable DataPacket dataPacket, PacketRegistry registry) {
+        PacketHandlerContext<P> context = getNewPacketHandlerContext(packet, registry);
+        context.packetType = PacketType.UDP;
+        synchronized (sendUDPBuffer) {
+            toBytes(context, dataPacket, sendUDPBuffer);
+            if(autoFlushUDP){
+                flushUDP();
             }
-            getListenerHandler().onUDPSent(context);
-            getListenerHandler().onSent(context);
-            getSide().getListenerHandler().onUDPSent(context);
-            getSide().getListenerHandler().onSent(context);
-            return context;
-        });
+        }
+        getListenerHandler().onUDPSent(context);
+        getListenerHandler().onSent(context);
+        getSide().getListenerHandler().onUDPSent(context);
+        getSide().getListenerHandler().onSent(context);
+        return context;
     }
 
 
@@ -429,7 +447,6 @@ public abstract class BaseChannel implements Channel {
             tcpPacketTimeout = ((Number) value).longValue();
             return true;
         }
-
         return false;
     }
 

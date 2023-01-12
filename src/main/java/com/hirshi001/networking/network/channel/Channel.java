@@ -24,8 +24,6 @@ import com.hirshi001.networking.packethandlercontext.PacketType;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.restapi.RestFuture;
 
-import java.io.IOException;
-
 /**
  * A simple interface which represents a channel.
  *
@@ -65,6 +63,24 @@ public interface Channel {
      */
     <P extends Packet> RestFuture<?, PacketHandlerContext<P>> send(P packet,
                                                                    PacketRegistry registry, PacketType packetType);
+
+    /**
+     * Writes the given packet to the channel. The contents will not be written immediately (not necessarily sent immediately).
+     * @param packet The packet to write.
+     * @param registry The registry to use for the packet. If null, the default registry will be used.
+     * @param packetType The protocol used to send the packet. If null, the default protocol will be used.
+     * @param <P> The type of packet to send.
+     */
+    <P extends Packet> void sendDeferred(P packet, PacketRegistry registry, PacketType packetType);
+
+    /**
+     * Writes the given packet to the channel. The contents will be written immediately (not necessarily sent immediately).
+     * @param packet The packet to write.
+     * @param registry The registry to use for the packet. If null, the default registry will be used.
+     * @param packetType  The protocol used to send the packet. If null, the default protocol will be used.
+     * @param <P> The type of packet to send.
+     */
+    <P extends Packet> void sendNow(P packet, PacketRegistry registry, PacketType packetType);
 
     /**
      * Writes the given packet to the channel. The contents may or may not be sent immediately.

@@ -21,6 +21,7 @@ import com.hirshi001.networking.network.client.Client;
 import com.hirshi001.networking.network.server.Server;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.restapi.RestFuture;
+import com.hirshi001.restapi.ScheduledExec;
 
 /**
  * An interface representing a side on the network (either server side or client side)
@@ -56,6 +57,12 @@ public interface NetworkSide {
      * @return the {@link BufferFactory} this NetworkSide is using
      */
     BufferFactory getBufferFactory();
+
+    /**
+     *
+     * @return
+     */
+    ScheduledExec getExecutor();
 
     /**
      * Returns true if this NetworkSide supports TCP connections
