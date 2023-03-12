@@ -153,9 +153,9 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCP(DataPacket<P> packet, PacketRegistry registry) {
-        if (supportsTCP()) {
+        if (supportsTCP() && isTCPOpen()) {
             return sendTCP0(packet.packet, packet, registry);
-        } else if (supportsUDP() && (defaultSwitchProtocol || defaultUDP)) {
+        } else if (supportsUDP() && isUDPOpen() && (defaultSwitchProtocol || defaultUDP)) {
             return sendUDP0(packet.packet, packet, registry);
         }
         throw new UnsupportedOperationException("Cannot send a UDP Packet on this channel");
@@ -163,9 +163,9 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDP(DataPacket<P> packet, PacketRegistry registry) {
-        if (supportsUDP()) {
+        if (supportsUDP() && isUDPOpen()) {
             return sendUDP0(packet.packet, packet, registry);
-        } else if (supportsTCP() && (defaultSwitchProtocol || defaultTCP)) {
+        } else if (supportsTCP() && isTCPOpen() && (defaultSwitchProtocol || defaultTCP)) {
             return sendTCP0(packet.packet, packet, registry);
         }
         throw new UnsupportedOperationException("Cannot send a UDP Packet on this channel");

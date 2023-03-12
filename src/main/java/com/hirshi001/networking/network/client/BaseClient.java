@@ -17,10 +17,7 @@
 package com.hirshi001.networking.network.client;
 
 import com.hirshi001.buffer.bufferfactory.BufferFactory;
-import com.hirshi001.networking.network.channel.ChannelInitializer;
-import com.hirshi001.networking.network.channel.ChannelListener;
-import com.hirshi001.networking.network.channel.ChannelListenerHandler;
-import com.hirshi001.networking.network.channel.ChannelOption;
+import com.hirshi001.networking.network.channel.*;
 import com.hirshi001.networking.networkdata.NetworkData;
 
 import java.util.concurrent.ExecutionException;
@@ -153,12 +150,14 @@ public abstract class BaseClient implements Client {
 
     @Override
     public boolean tcpOpen() {
-        return getChannel().isTCPOpen();
+        Channel channel = getChannel();
+        return channel != null && channel.isTCPOpen();
     }
 
     @Override
     public boolean udpOpen() {
-        return getChannel().isUDPOpen();
+        Channel channel = getChannel();
+        return channel != null && channel.isUDPOpen();
     }
 
     @Override

@@ -382,9 +382,10 @@ Use DefaultNetworkData to create a NetworkData object.
 ## Platform Dependent Implemented Libraries
 You can use these already implemented platform dependent libraries.
 * [JavaNetworkingLibrary](https://github.com/hirshi001/JavaNetworkingLibrary) - For Java
-* HTML/GWT Library- For GWT projects \(not implemented yet\)
+* [GWTNetworkingLibrary](https://github.com/hirshi001/GWTNetworkingLibrary) - For GWT/HTML browser clients
+* [WebsocketNetworkingServer](https://github.com/hirshi001/WebsocketNetworkingServer) - For creating a websocket server
 * [JavaRestAPI](https://github.com/hirshi001/JavaRestAPI) - Rest API for Java
-* [GWTRestAPI](https://github.com/hirshi001/GWTRestAPI) - Rest API for GWT projects
+* [GWTRestAPI](https://github.com/hirshi001/GWTRestAPI) - Rest API for GWT/HTML projects
 
 ## Dependencies
 This library and [Platform Dependent Implemented Libraries](#platform-dependent-implemented-libraries) can be implemented through Jitpack.
@@ -392,16 +393,19 @@ Make sure the Platform Dependent Library has the same corresponding version of t
 * [Jitpack](https://jitpack.io/)
 * [BetterNetworking](https://jitpack.io/#hirshi001/betternetworking)
 * [JavaNetworkingLibrary](https://jitpack.io/#hirshi001/JavaNetworkingLibrary)
+* [GWTNetworkingLibrary](https://jitpack.io/#hirshi001/GWTNetworkingLibrary)
 
 ### Versions
 These are the corresponding versions of each library on jitpack.io. Make sure you only use the versions in the same row.
-The top most row is the latest/most up to date version. Other versions found on jitpack.io are not guaranteed to work.
+The top most row is the latest/most up-to-date version. Other versions found on jitpack.io are not guaranteed to work.
 
-| NetworkingLibrary           | JavaNetworkingLibrary | HTML/GWT Library | ByteBuffer | RestAPI    | JavaRestAPI | GWTRestAPI |
-|-----------------------------|-----------------------|------------------|------------|------------|-------------|------------|
-| c41eb5a0c4 (Latest Version) | c44c2750b9            | c9bfec6294       | ea62bf49b9 | 5cb0ab6457 | deece2c10c  | 011f30e2fe |
-| de3537b0aa                  | 0f5f756978            | N/A              | c7cecbed69 | 9d6f540f25 | N/A         | N/A        |
-| 56a9acbde2                  | 564d952667            | N/A              | c7cecbed69 | 9d6f540f25 | N/A         | N/A        |
+Note: Unfortunately, there are many libraries you must keep track of because not all libraries are compatible on all platforms.
+
+| NetworkingLibrary           | JavaNetworkingLibrary | HTML/GWT Client | Websocket Server | ByteBuffer | RestAPI    | JavaRestAPI | GWTRestAPI |
+|-----------------------------|-----------------------|-----------------|------------------|------------|------------|-------------|------------|
+| c41eb5a0c4 (Latest Version) | c44c2750b9            | c9bfec6294      | 5587e79200       | ea62bf49b9 | 5cb0ab6457 | deece2c10c  | 011f30e2fe |
+| de3537b0aa                  | 0f5f756978            | N/A             | N/A              | c7cecbed69 | 9d6f540f25 | N/A         | N/A        |
+| 56a9acbde2                  | 564d952667            | N/A             | N/A              | c7cecbed69 | 9d6f540f25 | N/A         | N/A        |
 
 ### Other Libraries
 These are some libraries this library depends on. These libraries are relatively new and may contain bugs, thus affecting
