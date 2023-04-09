@@ -16,12 +16,11 @@
 
 package com.hirshi001.networking.packethandlercontext;
 
-import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.network.channel.Channel;
+import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packet.PacketHandler;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
-import com.sun.org.apache.xml.internal.utils.ObjectPool;
 
 /**
  * A simple class which holds information about a sent or received packet.

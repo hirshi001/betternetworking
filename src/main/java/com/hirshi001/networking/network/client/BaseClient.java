@@ -110,10 +110,10 @@ public abstract class BaseClient implements Client {
     @MustBeInvokedByOverriders
     protected <T> void activateOption(ClientOption<T> option, T value) {
         if(option==ClientOption.TCP_PACKET_CHECK_INTERVAL){
-            setTCPPacketCheckInterval((int) value);
+            setTCPPacketCheckInterval((Integer) value);
         }
         else if(option==ClientOption.UDP_PACKET_CHECK_INTERVAL){
-            setUDPPacketCheckInterval((int) value);
+            setUDPPacketCheckInterval((Integer) value);
         }
     }
 

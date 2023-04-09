@@ -81,10 +81,10 @@ public abstract class BaseServer<T extends Channel> implements Server {
     @MustBeInvokedByOverriders
     protected <T> void activateServerOption(ServerOption<T> option, T value){
         if(option == ServerOption.TCP_PACKET_CHECK_INTERVAL){
-            setTCPPacketCheckInterval((int) value);
+            setTCPPacketCheckInterval((Integer) value);
         }
         else if(option == ServerOption.UDP_PACKET_CHECK_INTERVAL){
-            setUDPPacketCheckInterval((int) value);
+            setUDPPacketCheckInterval((Integer) value);
         }
     }
 
