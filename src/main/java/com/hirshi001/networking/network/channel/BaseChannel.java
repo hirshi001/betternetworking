@@ -31,11 +31,11 @@ import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
 import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
 import com.hirshi001.restapi.ScheduledExec;
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
@@ -45,7 +45,8 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Hirshi001
  */
-public abstract class BaseChannel implements Channel {
+@SuppressWarnings({"unchecked", "rawtypes"})
+public abstract class BaseChannel implements Channel{
 
 
 
@@ -65,12 +66,15 @@ public abstract class BaseChannel implements Channel {
     protected boolean defaultUDP = false;
     protected boolean defaultSwitchProtocol = false;
 
-    protected int maxUDPPayloadSize = -1; // -1 means no limit
     protected int maxUDPPacketSize = -1; // -1 means no limit
 
     protected long packetTimeout = -1; // -1 means no timeout
     protected long udpPacketTimeout = -1; // -1 means no timeout
     protected long tcpPacketTimeout = -1; // -1 means no timeout
+
+    public long lastTCPReceived = 0;
+    public long lastUDPReceived = 0;
+    public long lastReceived = 0;
 
     private final ByteBuffer tcpBuffer;
     private final ByteBuffer sendTCPBuffer, sendUDPBuffer;
@@ -90,7 +94,7 @@ public abstract class BaseChannel implements Channel {
         sendUDPBuffer = getSide().getBufferFactory().buffer(64);
     }
 
-    protected <P extends Packet> PacketHandlerContext<P> getNewPacketHandlerContext(P packet, PacketRegistry registry) {
+    protected final <P extends Packet> PacketHandlerContext<P> getNewPacketHandlerContext(P packet, PacketRegistry registry) {
         PacketHandlerContext<P> context = new PacketHandlerContext<>();
         context.channel = this;
         context.packet = packet;
@@ -248,10 +252,7 @@ public abstract class BaseChannel implements Channel {
                 flushTCP();
             }
         }
-        getListenerHandler().onTCPSent(context);
-        getListenerHandler().onSent(context);
-        getSide().getListenerHandler().onTCPSent(context);
-        getSide().getListenerHandler().onSent(context);
+        onSent(context);
         return context;
     }
 
@@ -278,10 +279,7 @@ public abstract class BaseChannel implements Channel {
                 flushUDP();
             }
         }
-        getListenerHandler().onUDPSent(context);
-        getListenerHandler().onSent(context);
-        getSide().getListenerHandler().onUDPSent(context);
-        getSide().getListenerHandler().onSent(context);
+        onSent(context);
         return context;
     }
 
@@ -293,7 +291,6 @@ public abstract class BaseChannel implements Channel {
      *
      * @param context    the context
      * @param dataPacket the data packet
-     * @return the byte buffer
      */
     private void toBytes(PacketHandlerContext<?> context, @Nullable DataPacket dataPacket, ByteBuffer buffer) {
         NetworkSide side = getSide();
@@ -332,25 +329,62 @@ public abstract class BaseChannel implements Channel {
         return executorService;
     }
 
-    /*
-    Must be called when a packet is received on this channel
+    @Override
+    public void checkTCPPackets() {
+    }
+
+    @Override
+    public void checkUDPPackets() {
+
+    }
+
+    public void checkTCPPacketTimeout(){
+        if(isTCPOpen() && tcpPacketTimeout>0 || packetTimeout>0){
+            long dtime = System.nanoTime() - lastTCPReceived;
+            if(dtime>tcpPacketTimeout || dtime>packetTimeout){
+                stopTCP().perform();
+            }
+        }
+    }
+
+    public void checkUDPPacketTimeout(){
+        if(isUDPOpen() && udpPacketTimeout>0 || packetTimeout>0){
+            long dtime = System.nanoTime() - lastUDPReceived;
+            if(dtime>udpPacketTimeout || dtime>packetTimeout){
+                stopUDP().perform();
+            }
+        }
+    }
+
+    /**
+     * Helper method for when a packet is received
+     * @param context the context of the packet received, including the {@link PacketType}
      */
-    protected void onPacketReceived(PacketHandlerContext<?> context) {
+    private void onPacketReceived(PacketHandlerContext<?> context) {
         packetResponseManager.success(context);
         getListenerHandler().onReceived(context);
         getSide().getListenerHandler().onReceived(context);
         if (context.packetType == PacketType.TCP) {
+            lastReceived = lastTCPReceived = System.nanoTime();
             getListenerHandler().onTCPReceived(context);
             getSide().getListenerHandler().onTCPReceived(context);
         } else {
+            lastReceived = lastUDPReceived = System.nanoTime();
             getListenerHandler().onUDPReceived(context);
             getSide().getListenerHandler().onUDPReceived(context);
         }
         if (context.shouldHandle()) context.handle();
     }
 
+    /**
+     * A method to be called when UDP Packet(s)/bytes are received. Should be called by the class which implements {@link BaseChannel}
+     * @param packet the packet of bytes received stored in a {@link ByteBuffer}
+     */
     protected void onUDPPacketsReceived(ByteBuffer packet) {
-        if (maxUDPPayloadSize >= 0 && packet.readableBytes() > maxUDPPayloadSize) return;
+        if (maxUDPPacketSize >= 0 && packet.readableBytes() > maxUDPPacketSize) {
+            packet.clear();
+            return;
+        }
         PacketEncoderDecoder encoderDecoder = getSide().getNetworkData().getPacketEncoderDecoder();
 
         while(true) {
@@ -366,6 +400,10 @@ public abstract class BaseChannel implements Channel {
         }
     }
 
+    /**
+     * A method to be called when TCP Packet(s)/bytes are received. Should be called by the class which implements {@link BaseChannel}
+     * @param bytes the bytes received stored in a {@link ByteBuffer}
+     */
     protected void onTCPBytesReceived(ByteBuffer bytes) {
         tcpBuffer.writeBytes(bytes);
 
@@ -385,13 +423,6 @@ public abstract class BaseChannel implements Channel {
         }
     }
 
-    /**
-     * Override {@link #activateOption(ChannelOption, Object)} to handle setting options.
-     *
-     * @param option
-     * @param value
-     * @param <T>
-     */
     @Override
     public final <T> void setChannelOption(ChannelOption<T> option, T value) {
         optionObjectMap.put(option, value);
@@ -410,17 +441,16 @@ public abstract class BaseChannel implements Channel {
      * if(super.activateOption(option, value)) return true;
      * //otherwise, do your own stuff/test other options
      *
-     * @param option
-     * @param value
-     * @param <T>
+     * @param option the option to activate
+     * @param value the value of the option
+     * @param <T> the type of the option
      * @return true if the option was activated, false if it was not supported
      */
+    @SuppressWarnings("UnusedReturnValue")
+    @MustBeInvokedByOverriders
     protected <T> boolean activateOption(ChannelOption<T> option, T value) {
-        if (option == ChannelOption.MAX_UDP_PAYLOAD_SIZE) {
-            maxUDPPayloadSize = (Integer) value;
-            return true;
-        } else if (option == ChannelOption.MAX_UDP_PACKET_SIZE) {
-            maxUDPPayloadSize = (Integer) value;
+        if (option == ChannelOption.MAX_UDP_PACKET_SIZE) {
+            maxUDPPacketSize = (Integer) value;
             return true;
         } else if (option == ChannelOption.DEFAULT_TCP) {
             defaultTCP = (Boolean) value;
@@ -478,13 +508,17 @@ public abstract class BaseChannel implements Channel {
     @Override
     public void flushUDP(){
         synchronized (sendUDPBuffer){
+            if(maxUDPPacketSize >= 0 && sendUDPBuffer.readableBytes() > maxUDPPacketSize) {
+                sendUDPBuffer.clear();
+                return;
+            }
             writeAndFlushUDP(sendUDPBuffer);
         }
     }
 
     @Override
     public void flushTCP(){
-        synchronized (sendTCPBuffer){
+        synchronized (sendTCPBuffer) {
             writeAndFlushTCP(sendTCPBuffer);
         }
     }
@@ -498,7 +532,7 @@ public abstract class BaseChannel implements Channel {
             if (getSide().isServer()) {
                 Server server = getSide().asServer();
                 server.getClients().remove(this);
-                server.getListenerHandler().onClientDisconnect(server, this);
+                server.onClientDisconnect(server, this);
             }
             getListenerHandler().onChannelClose(this);
             return this;
@@ -521,8 +555,73 @@ public abstract class BaseChannel implements Channel {
         return attachedObject;
     }
 
+    /**
+     * This method is called by this {@link BaseChannel} class when a packet is being sent. It is abstract because
+     * implementation depends on the platform.
+     *
+     * @param buffer the buffer of bytes to write and flush
+     */
     protected abstract void writeAndFlushTCP(ByteBuffer buffer);
 
+
+    /**
+     * This method is called by this {@link BaseChannel} class when a packet is being sent. It is abstract because
+     * implementation depends on the platform.
+     *
+     * @param buffer the buffer of bytes to write and flush
+     */
     protected abstract void writeAndFlushUDP(ByteBuffer buffer);
+
+    /**
+     * Should be called by subclasses when a TCP connection is established to handle certain tasks
+     */
+    @SuppressWarnings("unused")
+    protected void onTCPConnected() {
+        lastTCPReceived = System.nanoTime();
+        getListenerHandler().onTCPConnect(this);
+    }
+
+    /**
+     * Should be called by subclasses when a TCP connection is closed to handle certain tasks
+     */
+    @SuppressWarnings("unused")
+    protected void onTCPDisconnected() {
+        getListenerHandler().onTCPDisconnect(this);
+        if(isUDPClosed()) close().perform();
+    }
+
+    /**
+     * Should be called by subclasses when a UDP connection is established to handle certain tasks
+     */
+    @SuppressWarnings("unused")
+    protected void onUDPStart(){
+        lastUDPReceived = System.nanoTime();
+        getListenerHandler().onUDPStart(this);
+    }
+
+    /**
+     * Should be called by subclasses when a UDP connection is closed to handle certain tasks
+     */
+    @SuppressWarnings("unused")
+    protected void onUDPStop(){
+        getListenerHandler().onUDPStop(this);
+        if(isTCPClosed()) close().perform();
+    }
+
+    /**
+     * Helper method to let listeners know that a packet has been sent.
+     * @param context The {@link PacketHandlerContext} that was used to send the packet
+     */
+    private void onSent(PacketHandlerContext<?> context){
+        if(context.packetType==PacketType.TCP) {
+            getListenerHandler().onTCPSent(context);
+            getSide().getListenerHandler().onTCPSent(context);
+        }else if(context.packetType==PacketType.UDP){
+            getListenerHandler().onUDPSent(context);
+            getSide().getListenerHandler().onUDPSent(context);
+        }
+        getListenerHandler().onSent(context);
+        getSide().getListenerHandler().onSent(context);
+    }
 
 }

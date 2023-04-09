@@ -21,9 +21,16 @@ import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelSet;
 import com.hirshi001.networking.network.channel.DefaultChannelSet;
+import com.hirshi001.networking.network.client.ClientOption;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
+import com.hirshi001.restapi.ScheduledExec;
+import com.hirshi001.restapi.TimerAction;
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A base implementation of the {@link Server} interface. This class provides some implementations of methods but the
@@ -36,10 +43,12 @@ public abstract class BaseServer<T extends Channel> implements Server {
 
     private final NetworkData networkData;
     private final BufferFactory bufferFactory;
-    protected final DefaultChannelSet<T> channelSet;
     protected final ServerListenerHandler<ServerListener> serverListenerHandler;
     protected ChannelInitializer channelInitializer;
     private final int port;
+    protected ScheduledExec exec;
+    protected final Map<ServerOption, Object> options;
+    private TimerAction checkTCPPackets, checkUDPPackets;
 
     /**
      * Creates a new BaseServer with the given NetworkData, BufferFactory, and port
@@ -48,12 +57,55 @@ public abstract class BaseServer<T extends Channel> implements Server {
      * @param bufferFactory the BufferFactory to use
      * @param port          the port to listen on
      */
-    public BaseServer(NetworkData networkData, BufferFactory bufferFactory, int port) {
+    public BaseServer(ScheduledExec exec, NetworkData networkData, BufferFactory bufferFactory, int port) {
+        this.exec = exec;
         this.networkData = networkData;
         this.bufferFactory = bufferFactory;
-        this.channelSet = new DefaultChannelSet<>(this);
         this.serverListenerHandler = new ServerListenerHandler<>();
         this.port = port;
+
+        options = new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public final <T> void setServerOption(ServerOption<T> option, T value) {
+        options.put(option, value);
+        activateServerOption(option, value);
+    }
+
+    @Override
+    public <T> T getServerOption(ServerOption<T> option) {
+        return (T) options.get(option);
+    }
+
+    @MustBeInvokedByOverriders
+    protected <T> void activateServerOption(ServerOption<T> option, T value){
+        if(option == ServerOption.TCP_PACKET_CHECK_INTERVAL){
+            setTCPPacketCheckInterval((int) value);
+        }
+        else if(option == ServerOption.UDP_PACKET_CHECK_INTERVAL){
+            setUDPPacketCheckInterval((int) value);
+        }
+    }
+
+    /**
+     * Sets the interval in ms to check for tcp packets. If negative, the server will never automatically check for tcp packets.
+     * @param interval the interval in ms to check for tcp packets
+     */
+    private synchronized void setTCPPacketCheckInterval(int interval){
+        if(checkTCPPackets!=null) checkTCPPackets.cancel();
+        if(interval<0) return;
+        checkTCPPackets = getExecutor().repeat(this::checkTCPPackets,0, interval);
+    }
+
+    /**
+     * Sets the interval in ms to check for udp packets. If negative, the server will never automatically check for udp packets.
+     * @param interval the interval in ms to check for udp packets
+     */
+    private synchronized void setUDPPacketCheckInterval(int interval){
+        if(checkUDPPackets!=null) checkUDPPackets.cancel();
+        if(interval<0) return;
+        checkUDPPackets = getExecutor().repeat(this::checkUDPPackets,0, interval);
     }
 
     @Override
@@ -83,9 +135,7 @@ public abstract class BaseServer<T extends Channel> implements Server {
 
     @Override
     @SuppressWarnings("unchecked")
-    public ChannelSet<Channel> getClients() {
-        return (ChannelSet<Channel>) channelSet;
-    }
+    public abstract ChannelSet<Channel> getClients();
 
     @Override
     public void addServerListener(ServerListener listener) {
@@ -119,7 +169,7 @@ public abstract class BaseServer<T extends Channel> implements Server {
      * @return true if the channel was added
      */
     protected boolean addChannel(T channel) {
-        if (channelSet.add(channel)) {
+        if (getClients().add(channel)) {
             if (channelInitializer != null) {
                 channelInitializer.initChannel(channel);
             }
@@ -136,25 +186,20 @@ public abstract class BaseServer<T extends Channel> implements Server {
      * @return true if the channel was removed
      */
     protected boolean removeChannel(Channel channel) {
-        return channelSet.remove(channel);
+        return getClients().remove(channel);
     }
 
     @Override
     public void checkTCPPackets() {
-
-        synchronized (channelSet.getLock()){
-            for(T channel : channelSet){
-                channel.checkTCPPackets();
-            }
+        for(Channel channel : getClients()){
+            channel.checkTCPPackets();
         }
     }
 
     @Override
     public void checkUDPPackets() {
-        synchronized (channelSet.getLock()){
-            for(T channel : channelSet){
-                channel.checkUDPPackets();
-            }
+        for(Channel channel : getClients()){
+            channel.checkUDPPackets();
         }
     }
 
@@ -168,5 +213,8 @@ public abstract class BaseServer<T extends Channel> implements Server {
         return true;
     }
 
-
+    @Override
+    public ScheduledExec getExecutor() {
+        return exec;
+    }
 }

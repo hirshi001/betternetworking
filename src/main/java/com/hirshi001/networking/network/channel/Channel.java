@@ -16,6 +16,7 @@
 
 package com.hirshi001.networking.network.channel;
 
+import com.hirshi001.networking.network.client.Client;
 import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.packet.DataPacket;
 import com.hirshi001.networking.packet.Packet;
@@ -291,28 +292,28 @@ public interface Channel {
      *
      * @return a RestFuture that will attempt to create a TCP connection when performed
      */
-    RestFuture<?, Channel> startTCP();
+    RestFuture<?, ? extends Channel> startTCP();
 
     /**
      * Stops the TCP connection with the other side of the channel.
      *
      * @return a RestFuture that will attempt to close the TCP connection when performed
      */
-    RestFuture<?, Channel> stopTCP();
+    RestFuture<?, ? extends Channel> stopTCP();
 
     /**
      * Attempts to start a UDP connection with the other side of the channel.
      *
      * @return a RestFuture that will attempt to create a UDP connection when performed
      */
-    RestFuture<?, Channel> startUDP();
+    RestFuture<?, ? extends Channel> startUDP();
 
     /**
      * Stops the UDP connection with the other side of the channel.
      *
      * @return a RestFuture that will attempt to close the UDP connection when performed
      */
-    RestFuture<?, Channel> stopUDP();
+    RestFuture<?, ? extends Channel> stopUDP();
 
     /**
      * Once closed, a server cannot reopen the channel and the channel will be removed, however a
@@ -320,7 +321,7 @@ public interface Channel {
      *
      * @return A RestFuture which will close the channel when performed.
      */
-    RestFuture<?, Channel> close();
+    RestFuture<?, ? extends Channel> close();
 
     /**
      * Returns true if the TCP connection is open (ie: send/receive tcp packets)

@@ -100,7 +100,7 @@ public interface NetworkSide {
     /**
      * Closes all TCP and UDP connections associated with this NetworkSide
      */
-    void close();
+    RestFuture<?, ? extends NetworkSide> close();
 
     /**
      * Either tries to connect to a Server using TCP or starts to accept TCP connections from clients

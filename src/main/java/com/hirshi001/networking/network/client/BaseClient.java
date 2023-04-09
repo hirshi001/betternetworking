@@ -17,10 +17,19 @@
 package com.hirshi001.networking.network.client;
 
 import com.hirshi001.buffer.bufferfactory.BufferFactory;
-import com.hirshi001.networking.network.channel.*;
+import com.hirshi001.networking.network.channel.Channel;
+import com.hirshi001.networking.network.channel.ChannelInitializer;
+import com.hirshi001.networking.network.channel.ChannelListener;
+import com.hirshi001.networking.network.channel.ChannelListenerHandler;
 import com.hirshi001.networking.networkdata.NetworkData;
+import com.hirshi001.restapi.RestAPI;
+import com.hirshi001.restapi.RestFuture;
+import com.hirshi001.restapi.ScheduledExec;
+import com.hirshi001.restapi.TimerAction;
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
 
-import java.util.concurrent.ExecutionException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A base class for a client that can connect to a server. Some methods are implemented but the rest are left to the
@@ -36,6 +45,10 @@ public abstract class BaseClient implements Client {
     private final int port;
     protected final ChannelListenerHandler<ChannelListener> clientListenerHandler;
     protected ChannelInitializer channelInitializer;
+    private final Map<ClientOption, Object> options;
+
+    private volatile TimerAction checkTCPPackets, checkUDPPackets;
+    protected ScheduledExec exec;
 
     /**
      * Creates a new BaseClient with the given NetworkData, BufferFactory, host, and port
@@ -45,12 +58,15 @@ public abstract class BaseClient implements Client {
      * @param host the host to connect to
      * @param port the port to connect to
      */
-    public BaseClient(NetworkData networkData, BufferFactory bufferFactory, String host, int port) {
+    public BaseClient(ScheduledExec exec, NetworkData networkData, BufferFactory bufferFactory, String host, int port) {
+        this.exec = exec;
         this.networkData = networkData;
         this.bufferFactory = bufferFactory;
         this.clientListenerHandler = new ChannelListenerHandler<>();
         this.host = host;
         this.port = port;
+
+        options = new ConcurrentHashMap<>();
     }
 
 
@@ -62,16 +78,6 @@ public abstract class BaseClient implements Client {
     @Override
     public BufferFactory getBufferFactory() {
         return bufferFactory;
-    }
-
-    @Override
-    public boolean supportsTCP() {
-        return getChannel().supportsTCP();
-    }
-
-    @Override
-    public boolean supportsUDP() {
-        return getChannel().supportsUDP();
     }
 
     @Override
@@ -90,18 +96,45 @@ public abstract class BaseClient implements Client {
     }
 
     @Override
-    public <T> void setChannelOption(ChannelOption<T> option, T value) {
-        getChannel().setChannelOption(option, value);
+    public final <T> void setClientOption(ClientOption<T> option, T value) {
+        options.put(option, value);
+        activateOption(option, value);
     }
 
     @Override
-    public <T> T getChannelOption(ChannelOption<T> option) {
-        return getChannel().getChannelOption(option);
+    @SuppressWarnings("unchecked")
+    public final <T> T getClientOption(ClientOption<T> option) {
+        return (T) options.get(option);
     }
 
-    @Override
-    public void addClientListener(ChannelListener listener) {
-        clientListenerHandler.add(listener);
+    @MustBeInvokedByOverriders
+    protected <T> void activateOption(ClientOption<T> option, T value) {
+        if(option==ClientOption.TCP_PACKET_CHECK_INTERVAL){
+            setTCPPacketCheckInterval((int) value);
+        }
+        else if(option==ClientOption.UDP_PACKET_CHECK_INTERVAL){
+            setUDPPacketCheckInterval((int) value);
+        }
+    }
+
+    /**
+     * Sets the interval in ms to check for udp packets. If negative, the client will never automatically check for tcp packets.
+     * @param interval the interval in ms to check for tcp packets
+     */
+    private synchronized void setTCPPacketCheckInterval(int interval){
+        if(checkTCPPackets!=null) checkTCPPackets.cancel();
+        if(interval<0) return;
+        checkTCPPackets = getExecutor().repeat(this::checkTCPPackets,0, interval);
+    }
+
+    /**
+     * Sets the interval in ms to check for udp packets. If negative, the client will never automatically check for udp packets.
+     * @param interval the interval in ms to check for udp packets
+     */
+    private synchronized void setUDPPacketCheckInterval(int interval){
+        if(checkUDPPackets!=null) checkUDPPackets.cancel();
+        if(interval<0) return;
+        checkUDPPackets = getExecutor().repeat(this::checkUDPPackets,0, interval);
     }
 
     @Override
@@ -126,26 +159,33 @@ public abstract class BaseClient implements Client {
 
     @Override
     public void checkTCPPackets() {
-        getChannel().checkTCPPackets();
+        Channel channel = getChannel();
+        if(channel!=null) channel.checkTCPPackets();
     }
 
     @Override
     public void checkUDPPackets() {
-        getChannel().checkUDPPackets();
+        Channel channel = getChannel();
+        if(channel!=null) channel.checkUDPPackets();
     }
 
     @Override
-    public void close() {
-        try {
-            stopTCP().perform().get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        try {
-            stopUDP().perform().get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
+    public RestFuture<?, Client> close() {
+        return stopTCP().then((RestFuture<Client, Client>) stopUDP());
+    }
+
+    @Override
+    public RestFuture<?, Client> stopTCP() {
+        Channel channel = getChannel();
+        if(channel!=null) return channel.stopTCP().map((c)->this);
+        return RestAPI.create(()->this);
+    }
+
+    @Override
+    public RestFuture<?, Client> stopUDP() {
+        Channel channel = getChannel();
+        if(channel!=null) return channel.stopUDP().map((c)->this);
+        return RestAPI.create(()->this);
     }
 
     @Override
@@ -168,5 +208,10 @@ public abstract class BaseClient implements Client {
     @Override
     public boolean isServer() {
         return false;
+    }
+
+    @Override
+    public ScheduledExec getExecutor() {
+        return exec;
     }
 }

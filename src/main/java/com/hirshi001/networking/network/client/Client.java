@@ -19,13 +19,11 @@ package com.hirshi001.networking.network.client;
 import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelListener;
-import com.hirshi001.networking.network.channel.ChannelOption;
 import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.restapi.RestFuture;
 
 /**
- * An interface representing a Client which allows for sending and receiving packets to and from a
- * {@link com.hirshi001.networking.network.server.Server}.
+ * An interface representing a Client which connects to a {@link com.hirshi001.networking.network.server.Server}.
  *
  * @author Hrishikesh Ingle
  */
@@ -62,24 +60,6 @@ public interface Client extends NetworkSide {
     void setChannelInitializer(ChannelInitializer initializer);
 
     /**
-     * Sets a value for the give {@link ChannelOption}
-     *
-     * @param option the {@link ChannelOption} to set the value for
-     * @param value  the value to set the {@link ChannelOption} to
-     * @param <T>    the type of the value.
-     */
-    <T> void setChannelOption(ChannelOption<T> option, T value);
-
-    /**
-     * Returns the value of the given {@link ChannelOption}
-     *
-     * @param option the {@link ChannelOption} to get the value of
-     * @param <T>    the type of the value.
-     * @return the value of the given {@link ChannelOption}
-     */
-    <T> T getChannelOption(ChannelOption<T> option);
-
-    /**
      * Sets a value for the given {@link ClientOption}.
      *
      * @param option the {@link ClientOption} to set the value for
@@ -97,34 +77,8 @@ public interface Client extends NetworkSide {
      */
     <T> T getClientOption(ClientOption<T> option);
 
-    /**
-     * Adds a ChannelListener to this client
-     *
-     * @param listener the listener to add
-     */
-    void addClientListener(ChannelListener listener);
-
-    /**
-     * Adds multiple ChannelListeners to this client
-     *
-     * @param listeners the listeners to add
-     */
-    void addClientListeners(ChannelListener... listeners);
-
-    /**
-     * Removes a ChannelListener from this client
-     *
-     * @param listener the listener to remove
-     * @return true if the listener was removed, false if the listener was not found
-     */
-    boolean removeClientListener(ChannelListener listener);
-
-    /**
-     * Removes multiple ChannelListeners from this client
-     *
-     * @param listeners the listeners to remove
-     */
-    void removeClientListeners(ChannelListener... listeners);
+    @Override
+    RestFuture<?, Client> close();
 
     @Override
     RestFuture<?, Client> startTCP();
@@ -139,8 +93,37 @@ public interface Client extends NetworkSide {
     RestFuture<?, Client> stopUDP();
 
     @Override
-    void checkTCPPackets();
+    default boolean isOpen() {
+        return NetworkSide.super.isOpen();
+    }
 
     @Override
-    void checkUDPPackets();
+    default boolean isClosed() {
+        return NetworkSide.super.isClosed();
+    }
+
+    @Override
+    boolean supportsTCP();
+
+    @Override
+    boolean supportsUDP();
+
+    /**
+     * Adds multiple {@link ChannelListener}s to this client
+     * @param listeners the {@link ChannelListener}s to add
+     */
+    void addClientListeners(ChannelListener... listeners);
+
+    /**
+     * Removes a {@link ChannelListener} from this client
+     * @param listener the {@link ChannelListener} to remove
+     * @return true if the {@link ChannelListener} was removed, false if it was not
+     */
+    boolean removeClientListener(ChannelListener listener);
+
+    /**
+     * Removes multiple {@link ChannelListener}s from this client
+     * @param listeners the {@link ChannelListener}s to remove
+     */
+    void removeClientListeners(ChannelListener... listeners);
 }

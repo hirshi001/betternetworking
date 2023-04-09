@@ -31,7 +31,7 @@ import com.hirshi001.restapi.RestFuture;
  *
  * @author Hrishikesh Ingle
  */
-public interface Server extends NetworkSide {
+public interface Server extends NetworkSide, ServerListener {
 
 
     /**
@@ -61,46 +61,77 @@ public interface Server extends NetworkSide {
      *
      * @return a RestFuture that will have the server start listening for UDP packets when performed
      */
+    @Override
     RestFuture<?, Server> startUDP();
 
     /**
-     * Has the server stop listening for TCP connections (Does not close any existing connections).
-     * To close existing connections, call {@link Channel#startTCP()}
+     * Has the server stop listening for TCP connections (Does not close any existing channels).
      *
      * @return a RestFuture that will have the server stop listening for TCP connections when performed
      */
+    @Override
     RestFuture<?, Server> stopTCP();
 
+    @Override
+    /**
+     * Has the server stop listening for UDP packets and stop sending UDP packets(Does not close any existing channels).
+     */
     RestFuture<?, Server> stopUDP();
 
+    /**
+     * Sets a {@link ServerOption<T>} for this server
+     * @param option the option to set
+     * @param value the value to set the option to
+     * @param <T> the type of the option
+     */
     <T> void setServerOption(ServerOption<T> option, T value);
 
+    /**
+     * Returns the value of the {@link ServerOption<T>} for this server
+     * @param option the option to get the value of
+     * @return the value of the option
+     * @param <T> the type of the option
+     */
     <T> T getServerOption(ServerOption<T> option);
 
+    /**
+     * Adds a {@link ServerListener} to this server to listen for events.
+     * @param listener the listener to add
+     */
     void addServerListener(ServerListener listener);
 
+    /**
+     * Adds multiple {@link ServerListener}s to this server to listen for events.
+     * @param listeners the listeners to add
+     */
     void addServerListeners(ServerListener... listeners);
 
+    /**
+     * Removes a {@link ServerListener} from this server
+     * @param listener the listener to remove
+     * @return true if the listener was removed, false if the listener was not found
+     */
     boolean removeServerListener(ServerListener listener);
 
+    /**
+     * Removes multiple {@link ServerListener}s from this server
+     * @param listeners the listeners to remove
+     */
     void removeServerListeners(ServerListener... listeners);
 
+    /**
+     * Sets the {@link ChannelInitializer} for this server. This initializer will be ce called to initialize a channel
+     * when one is created
+     * @param initializer the initializer to set
+     */
     void setChannelInitializer(ChannelInitializer initializer);
 
+    /**
+     * Returns the {@link ChannelInitializer} for this server. This initializer will be ce called to initialize a channel
+     * @return the initializer of this server
+     */
     ChannelInitializer getChannelInitializer();
 
-    ServerListenerHandler getListenerHandler();
 
-    /**
-     * Disconnects TCP and UDP if they are connected and removes all ClientInstances
-     */
-    void close();
 
-    boolean isClosed();
-
-    @Override
-    void checkTCPPackets();
-
-    @Override
-    void checkUDPPackets();
 }

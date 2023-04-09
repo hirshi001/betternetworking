@@ -25,6 +25,8 @@ import com.hirshi001.restapi.RestFuture;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 
 /**
@@ -37,7 +39,6 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
 
     private final Server server;
     private final Set<T> channels;
-    private final Object lock;
     private int maxSize;
 
     /**
@@ -45,10 +46,9 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
      *
      * @param server the server this set is associated with
      */
-    public DefaultChannelSet(Server server) {
+    public DefaultChannelSet(Server server, Set<T> channels) {
         this.server = server;
-        channels = new LinkedHashSet<>();
-        lock = new Object();
+        this.channels = channels;
         maxSize = -1;
     }
 
@@ -64,6 +64,26 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     }
 
     @Override
+    public void setMaxSizeWithPurgeTest(int size, Predicate<T> purgeTest) {
+        maxSize = size;
+        channels.removeIf(new Predicate<T>() {
+            @Override
+            public boolean test(T t) {
+                return channels.size() > maxSize && purgeTest.test(t);
+            }
+        });
+        if (size < channels.size()) {
+            Iterator<T> iterator = channels.iterator();
+            while (iterator.hasNext()) {
+                T next = iterator.next();
+                if (purgeTest.test(next)) {
+                    iterator.remove();
+                }
+            }
+        }
+    }
+
+    @Override
     public int getMaxSize() {
         return maxSize;
     }
@@ -71,10 +91,8 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     @Override
     public RestFuture<?, DefaultChannelSet<T>> sendTCPToAll(Packet packet, PacketRegistry packetRegistry) {
         return RestAPI.create(() -> {
-            synchronized (lock) {
-                for (T channel : channels) {
-                    channel.sendTCP(packet, packetRegistry).perform();
-                }
+            for (T channel : channels) {
+                channel.sendTCP(packet, packetRegistry).perform();
             }
             return this;
         });
@@ -83,10 +101,8 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     @Override
     public RestFuture<?, DefaultChannelSet<T>> sendUDPToAll(Packet packet, PacketRegistry packetRegistry) {
         return RestAPI.create(() -> {
-            synchronized (lock) {
-                for (T channel : channels) {
-                    channel.sendUDP(packet, packetRegistry).perform();
-                }
+            for (T channel : channels) {
+                channel.sendUDP(packet, packetRegistry).perform();
             }
             return this;
         });
@@ -96,10 +112,8 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
      * Flushes all the TCP packets in the channels in this set
      */
     public void flushTCP() {
-        synchronized (lock) {
-            for (Channel channel : channels) {
-                channel.flushTCP();
-            }
+        for (Channel channel : channels) {
+            channel.flushTCP();
         }
     }
 
@@ -107,20 +121,16 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
      * Flushes all the UDP packets in the channels in this set
      */
     public void flushUDP() {
-        synchronized (lock) {
-            for (Channel channel : channels) {
-                channel.flushUDP();
-            }
+        for (Channel channel : channels) {
+            channel.flushUDP();
         }
     }
 
     @Override
     public RestFuture<?, DefaultChannelSet<T>> sendToAll(Packet packet, PacketType packetType, PacketRegistry packetRegistry) {
         return RestAPI.create(() -> {
-            synchronized (lock) {
-                for (T channel : channels) {
-                    channel.send(packet, packetRegistry, packetType).perform();
-                }
+            for (T channel : channels) {
+                channel.send(packet, packetRegistry, packetType).perform();
             }
             return this;
         });
@@ -129,7 +139,14 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
 
     @Override
     public RestFuture<?, DefaultChannelSet<T>> sendIf(Packet packet, PacketType packetType, PacketRegistry packetRegistry, Predicate<Channel> predicate) {
-        return null;
+        return RestAPI.create(() -> {
+            for (T channel : channels) {
+                if (predicate.test(channel)) {
+                    channel.send(packet, packetRegistry, packetType).perform();
+                }
+            }
+            return this;
+        });
     }
 
     @Override
@@ -140,31 +157,23 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
 
     @Override
     public void flush() {
-        synchronized (lock) { //obtain lock so thread doesn't have to do it multiple times
-            flushTCP();
-            flushUDP();
-        }
+        flushTCP();
+        flushUDP();
     }
 
     @Override
     public int size() {
-        synchronized (lock) {
-            return channels.size();
-        }
+        return channels.size();
     }
 
     @Override
     public boolean isEmpty() {
-        synchronized (lock) {
-            return channels.isEmpty();
-        }
+        return channels.isEmpty();
     }
 
     @Override
     public boolean contains(Object o) {
-        synchronized (lock) {
-            return channels.contains(o);
-        }
+        return channels.contains(o);
     }
 
     /**
@@ -173,11 +182,9 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
      * @return The channel if it exists, null otherwise
      */
     public T get(byte[] address, int port) {
-        synchronized (lock) {
-            for (T channel : channels) {
-                if (Arrays.equals(channel.getAddress(), address) && channel.getPort() == port) {
-                    return channel;
-                }
+        for (T channel : channels) {
+            if (Arrays.equals(channel.getAddress(), address) && channel.getPort() == port) {
+                return channel;
             }
         }
         return null;
@@ -190,70 +197,48 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
 
     @Override
     public Object[] toArray() {
-        synchronized (lock) {
-            return channels.toArray();
-        }
+        return channels.toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] a) {
-        synchronized (lock) {
-            return channels.toArray(a);
-        }
+        return channels.toArray(a);
     }
 
     @Override
     public boolean add(T channel) {
-        synchronized (lock) {
-            if (maxSize != -1 && channels.size() >= maxSize) return false;
-            return channels.add(channel);
-        }
+        if (maxSize >=0 && channels.size() >= maxSize) return false;
+        return channels.add(channel);
     }
 
     @Override
     public boolean remove(Object o) {
-        synchronized (lock) {
-            return channels.remove(o);
-        }
+        return channels.remove(o);
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        synchronized (lock) {
-            return channels.containsAll(c);
-        }
+        return channels.containsAll(c);
     }
 
     @Override
     public boolean addAll(Collection<? extends T> c) {
-        synchronized (lock) {
-            return channels.addAll(c);
-        }
+        return channels.addAll(c);
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        synchronized (lock) {
-            return channels.removeAll(c);
-        }
+        return channels.removeAll(c);
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        synchronized (lock) {
-            return channels.retainAll(c);
-        }
+        return channels.retainAll(c);
     }
 
     @Override
     public void clear() {
-        synchronized (lock) {
-            channels.clear();
-        }
+        channels.clear();
     }
 
-    @Override
-    public Object getLock() {
-        return lock;
-    }
 }

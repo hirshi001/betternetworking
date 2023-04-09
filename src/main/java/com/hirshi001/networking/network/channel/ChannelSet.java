@@ -98,16 +98,15 @@ public interface ChannelSet<T extends Channel> extends Set<T> {
 
     /**
      * @return the max amount of channels that can be in this set
+     *
+     * @param size the max amount of channels
+     * @param purgeTest the test to purge channels if the new size is less than the current size
      */
-    int getMaxSize();
+    void setMaxSizeWithPurgeTest(int size, Predicate<T> purgeTest);
 
     /**
-     * Gives the lock object for this channel set
-     * Use the synchronized code block on this object to prevent concurrency issues
-     *
-     * @return The lock object
+     * @return the max amount of channels that can be in this set
      */
-    Object getLock();
-
+    int getMaxSize();
 
 }

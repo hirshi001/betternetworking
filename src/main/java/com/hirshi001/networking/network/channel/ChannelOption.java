@@ -45,7 +45,6 @@ public class ChannelOption<T> extends Option<T> {
     public static final ChannelOption<Boolean> UDP_BROADCAST = new ChannelOption<>("udp_broadcast", Boolean.class);
 
     //for sending/receiving packets
-    public static final ChannelOption<Integer> MAX_UDP_PAYLOAD_SIZE = new ChannelOption<>("max_udp_payload_size", Integer.class); //for encoding packets
     public static final ChannelOption<Integer> MAX_UDP_PACKET_SIZE = new ChannelOption<>("max_udp_packet_size", Integer.class); //all the data in a packet
 
     //for when certain protocols may not be supported
