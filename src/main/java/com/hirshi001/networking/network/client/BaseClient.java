@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public abstract class BaseClient implements Client {
 
     private final NetworkData networkData;
@@ -177,6 +178,7 @@ public abstract class BaseClient implements Client {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public RestFuture<?, Client> close() {
         return stopTCP().then((RestFuture<Client, Client>) stopUDP());
     }

@@ -9,8 +9,9 @@ import java.util.Arrays;
 /**
  * A packet that contains an array of booleans.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public class BooleanArrayPacket extends Packet {
 
     public boolean[] array;

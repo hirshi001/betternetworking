@@ -8,8 +8,9 @@ import java.util.Arrays;
 /**
  * A packet that contains an array of doubles.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public class DoubleArrayPacket extends Packet {
 
     public double[] array;

@@ -18,6 +18,11 @@ package com.hirshi001.networking.packet;
 
 import com.hirshi001.buffer.buffers.ByteBuffer;
 
+/**
+ * Interface for serializing and deserializing objects to and from a {@link ByteBuffer}.
+ *
+ * @author Hrishikesh Ingle
+ */
 public interface ByteBufSerializable {
 
     void writeBytes(ByteBuffer buffer);

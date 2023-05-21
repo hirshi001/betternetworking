@@ -19,6 +19,11 @@ package com.hirshi001.networking.networkdata;
 import com.hirshi001.networking.packetdecoderencoder.PacketEncoderDecoder;
 import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
 
+/**
+ * Holds objects required for networking.
+ *
+ * @author Hrishikesh Ingle
+ */
 public interface NetworkData {
 
     PacketEncoderDecoder getPacketEncoderDecoder();

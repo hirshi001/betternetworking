@@ -3,7 +3,7 @@ package com.hirshi001.networking.util.defaultpackets.primitivepackets;
 /**
  * A utility class for the primitive packets.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
 public class PrimitiveUtil {
 

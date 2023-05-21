@@ -6,7 +6,7 @@ import com.hirshi001.networking.packet.Packet;
 /**
  * A packet that contains a short.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
 public class ShortPacket extends Packet {
 

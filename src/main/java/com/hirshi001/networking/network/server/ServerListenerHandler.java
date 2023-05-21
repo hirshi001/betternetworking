@@ -22,6 +22,13 @@ import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 
 import java.util.Collection;
 
+/**
+ * Implementation of {@link NetworkSideListenerHandler} for {@link ServerListener} objects.
+ * @param <T> The type of {@link ServerListener} that this handler holds.
+ *
+ * @author Hrishikesh Ingle
+ */
+@SuppressWarnings("unused")
 public class ServerListenerHandler<T extends ServerListener> extends NetworkSideListenerHandler<T> implements ServerListener {
 
     public ServerListenerHandler() {
@@ -60,36 +67,6 @@ public class ServerListenerHandler<T extends ServerListener> extends NetworkSide
     @Override
     public void onClientDisconnect(Server server, Channel clientChannel) {
         forEachListener(listener -> listener.onClientDisconnect(server, clientChannel));
-    }
-
-    @Override
-    public void onTCPReceived(PacketHandlerContext<?> context) {
-        forEachListener(listener -> listener.onTCPReceived(context));
-    }
-
-    @Override
-    public void onTCPSent(PacketHandlerContext<?> context) {
-        forEachListener(listener -> listener.onTCPSent(context));
-    }
-
-    @Override
-    public void onUDPReceived(PacketHandlerContext<?> context) {
-        forEachListener(listener -> listener.onUDPReceived(context));
-    }
-
-    @Override
-    public void onUDPSent(PacketHandlerContext<?> context) {
-        forEachListener(listener -> listener.onUDPSent(context));
-    }
-
-    @Override
-    public void onSent(PacketHandlerContext<?> context) {
-        forEachListener(listener -> listener.onSent(context));
-    }
-
-    @Override
-    public void onReceived(PacketHandlerContext<?> context) {
-        forEachListener(listener -> listener.onReceived(context));
     }
 
 }

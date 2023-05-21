@@ -6,8 +6,9 @@ import com.hirshi001.networking.packet.Packet;
 /**
  * A packet that contains a double.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public class DoublePacket extends Packet {
 
     public double value;

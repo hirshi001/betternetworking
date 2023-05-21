@@ -28,6 +28,7 @@ import com.hirshi001.restapi.ScheduledExec;
  *
  * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public interface NetworkSide {
 
     /**
@@ -59,8 +60,8 @@ public interface NetworkSide {
     BufferFactory getBufferFactory();
 
     /**
-     *
-     * @return
+     * Returns the {@link ScheduledExec} this NetworkSide is using
+     * @return the {@link ScheduledExec} this NetworkSide is using
      */
     ScheduledExec getExecutor();
 
@@ -173,15 +174,11 @@ public interface NetworkSide {
 
     /**
      * Checks if there are any TCP packets received and handles them
-     *
-     * @return a RestFuture that will check for TCP packets when performed
      */
     void checkTCPPackets();
 
     /**
      * Checks if there are any UDP packets received and handles them
-     *
-     * @return a RestFuture that will check for UDP packets when performed
      */
     void checkUDPPackets();
 

@@ -6,8 +6,9 @@ import com.hirshi001.networking.packet.Packet;
 /**
  * A packet that contains a boolean.
  *
- * @author Hirshi001
+ * @author HRishikesh Ingle
  */
+@SuppressWarnings("unused")
 public class BooleanPacket extends Packet {
 
     public boolean value;

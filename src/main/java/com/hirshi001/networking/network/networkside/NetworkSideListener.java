@@ -42,7 +42,7 @@ public interface NetworkSideListener {
     /**
      * A callback method that is called when a UDP packet is received on the {@link NetworkSide}.
      *
-     * @param context
+     * @param context the context of the packet
      */
     void onUDPReceived(PacketHandlerContext<?> context);
 

@@ -5,7 +5,7 @@ import com.hirshi001.networking.packet.Packet;
 /**
  * A blank packet that is used to initiate a UDP connection.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
 public class UDPInitialConnectionPacket extends Packet {
 }

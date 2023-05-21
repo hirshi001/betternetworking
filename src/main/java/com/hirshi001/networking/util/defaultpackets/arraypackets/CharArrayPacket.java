@@ -8,8 +8,9 @@ import java.util.Arrays;
 /**
  * A packet that contains an array of chars.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public class CharArrayPacket extends Packet {
 
     public int[] array;

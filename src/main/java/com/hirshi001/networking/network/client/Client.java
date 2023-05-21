@@ -27,6 +27,7 @@ import com.hirshi001.restapi.RestFuture;
  *
  * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public interface Client extends NetworkSide {
 
 

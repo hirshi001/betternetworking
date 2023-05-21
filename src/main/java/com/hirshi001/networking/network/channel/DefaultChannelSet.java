@@ -22,23 +22,25 @@ import com.hirshi001.networking.packethandlercontext.PacketType;
 import com.hirshi001.networking.packetregistry.PacketRegistry;
 import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
  * A default implementation of {@link ChannelSet}
  *
- * @param <T> the type of the Channel
+ * @param <C> the type of the Channel
  * @see ChannelSet
+ * @author Hrishikesh Ingle
  */
-public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
+public class DefaultChannelSet<C extends Channel> implements ChannelSet<C> {
 
     private final Server server;
-    private final Set<T> channels;
+    private final Set<C> channels;
     private int maxSize;
 
     /**
@@ -46,7 +48,7 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
      *
      * @param server the server this set is associated with
      */
-    public DefaultChannelSet(Server server, Set<T> channels) {
+    public DefaultChannelSet(Server server, Set<C> channels) {
         this.server = server;
         this.channels = channels;
         maxSize = -1;
@@ -64,22 +66,11 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     }
 
     @Override
-    public void setMaxSizeWithPurgeTest(int size, Predicate<T> purgeTest) {
+    public void setMaxSizeWithPurgeTest(int size, Predicate<C> purgeTest) {
         maxSize = size;
-        channels.removeIf(new Predicate<T>() {
-            @Override
-            public boolean test(T t) {
-                return channels.size() > maxSize && purgeTest.test(t);
-            }
-        });
+        channels.removeIf(t -> channels.size() > maxSize && purgeTest.test(t));
         if (size < channels.size()) {
-            Iterator<T> iterator = channels.iterator();
-            while (iterator.hasNext()) {
-                T next = iterator.next();
-                if (purgeTest.test(next)) {
-                    iterator.remove();
-                }
-            }
+            channels.removeIf(purgeTest);
         }
     }
 
@@ -89,9 +80,9 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     }
 
     @Override
-    public RestFuture<?, DefaultChannelSet<T>> sendTCPToAll(Packet packet, PacketRegistry packetRegistry) {
+    public RestFuture<?, DefaultChannelSet<C>> sendTCPToAll(Packet packet, PacketRegistry packetRegistry) {
         return RestAPI.create(() -> {
-            for (T channel : channels) {
+            for (C channel : channels) {
                 channel.sendTCP(packet, packetRegistry).perform();
             }
             return this;
@@ -99,9 +90,9 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     }
 
     @Override
-    public RestFuture<?, DefaultChannelSet<T>> sendUDPToAll(Packet packet, PacketRegistry packetRegistry) {
+    public RestFuture<?, DefaultChannelSet<C>> sendUDPToAll(Packet packet, PacketRegistry packetRegistry) {
         return RestAPI.create(() -> {
-            for (T channel : channels) {
+            for (C channel : channels) {
                 channel.sendUDP(packet, packetRegistry).perform();
             }
             return this;
@@ -127,9 +118,9 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     }
 
     @Override
-    public RestFuture<?, DefaultChannelSet<T>> sendToAll(Packet packet, PacketType packetType, PacketRegistry packetRegistry) {
+    public RestFuture<?, DefaultChannelSet<C>> sendToAll(Packet packet, PacketType packetType, PacketRegistry packetRegistry) {
         return RestAPI.create(() -> {
-            for (T channel : channels) {
+            for (C channel : channels) {
                 channel.send(packet, packetRegistry, packetType).perform();
             }
             return this;
@@ -138,9 +129,9 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
 
 
     @Override
-    public RestFuture<?, DefaultChannelSet<T>> sendIf(Packet packet, PacketType packetType, PacketRegistry packetRegistry, Predicate<Channel> predicate) {
+    public RestFuture<?, DefaultChannelSet<C>> sendIf(Packet packet, PacketType packetType, PacketRegistry packetRegistry, Predicate<Channel> predicate) {
         return RestAPI.create(() -> {
-            for (T channel : channels) {
+            for (C channel : channels) {
                 if (predicate.test(channel)) {
                     channel.send(packet, packetRegistry, packetType).perform();
                 }
@@ -181,8 +172,8 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
      * @param port    the port of the channel to find
      * @return The channel if it exists, null otherwise
      */
-    public T get(byte[] address, int port) {
-        for (T channel : channels) {
+    public C get(byte[] address, int port) {
+        for (C channel : channels) {
             if (Arrays.equals(channel.getAddress(), address) && channel.getPort() == port) {
                 return channel;
             }
@@ -191,7 +182,7 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public Iterator<C> iterator() {
         return channels.iterator();
     }
 
@@ -201,12 +192,12 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     }
 
     @Override
-    public <T> T[] toArray(T[] a) {
+    public <T> T[] toArray(T @NotNull [] a) {
         return channels.toArray(a);
     }
 
     @Override
-    public boolean add(T channel) {
+    public boolean add(C channel) {
         if (maxSize >=0 && channels.size() >= maxSize) return false;
         return channels.add(channel);
     }
@@ -217,22 +208,22 @@ public class DefaultChannelSet<T extends Channel> implements ChannelSet<T> {
     }
 
     @Override
-    public boolean containsAll(Collection<?> c) {
+    public boolean containsAll(@NotNull Collection<?> c) {
         return channels.containsAll(c);
     }
 
     @Override
-    public boolean addAll(Collection<? extends T> c) {
+    public boolean addAll(@NotNull Collection<? extends C> c) {
         return channels.addAll(c);
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(@NotNull Collection<?> c) {
         return channels.removeAll(c);
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(@NotNull Collection<?> c) {
         return channels.retainAll(c);
     }
 

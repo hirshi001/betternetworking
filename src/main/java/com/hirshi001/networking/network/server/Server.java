@@ -17,12 +17,9 @@
 package com.hirshi001.networking.network.server;
 
 import com.hirshi001.networking.network.channel.Channel;
-import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelSet;
-import com.hirshi001.networking.packet.DataPacket;
-import com.hirshi001.networking.packet.Packet;
-import com.hirshi001.networking.packetregistry.PacketRegistry;
+import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.restapi.RestFuture;
 
 /**
@@ -31,6 +28,7 @@ import com.hirshi001.restapi.RestFuture;
  *
  * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public interface Server extends NetworkSide, ServerListener {
 
 
@@ -72,10 +70,12 @@ public interface Server extends NetworkSide, ServerListener {
     @Override
     RestFuture<?, Server> stopTCP();
 
-    @Override
     /**
      * Has the server stop listening for UDP packets and stop sending UDP packets(Does not close any existing channels).
+     *
+     * @return a RestFuture that will have the server stop listening for UDP packets when performed
      */
+    @Override
     RestFuture<?, Server> stopUDP();
 
     /**

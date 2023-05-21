@@ -20,9 +20,10 @@ import com.hirshi001.buffer.buffers.ByteBuffer;
 
 /**
  * An alternative to a normal packet where the bytes are already encoded.
- *
  * This should be used if encoding the packet is a very expensive operation, and you are sending the same packet
  * multiple times.
+ *
+ * @author Hrishikesh Ingle
  */
 public class DataPacket<P extends Packet> {
 

@@ -21,14 +21,20 @@ import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.restapi.RestFuture;
 import com.hirshi001.restapi.ScheduledExec;
 
-import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.Selector;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * This class manages the responses to packets sent by the client.
+ *
+ * @author Hrishikesh Ingle
+ */
+@SuppressWarnings("unused")
 public class PacketResponseManager {
 
 

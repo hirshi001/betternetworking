@@ -43,9 +43,9 @@ import java.util.concurrent.TimeUnit;
  * A simple class which represents a channel. Some methods are implemented but the full implementation of a channel is
  * left to the user.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({"unchecked", "rawtypes", "unused"})
 public abstract class BaseChannel implements Channel{
 
 

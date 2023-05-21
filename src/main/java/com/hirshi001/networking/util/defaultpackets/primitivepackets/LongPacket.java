@@ -6,7 +6,7 @@ import com.hirshi001.networking.packet.Packet;
 /**
  * A packet that contains a long.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
 public class LongPacket extends Packet {
 

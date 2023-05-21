@@ -23,6 +23,11 @@ import com.hirshi001.networking.networkdata.NetworkData;
 
 import java.io.IOException;
 
+/**
+ * Factory for creating {@link Server} and {@link Client} objects.
+ *
+ * @author Hrishikesh Ingle
+ */
 public interface NetworkFactory {
 
     Server createServer(NetworkData networkData, BufferFactory bufferFactory, int port) throws IOException;

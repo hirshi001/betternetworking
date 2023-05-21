@@ -18,6 +18,12 @@ package com.hirshi001.networking.network.server;
 
 import com.hirshi001.networking.util.Option;
 
+/**
+ * Represents an option for a {@link Server}.
+ * @param <T> the type of the option value
+ *
+ * @author Hrishikesh Ingle
+ */
 public class ServerOption<T> extends Option<T> {
 
     public static final ServerOption<Integer> MAX_CLIENTS = new ServerOption<>("max_clients", Integer.class);
@@ -28,7 +34,6 @@ public class ServerOption<T> extends Option<T> {
 
     // Time interval in ms to check for udp packets. If negative, client will never automatically check for udp packets
     public static final ServerOption<Integer> UDP_PACKET_CHECK_INTERVAL = new ServerOption<>("udp_packet_check_interval", Integer.class);
-
 
     protected ServerOption(String name, Class<T> type) {
         super(name, type);

@@ -20,11 +20,7 @@ import com.hirshi001.buffer.bufferfactory.BufferFactory;
 import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelSet;
-import com.hirshi001.networking.network.channel.DefaultChannelSet;
-import com.hirshi001.networking.network.client.ClientOption;
 import com.hirshi001.networking.networkdata.NetworkData;
-import com.hirshi001.restapi.RestAPI;
-import com.hirshi001.restapi.RestFuture;
 import com.hirshi001.restapi.ScheduledExec;
 import com.hirshi001.restapi.TimerAction;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
@@ -36,10 +32,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * A base implementation of the {@link Server} interface. This class provides some implementations of methods but the
  * rest are left to the user to implement.
  *
- * @param <T> the type of {@link Channel} this server will use
+ * @param <C> the type of {@link Channel} this server will use
  * @author Hrishikesh Ingle
  */
-public abstract class BaseServer<T extends Channel> implements Server {
+@SuppressWarnings("unused")
+public abstract class BaseServer<C extends Channel> implements Server {
 
     private final NetworkData networkData;
     private final BufferFactory bufferFactory;
@@ -47,6 +44,7 @@ public abstract class BaseServer<T extends Channel> implements Server {
     protected ChannelInitializer channelInitializer;
     private final int port;
     protected ScheduledExec exec;
+    @SuppressWarnings("rawtypes")
     protected final Map<ServerOption, Object> options;
     private TimerAction checkTCPPackets, checkUDPPackets;
 
@@ -74,6 +72,7 @@ public abstract class BaseServer<T extends Channel> implements Server {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T getServerOption(ServerOption<T> option) {
         return (T) options.get(option);
     }
@@ -134,7 +133,6 @@ public abstract class BaseServer<T extends Channel> implements Server {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public abstract ChannelSet<Channel> getClients();
 
     @Override
@@ -168,7 +166,7 @@ public abstract class BaseServer<T extends Channel> implements Server {
      * @param channel the channel to add
      * @return true if the channel was added
      */
-    protected boolean addChannel(T channel) {
+    protected boolean addChannel(C channel) {
         if (getClients().add(channel)) {
             if (channelInitializer != null) {
                 channelInitializer.initChannel(channel);

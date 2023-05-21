@@ -17,7 +17,6 @@
 package com.hirshi001.networking.network.channel;
 
 import com.hirshi001.networking.network.networkside.NetworkSideListenerHandler;
-import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 
 import java.util.Collection;
 
@@ -27,6 +26,7 @@ import java.util.Collection;
  *
  * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public class ChannelListenerHandler<T extends ChannelListener> extends NetworkSideListenerHandler<T> implements ChannelListener {
 
     /**
@@ -42,36 +42,6 @@ public class ChannelListenerHandler<T extends ChannelListener> extends NetworkSi
      */
     public ChannelListenerHandler(Collection<T> listeners) {
         super(listeners);
-    }
-
-    @Override
-    public void onTCPSent(PacketHandlerContext<?> context) {
-        forEachListener(l -> l.onTCPSent(context));
-    }
-
-    @Override
-    public void onTCPReceived(PacketHandlerContext<?> context) {
-        forEachListener(l -> l.onTCPReceived(context));
-    }
-
-    @Override
-    public void onUDPSent(PacketHandlerContext<?> context) {
-        forEachListener(l -> l.onUDPSent(context));
-    }
-
-    @Override
-    public void onUDPReceived(PacketHandlerContext<?> context) {
-        forEachListener(l -> l.onUDPReceived(context));
-    }
-
-    @Override
-    public void onSent(PacketHandlerContext<?> context) {
-        forEachListener(l -> l.onSent(context));
-    }
-
-    @Override
-    public void onReceived(PacketHandlerContext<?> context) {
-        forEachListener(l -> l.onReceived(context));
     }
 
     @Override

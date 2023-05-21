@@ -8,6 +8,8 @@ import java.util.Objects;
 
 /**
  * A packet that contains a string.
+ *
+ * @author Hrishikesh Ingle
  */
 public class StringPacket extends Packet {
 

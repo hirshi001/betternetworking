@@ -6,7 +6,7 @@ import com.hirshi001.networking.packet.Packet;
 /**
  * A packet that contains an integer.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
 public class IntegerPacket extends Packet {
 

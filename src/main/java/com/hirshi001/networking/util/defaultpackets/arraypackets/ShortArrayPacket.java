@@ -8,8 +8,9 @@ import java.util.Arrays;
 /**
  * A packet that contains an array of shorts.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public class ShortArrayPacket extends Packet {
 
     public short[] array;

@@ -6,7 +6,7 @@ import com.hirshi001.networking.util.BooleanCompression;
  * A class that represents a packet that contains multiple booleans.
  * The booleans are stored in a byte.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
 public class MultiBooleanPacket extends BytePacket {
 

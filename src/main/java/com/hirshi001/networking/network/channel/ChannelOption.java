@@ -24,6 +24,7 @@ import com.hirshi001.networking.util.Option;
  *
  * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public class ChannelOption<T> extends Option<T> {
 
     //found in socket.java

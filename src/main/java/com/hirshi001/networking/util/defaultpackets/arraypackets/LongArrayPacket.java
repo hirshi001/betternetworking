@@ -8,8 +8,9 @@ import java.util.Arrays;
 /**
  * A packet that contains an array of longs.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public class LongArrayPacket extends Packet {
 
     public long[] array;

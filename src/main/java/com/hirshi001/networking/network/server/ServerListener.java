@@ -19,6 +19,11 @@ package com.hirshi001.networking.network.server;
 import com.hirshi001.networking.network.networkside.NetworkSideListener;
 import com.hirshi001.networking.network.channel.Channel;
 
+/**
+ * Listener for {@link Server} events.
+ *
+ * @author Hrishikesh Ingle
+ */
 public interface ServerListener extends NetworkSideListener {
 
     void onTCPStart(Server server);

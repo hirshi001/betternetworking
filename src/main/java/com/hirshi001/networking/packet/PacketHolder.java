@@ -18,6 +18,11 @@ package com.hirshi001.networking.packet;
 
 import java.util.function.Supplier;
 
+/**
+ * Holds information about a registered packet type.
+ * @param <T> the type of the packet
+ * @author Hrishikesh Ingle
+ */
 public class PacketHolder<T extends Packet>{
 
     public PacketHandler<T> handler;

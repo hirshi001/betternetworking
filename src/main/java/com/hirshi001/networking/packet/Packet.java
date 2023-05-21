@@ -19,6 +19,11 @@ package com.hirshi001.networking.packet;
 
 import com.hirshi001.buffer.buffers.ByteBuffer;
 
+/**
+ * A packet is a data structure that is sent over the network.
+ *
+ * @author Hrishikesh Ingle
+ */
 public abstract class Packet implements ByteBufSerializable {
 
     public int sendingId = -1, receivingId = -1; // -1 means not set
@@ -37,8 +42,9 @@ public abstract class Packet implements ByteBufSerializable {
 
     /**
      * Sets the packet which this packet is responding to (if it is responding to any packet at all)
-     * @param packet
+     * @param packet this packet for chaining
      */
+    @SuppressWarnings("UnusedReturnValue")
     public final Packet setResponsePacket(Packet packet){
         //int sId = packet.receivingId;
         //int rId = packet.sendingId;

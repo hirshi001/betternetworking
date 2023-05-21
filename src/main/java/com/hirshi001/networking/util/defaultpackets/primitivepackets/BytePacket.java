@@ -6,7 +6,7 @@ import com.hirshi001.networking.packet.Packet;
 /**
  * A packet that contains a byte.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
 public class BytePacket extends Packet {
 

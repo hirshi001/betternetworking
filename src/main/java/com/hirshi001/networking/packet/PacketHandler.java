@@ -18,6 +18,11 @@ package com.hirshi001.networking.packet;
 
 import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 
+/**
+ * Represents a handler for a packet.
+ * @param <T> the type of the packet to handle
+ * @author Hrishikesh Ingle
+ */
 public interface PacketHandler<T extends Packet> {
 
     PacketHandler<?> NO_HANDLE = (PacketHandler<Packet>) context -> {   };

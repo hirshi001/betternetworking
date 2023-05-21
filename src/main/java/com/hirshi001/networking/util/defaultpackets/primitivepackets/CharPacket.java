@@ -6,8 +6,9 @@ import com.hirshi001.networking.packet.Packet;
 /**
  * A packet that contains a char.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public class CharPacket extends Packet {
 
     public int value;

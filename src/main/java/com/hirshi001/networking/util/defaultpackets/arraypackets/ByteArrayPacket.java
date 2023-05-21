@@ -8,8 +8,9 @@ import java.util.Arrays;
 /**
  * A packet that contains an array of bytes
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public class ByteArrayPacket extends Packet {
 
     public byte[] array;

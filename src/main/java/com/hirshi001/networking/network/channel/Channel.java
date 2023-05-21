@@ -16,7 +16,6 @@
 
 package com.hirshi001.networking.network.channel;
 
-import com.hirshi001.networking.network.client.Client;
 import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.packet.DataPacket;
 import com.hirshi001.networking.packet.Packet;
@@ -28,8 +27,9 @@ import com.hirshi001.restapi.RestFuture;
 /**
  * A simple interface which represents a channel.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public interface Channel {
 
     /**
@@ -221,8 +221,6 @@ public interface Channel {
 
     /**
      * Flushes tcp and udp.
-     *
-     * @return a RestFuture that will be performed when the bytes are sent
      */
     void flush();
 
@@ -401,15 +399,11 @@ public interface Channel {
 
     /**
      * Checks for incoming tcp packets and handles them.
-     *
-     * @return a RestFuture that will check for incoming tcp packets when performed
      */
     void checkTCPPackets();
 
     /**
      * Checks for incoming udp packets and handles them.
-     *
-     * @return a RestFuture that will check for incoming udp packets when performed
      */
     void checkUDPPackets();
 

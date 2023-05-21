@@ -36,7 +36,7 @@ public class ClientOption<T> extends com.hirshi001.networking.util.Option<T> {
      * Creates a new ClientOption with the given name and type
      *
      * @param name the name of the ClientOption
-     * @param type
+     * @param type the type of the ClientOption
      */
     public ClientOption(String name, Class<T> type) {
         super(name, type);

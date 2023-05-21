@@ -32,8 +32,19 @@ import java.util.function.Supplier;
  *
  * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public interface PacketRegistry {
 
+    /**
+     * Registers a packet with the given id.
+     * @param supplier the supplier to create the packet
+     * @param handler the handler to handle the packet
+     * @param packetClass the class of the packet
+     * @param id the id to register the packet with
+     * @return this for chaining
+     * @param <T> the type of the packet
+     */
+    @SuppressWarnings("UnusedReturnValue")
     default <T extends Packet> PacketRegistry register(Supplier<T> supplier, PacketHandler<T> handler, Class<T> packetClass, int id) {
         return register(new PacketHolder<>(supplier, handler, packetClass), id);
     }
@@ -142,8 +153,18 @@ public interface PacketRegistry {
         return this;
     }
 
+    /**
+     * Gets the id of this packet registry after added to a {@link com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer}
+     * @return the id of this packet registry after added to a {@link com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer}
+     */
     int getId();
 
+    /**
+     * Sets the id of this packet registry
+     * @param id the id to set
+     * @return this
+     */
+    @SuppressWarnings("UnusedReturnValue")
     PacketRegistry setId(int id);
 
 }

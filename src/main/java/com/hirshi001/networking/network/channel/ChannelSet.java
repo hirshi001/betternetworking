@@ -31,6 +31,7 @@ import java.util.function.Predicate;
  * @param <T> the type of the Channel
  * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public interface ChannelSet<T extends Channel> extends Set<T> {
 
     /**
@@ -97,15 +98,13 @@ public interface ChannelSet<T extends Channel> extends Set<T> {
     void setMaxSize(int size);
 
     /**
-     * @return the max amount of channels that can be in this set
-     *
      * @param size the max amount of channels
      * @param purgeTest the test to purge channels if the new size is less than the current size
      */
     void setMaxSizeWithPurgeTest(int size, Predicate<T> purgeTest);
 
     /**
-     * @return the max amount of channels that can be in this set
+     * @return the current amount of channels in this set
      */
     int getMaxSize();
 

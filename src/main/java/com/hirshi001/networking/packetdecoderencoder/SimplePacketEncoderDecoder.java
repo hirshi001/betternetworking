@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Default implementation of the PacketEncoderDecoder interface.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
 public class SimplePacketEncoderDecoder implements PacketEncoderDecoder {
 
@@ -46,6 +46,7 @@ public class SimplePacketEncoderDecoder implements PacketEncoderDecoder {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public PacketHandlerContext<?> decode(PacketRegistryContainer container, ByteBuffer in, PacketHandlerContext context) {
         if (in.readableBytes() < 9)
             return null; // If there is not enough bytes to read the length, and flags, auto return

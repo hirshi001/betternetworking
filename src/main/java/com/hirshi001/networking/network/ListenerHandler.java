@@ -1,27 +1,19 @@
-/*
-   Copyright 2022 Hrishikesh Ingle
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
-
 package com.hirshi001.networking.network;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.function.Consumer;
 
+/**
+ * This class is used to manage listeners for events.
+ * @param <L> the type of the listener
+ *
+ * @author Hrishikesh Ingle
+ */
+@SuppressWarnings("unused")
 public class ListenerHandler<L> implements Collection<L>{
 
 
@@ -66,7 +58,7 @@ public class ListenerHandler<L> implements Collection<L>{
     }
 
     @Override
-    public <T> T[] toArray(T[] a) {
+    public <T> T[] toArray(T @NotNull [] a) {
         return listeners.toArray(a);
     }
 
@@ -81,16 +73,17 @@ public class ListenerHandler<L> implements Collection<L>{
     }
 
     @Override
-    public boolean containsAll(Collection<?> c) {
+    public boolean containsAll(@NotNull Collection<?> c) {
         return listeners.containsAll(c);
     }
 
     @Override
-    public final boolean addAll(Collection<? extends L> c) {
+    public final boolean addAll(@NotNull Collection<? extends L> c) {
         return listeners.addAll(c);
     }
 
     @SafeVarargs
+    @SuppressWarnings("UnusedReturnValue")
     public final boolean addAll(L... listeners) {
         boolean modified = false;
         for (L listener : listeners)
@@ -99,11 +92,12 @@ public class ListenerHandler<L> implements Collection<L>{
     }
 
     @Override
-    public final boolean removeAll(Collection<?> c) {
+    public final boolean removeAll(@NotNull Collection<?> c) {
         return listeners.removeAll(c);
     }
 
     @SafeVarargs
+    @SuppressWarnings("UnusedReturnValue")
     public final boolean removeAll(L... listeners) {
        boolean modified = false;
        for (L listener : listeners)
@@ -112,7 +106,7 @@ public class ListenerHandler<L> implements Collection<L>{
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(@NotNull Collection<?> c) {
         return listeners.retainAll(c);
     }
 

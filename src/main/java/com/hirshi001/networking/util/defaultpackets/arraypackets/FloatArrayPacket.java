@@ -8,8 +8,9 @@ import java.util.Arrays;
 /**
  * A packet that contains an array of floats.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public class FloatArrayPacket extends Packet {
 
     public float[] array;

@@ -31,8 +31,9 @@ import com.hirshi001.networking.packet.Packet;
  *  </pre>
  * @param <T> the type of object to be serialized
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public abstract class ByteBufSerializableObjectPacket<T extends ByteBufSerializable> extends Packet {
 
     private T object;

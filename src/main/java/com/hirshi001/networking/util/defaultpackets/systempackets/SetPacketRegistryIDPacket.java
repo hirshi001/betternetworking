@@ -11,7 +11,7 @@ import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
  * A helper packet which should be sent from the server to the client to set the id of a new
  * packet registry which was just added.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
 public class SetPacketRegistryIDPacket extends Packet {
 

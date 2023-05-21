@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public class MultiPacketRegistryContainer implements PacketRegistryContainer{
 
     private final Map<String, PacketRegistry> packetRegistryMap = new HashMap<>();
@@ -47,6 +48,7 @@ public class MultiPacketRegistryContainer implements PacketRegistryContainer{
     }
 
     @Override
+    @SuppressWarnings("StatementWithEmptyBody")
     public PacketRegistry addRegistry(PacketRegistry registry){
         synchronized (lock) {
             int id;

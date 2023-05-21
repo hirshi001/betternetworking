@@ -6,7 +6,7 @@ import java.lang.reflect.Array;
  * A utility class that contains methods for working with arrays, mainly used for array packets but
  * can be used for other things.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
 public class ArrayUtil {
 

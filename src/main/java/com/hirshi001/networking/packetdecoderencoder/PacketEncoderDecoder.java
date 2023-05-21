@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * A class which is used to decode and encode packets.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
 public interface PacketEncoderDecoder {
 
@@ -48,6 +48,7 @@ public interface PacketEncoderDecoder {
      * @param container  the SidedPacketRegistryContainer which contains the packet registries
      * @param out        the ByteBuf to write to
      */
+    @SuppressWarnings("rawtypes")
     void encode(PacketHandlerContext<?> ctx, @Nullable DataPacket dataPacket, PacketRegistryContainer container, ByteBuffer out);
 
 }

@@ -4,7 +4,7 @@ package com.hirshi001.networking.util;
  * A utility class that can be used to compress booleans into bytes and decompress the bytes
  * back into booleans.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
 public class BooleanCompression {
 

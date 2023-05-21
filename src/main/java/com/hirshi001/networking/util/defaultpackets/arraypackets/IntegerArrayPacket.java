@@ -8,8 +8,9 @@ import java.util.Arrays;
 /**
  * A packet that contains an array of ints.
  *
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public class IntegerArrayPacket extends Packet {
 
     public int[] array;

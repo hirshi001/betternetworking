@@ -27,6 +27,7 @@ import java.util.Collection;
  *
  * @author Hrishikesh Ingle
  */
+@SuppressWarnings("unused")
 public interface PacketRegistryContainer {
 
     String DEFAULT_REGISTRY_NAME = "default";
@@ -35,15 +36,15 @@ public interface PacketRegistryContainer {
     /**
      * Adds a PacketRegistry to this PacketRegistryContainer if this PacketRegistryContainer supports multiple PacketRegistries
      *
-     * @param registry
-     * @return
+     * @param registry the {@link PacketRegistry} to add
+     * @return the PacketRegistry that was added
      */
     PacketRegistry addRegistry(PacketRegistry registry);
 
     /**
      * Gets the PacketRegistry with the given name
      *
-     * @param name
+     * @param name the name of the PacketRegistry to get
      * @return the PacketRegistry with the given name, or null if no PacketRegistry with the given name exists
      */
     PacketRegistry get(String name);
@@ -57,7 +58,7 @@ public interface PacketRegistryContainer {
      * Creates a new PacketRegistry which is then added to this PacketRegistryContainer
      * The method {@link PacketRegistryContainer#supportsMultipleRegistries()} must return true for this method to work
      *
-     * @param registryName
+     * @param registryName the name of the PacketRegistry to create
      * @return the newly created PacketRegistry
      * @throws UnsupportedOperationException if this PacketRegistryContainer does not support multiple PacketRegistries
      */

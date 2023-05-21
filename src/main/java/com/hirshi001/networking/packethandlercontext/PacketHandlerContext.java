@@ -26,7 +26,7 @@ import com.hirshi001.networking.packetregistry.PacketRegistry;
  * A simple class which holds information about a sent or received packet.
  *
  * @param <T> the type of the packet
- * @author Hirshi001
+ * @author Hrishikesh Ingle
  */
 public class PacketHandlerContext<T extends Packet> {
 
