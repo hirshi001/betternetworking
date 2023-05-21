@@ -21,7 +21,9 @@ import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.restapi.RestFuture;
 import com.hirshi001.restapi.ScheduledExec;
 
-import java.util.Map;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.Selector;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -31,34 +33,71 @@ public class PacketResponseManager {
 
 
     private final AtomicInteger packetResponseId;
-    private final Map<Integer, RestFuture> packetResponses;
+    private final Map<Integer, RestFuture<?, PacketHandlerContext<?>>> packetResponses;
+    private final Map<Class<?>, Set<RestFuture<?, PacketHandlerContext<?>>>> waitingForPacketByClass;
 
-    private ScheduledExec executorService;
+    private final ScheduledExec executorService;
     public PacketResponseManager(ScheduledExec executorService) {
         super();
         packetResponseId = new AtomicInteger(0);
         packetResponses = new ConcurrentHashMap<>();
+        waitingForPacketByClass = new ConcurrentHashMap<>();
         this.executorService = executorService;
     }
 
-    public <P extends Packet> void submit(Packet packet, long timeout, TimeUnit unit, RestFuture successFuture) {
+    @SuppressWarnings("unchecked")
+    public <P extends Packet> void waitForResponse(Packet packet, long timeout, TimeUnit unit, RestFuture<?, PacketHandlerContext<P>> successFuture) {
         int id = getNextPacketResponseId();
         packet.sendingId = id;
-        packetResponses.put(id, successFuture);
+        packetResponses.put(id, (RestFuture<?, PacketHandlerContext<?>>)(Object)successFuture);
         executorService.run(()-> {
-            RestFuture<PacketHandlerContext<?>, ?> sFuture = packetResponses.remove(id);
-            if(sFuture!=null && !sFuture.isDone()) sFuture.setCause(new TimeoutException("Packet did not arrive on time"));
+            RestFuture<?, PacketHandlerContext<?>> sFuture = packetResponses.remove(id);
+            if(sFuture!=null && !sFuture.isDone()) {
+                sFuture.setCause(new TimeoutException("Packet did not arrive on time"));
+            }
         }, timeout, unit);
+    }
 
+    @SuppressWarnings("unchecked")
+    public <P extends Packet> void waitForPacketType(Class<P> packetClass, long timeout, TimeUnit unit, RestFuture<?, PacketHandlerContext<P>> successFuture) {
+        // TODO: avoid creating a new HashSet every time we call merge, how to do?
+        Set<RestFuture<?, PacketHandlerContext<?>>> set = new HashSet<>(2); // 2 is initial capacity to avoid resizing after adding successFuture
+        set.add((RestFuture<?, PacketHandlerContext<?>>)(Object)successFuture);
+
+        waitingForPacketByClass.merge(packetClass, set, (a, b) -> {
+            a.addAll(b);
+            return a;
+        });
+
+        executorService.run(()-> {
+            Set<RestFuture<?, PacketHandlerContext<?>>> futures = waitingForPacketByClass.get(packetClass);
+            if(futures!=null) {
+                futures.remove(successFuture);
+            }
+            if(successFuture!=null && !successFuture.isDone()) {
+                successFuture.setCause(new TimeoutException("Packet did not arrive on time"));
+            }
+        }, timeout, unit);
     }
 
     public void success(PacketHandlerContext<?> context){
+        // check if it is a response packet
         int receivingId = context.packet.receivingId;
         if(receivingId<0) return;
-        RestFuture<PacketHandlerContext<?>, PacketHandlerContext<?>> future = packetResponses.remove(context.packet.receivingId);
+        RestFuture<?, PacketHandlerContext<?>> future = packetResponses.remove(context.packet.receivingId);
         if(future!=null){
             future.taskFinished(context);
         }
+
+        // check if someone is waiting for this packet
+        Set<RestFuture<?, PacketHandlerContext<?>>> futures = waitingForPacketByClass.get(context.packet.getClass()); // no need to remove, meh
+        if(futures!=null){
+            for(RestFuture<?, PacketHandlerContext<?>> f : futures){
+                f.taskFinished(context);
+            }
+            futures.clear();
+        }
+
     }
 
     public void noId(Packet packet){

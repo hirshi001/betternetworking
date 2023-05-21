@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact name="NetworkingLibrary.main:GWT">
-    <output-path>$PROJECT_DIR$/out/artifacts/NetworkingLibrary_main_GWT</output-path>
-    <root id="root">
-      <element id="gwt-compiler-output" facet="NetworkingLibrary.main/gwt/GWT" />
-    </root>
-  </artifact>
-</component>

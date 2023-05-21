@@ -45,7 +45,7 @@ public abstract class BaseClient implements Client {
     private final int port;
     protected final ChannelListenerHandler<ChannelListener> clientListenerHandler;
     protected ChannelInitializer channelInitializer;
-    private final Map<ClientOption, Object> options;
+    private final Map<ClientOption<?>, Object> options;
 
     private volatile TimerAction checkTCPPackets, checkUDPPackets;
     protected ScheduledExec exec;
@@ -115,7 +115,14 @@ public abstract class BaseClient implements Client {
         else if(option==ClientOption.UDP_PACKET_CHECK_INTERVAL){
             setUDPPacketCheckInterval((Integer) value);
         }
+        else if(option==ClientOption.RECEIVE_BUFFER_SIZE) {
+            setReceiveBufferSize((Integer) value);
+        }
     }
+
+    protected abstract void setReceiveBufferSize(int size);
+
+
 
     /**
      * Sets the interval in ms to check for udp packets. If negative, the client will never automatically check for tcp packets.
@@ -176,16 +183,24 @@ public abstract class BaseClient implements Client {
 
     @Override
     public RestFuture<?, Client> stopTCP() {
-        Channel channel = getChannel();
-        if(channel!=null) return channel.stopTCP().map((c)->this);
-        return RestAPI.create(()->this);
+        return RestAPI.create(()-> {
+            Channel channel = getChannel();
+            if(channel!=null) {
+                getChannel().stopTCP().perform();
+            }
+            return this;
+        });
     }
 
     @Override
     public RestFuture<?, Client> stopUDP() {
-        Channel channel = getChannel();
-        if(channel!=null) return channel.stopUDP().map((c)->this);
-        return RestAPI.create(()->this);
+        return RestAPI.create(()-> {
+            Channel channel = getChannel();
+            if(channel!=null) {
+                getChannel().stopUDP().perform();
+            }
+            return this;
+        });
     }
 
     @Override

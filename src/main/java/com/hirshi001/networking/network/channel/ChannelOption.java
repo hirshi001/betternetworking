@@ -40,7 +40,6 @@ public class ChannelOption<T> extends Option<T> {
     //found in datagram.java
     public static final ChannelOption<Integer> UDP_SO_TIMEOUT = new ChannelOption<>("udp_so_timeout", Integer.class);
     public static final ChannelOption<Boolean> UDP_REUSE_ADDRESS = new ChannelOption<>("udp_reuse_address", Boolean.class);
-    public static final ChannelOption<Integer> UDP_RECEIVE_BUFFER_SIZE = new ChannelOption<>("udp_receive_buffer_size", Integer.class);
     public static final ChannelOption<Integer> UDP_TRAFFIC_CLASS = new ChannelOption<>("udp_traffic_class",Integer.class);
     public static final ChannelOption<Boolean> UDP_BROADCAST = new ChannelOption<>("udp_broadcast", Boolean.class);
 

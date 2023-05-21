@@ -23,6 +23,7 @@ import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
 import com.hirshi001.networking.packetregistrycontainer.SinglePacketRegistryContainer;
 import com.hirshi001.networking.util.defaultpackets.primitivepackets.IntegerPacket;
 import com.hirshi001.networking.util.defaultpackets.primitivepackets.StringPacket;
+import com.hirshi001.restapi.TimerAction;
 import org.junit.jupiter.api.Test;
 
 import java.net.Socket;
@@ -142,9 +143,10 @@ public class ExampleUsage {
         Client client = serverFactory.createClient(clientNetworkData, bufferFactory, "localhost", 8080);
 
         client.setClientOption(ClientOption.TCP_PACKET_CHECK_INTERVAL, -1); // don't check for packets automatically
+        // client.setClientOption(ClientOption.TCP_PACKET_CHECK_INTERVAL, 1000);  // check for packets every second (or 1000 ms)
         client.setChannelInitializer((channel) -> {
             channel.setChannelOption(ChannelOption.TCP_SO_TIMEOUT, 1000);
-            channel.setChannelOption(ChannelOption.TCP_NODELAY, true); // idk what this does
+            channel.setChannelOption(ChannelOption.TCP_NODELAY, true); // some options may not be supported by all platforms and may be ignored
             channel.setChannelOption(ChannelOption.UDP_AUTO_FLUSH, true);
             channel.setChannelOption(ChannelOption.TCP_AUTO_FLUSH, true);
         });
@@ -156,9 +158,10 @@ public class ExampleUsage {
 
         // sending a packet to all clients using a DataPacket
         ByteBuffer buffer = bufferFactory.buffer(16);
-        DataPacket packet = DataPacket.of(buffer, new StringPacket("Hello"));
+        DataPacket<StringPacket> packet = DataPacket.of(buffer, new StringPacket("Hello"));
 
         for (Channel channel : server.getClients()) {
+            // TODO: sending DataPacket does not work properly for some reason. Need to fix
             channel.send(packet, null, PacketType.TCP).perform();
         }
 
@@ -168,14 +171,11 @@ public class ExampleUsage {
             channel.send(integerPacket, null, PacketType.TCP).perform();
         }
 
-        while(true){
-            client.checkTCPPackets();
-            Thread.sleep(100); // have client check for tcp packets every 100 ms
-        }
 
+        TimerAction action = client.getExecutor().repeat(client::checkTCPPackets, 0, 100, TimeUnit.MILLISECONDS); // check for TCP packets every 100 ms
 
-
-
+        Thread.sleep(1000);
+        action.cancel(); // after 1 second, stop checking for packets
 
     }
 

@@ -26,9 +26,9 @@ import com.hirshi001.buffer.buffers.ByteBuffer;
  */
 public class DataPacket<P extends Packet> {
 
-    public static DataPacket of(ByteBuffer buffer, Packet packet) {
+    public static <T extends Packet> DataPacket<T> of(ByteBuffer buffer, T packet) {
         packet.writeBytes(buffer);
-        return new DataPacket(buffer, packet);
+        return new DataPacket<>(buffer, packet);
     }
 
     public ByteBuffer buffer;

@@ -136,14 +136,17 @@ public abstract class BaseChannel implements Channel{
 
     @Override
     public <T extends Packet> RestFuture<?, PacketHandlerContext<T>> waitFor(Class<T> packetClass, long timeout) {
-        // TODO: implement this
-        return null;
+        RestFuture<?, PacketHandlerContext<T>> future = RestAPI.create();
+        packetResponseManager.waitForPacketType(packetClass, timeout, TimeUnit.MILLISECONDS, future);
+        return future;
     }
 
     @Override
     public <T extends Packet> RestFuture<?, PacketHandlerContext<T>> waitFor(T packet, long timeout) {
-        // TODO: implement this
-        return null;
+        // TODO: make it so that Packet T is used to read the packet bytes. Right Now packet T is basically useless
+        RestFuture<?, PacketHandlerContext<T>> future = RestAPI.create();
+        packetResponseManager.waitForPacketType((Class<T>) packet.getClass(), timeout, TimeUnit.MILLISECONDS, future);
+        return future;
     }
 
     @Override
@@ -213,7 +216,7 @@ public abstract class BaseChannel implements Channel{
     @Override
     public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendTCPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
         return RestAPI.create((future, input) -> {
-            packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS, future);
+            packetResponseManager.waitForResponse(packet, timeout, TimeUnit.MILLISECONDS, future);
             sendTCP(packet, registry).perform();
         });
     }
@@ -221,10 +224,12 @@ public abstract class BaseChannel implements Channel{
     @Override
     public <P extends Packet> RestFuture<?, PacketHandlerContext<P>> sendUDPWithResponse(Packet packet, PacketRegistry registry, long timeout) {
         return RestAPI.create((future, input) -> {
-            packetResponseManager.submit(packet, timeout, TimeUnit.MILLISECONDS, future);
+            packetResponseManager.waitForResponse(packet, timeout, TimeUnit.MILLISECONDS, future);
             sendUDP(packet, registry).perform();
         });
     }
+
+
 
     // Basic Send operations
 
@@ -330,12 +335,15 @@ public abstract class BaseChannel implements Channel{
     }
 
     @Override
+    @MustBeInvokedByOverriders
     public void checkTCPPackets() {
+        checkTCPPacketTimeout();
     }
 
     @Override
+    @MustBeInvokedByOverriders
     public void checkUDPPackets() {
-
+        checkUDPPacketTimeout();
     }
 
     public void checkTCPPacketTimeout(){
