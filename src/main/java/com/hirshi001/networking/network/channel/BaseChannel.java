@@ -539,6 +539,7 @@ public abstract class BaseChannel implements Channel{
             if (getSide().isServer()) {
                 Server server = getSide().asServer();
                 server.getClients().remove(this);
+                server.getListenerHandler().onClientDisconnect(server, this);
             }
             if(getSide().isClient()) {
                 getSide().asClient().getListenerHandler().onChannelClose(this);
