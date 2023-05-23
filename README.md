@@ -403,7 +403,7 @@ Note: Unfortunately, there are many libraries you must keep track of because not
 
 | NetworkingLibrary           | JavaNetworkingLibrary | HTML/GWT Client | Websocket Server | ByteBuffer | RestAPI    | JavaRestAPI | GWTRestAPI |
 |-----------------------------|-----------------------|-----------------|------------------|------------|------------|-------------|------------|
-| c41eb5a0c4 (Latest Version) | c44c2750b9            | c9bfec6294      | 5587e79200       | ea62bf49b9 | 67b7b188cf | ae5221cbf4  | b8d9d99514 |
+| 6eeedd5103 (Latest Version) | c44c2750b9            | c9bfec6294      | 5587e79200       | ea62bf49b9 | 2a46f4e0bd | 2e2e4b01de  | abc63ff760 |
 | de3537b0aa                  | 0f5f756978            | N/A             | N/A              | c7cecbed69 | 9d6f540f25 | N/A         | N/A        |
 | 56a9acbde2                  | 564d952667            | N/A             | N/A              | c7cecbed69 | 9d6f540f25 | N/A         | N/A        |
 
