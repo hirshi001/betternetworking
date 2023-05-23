@@ -346,7 +346,7 @@ public abstract class BaseChannel implements Channel{
     }
 
     public void checkTCPPacketTimeout(){
-        if(isTCPOpen() && tcpPacketTimeout>0 || packetTimeout>0){
+        if(isTCPOpen() && (tcpPacketTimeout>0 || packetTimeout>0)){
             long dtime = System.nanoTime() - lastTCPReceived;
             if(dtime>tcpPacketTimeout || dtime>packetTimeout){
                 stopTCP().perform();
@@ -355,7 +355,7 @@ public abstract class BaseChannel implements Channel{
     }
 
     public void checkUDPPacketTimeout(){
-        if(isUDPOpen() && udpPacketTimeout>0 || packetTimeout>0){
+        if(isUDPOpen() && (udpPacketTimeout>0 || packetTimeout>0)){
             long dtime = System.nanoTime() - lastUDPReceived;
             if(dtime>udpPacketTimeout || dtime>packetTimeout){
                 stopUDP().perform();
