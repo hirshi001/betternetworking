@@ -20,6 +20,7 @@ import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelSet;
 import com.hirshi001.networking.network.networkside.NetworkSide;
+import com.hirshi001.networking.network.networkside.NetworkSideListener;
 import com.hirshi001.restapi.RestFuture;
 
 /**
@@ -132,6 +133,6 @@ public interface Server extends NetworkSide {
      */
     ChannelInitializer getChannelInitializer();
 
-
-
+    @Override
+    ServerListener getListenerHandler();
 }

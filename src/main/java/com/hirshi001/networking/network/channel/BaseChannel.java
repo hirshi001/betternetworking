@@ -585,6 +585,9 @@ public abstract class BaseChannel implements Channel{
     protected void onTCPConnected() {
         lastTCPReceived = System.nanoTime();
         getListenerHandler().onTCPConnect(this);
+        if(getSide().isClient()){
+            getSide().asClient().getListenerHandler().onTCPConnect(this);
+        }
     }
 
     /**
@@ -593,6 +596,9 @@ public abstract class BaseChannel implements Channel{
     @SuppressWarnings("unused")
     protected void onTCPDisconnected() {
         getListenerHandler().onTCPDisconnect(this);
+        if(getSide().isClient()){
+            getSide().asClient().getListenerHandler().onTCPDisconnect(this);
+        }
         if(isUDPClosed()) close().perform();
     }
 
@@ -603,6 +609,9 @@ public abstract class BaseChannel implements Channel{
     protected void onUDPStart(){
         lastUDPReceived = System.nanoTime();
         getListenerHandler().onUDPStart(this);
+        if(getSide().isClient()){
+            getSide().asClient().getListenerHandler().onUDPStart(this);
+        }
     }
 
     /**

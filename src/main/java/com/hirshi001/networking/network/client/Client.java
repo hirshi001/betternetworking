@@ -19,7 +19,9 @@ package com.hirshi001.networking.network.client;
 import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelListener;
+import com.hirshi001.networking.network.channel.ChannelListenerHandler;
 import com.hirshi001.networking.network.networkside.NetworkSide;
+import com.hirshi001.networking.network.networkside.NetworkSideListener;
 import com.hirshi001.restapi.RestFuture;
 
 /**
@@ -77,6 +79,9 @@ public interface Client extends NetworkSide {
      * @return the value of the given {@link ClientOption}
      */
     <T> T getClientOption(ClientOption<T> option);
+
+    @Override
+    ChannelListenerHandler<ChannelListener> getListenerHandler();
 
     @Override
     RestFuture<?, Client> close();
