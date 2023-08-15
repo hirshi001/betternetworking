@@ -43,8 +43,7 @@ public class MultiPacketRegistryContainer implements PacketRegistryContainer{
 
     public MultiPacketRegistryContainer(){
         defaultRegistry = new DefaultPacketRegistry(DEFAULT_REGISTRY_NAME);
-        addRegistry(defaultRegistry, 0);
-        setPacketRegistryID(getDefaultRegistry(), 0);
+        addRegistry(defaultRegistry);
     }
 
     @Override

@@ -57,7 +57,7 @@ public class SimplePacketEncoderDecoder implements PacketEncoderDecoder {
             throw new IllegalArgumentException("Packet size of '" + size + "' is too big. Max packet size allowed is " + maxSize);
 
 
-        if (in.readableBytes() < size) return null; // If there is not enough bytes to read the packet
+        if (in.readableBytes() < size + 9) return null; // If there is not enough bytes to read the packet
         in.readInt(); // Read the size of the packet (we already know it)
 
         try {
@@ -117,8 +117,16 @@ public class SimplePacketEncoderDecoder implements PacketEncoderDecoder {
         Packet packet = ctx.packet;
         PacketRegistry packetRegistry = ctx.packetRegistry;
 
+        int packetHolderId;
+        try {
+            packetHolderId = packetRegistry.getId(packet.getClass());
+        } catch (NullPointerException e) {
+            throw new PacketIDNotFound("The packet " + packet.getClass() + " does not exist in the registry " + packetRegistry);
+        }
+
         int startIndex = out.writerIndex(); // start index
-        out.ensureWritable(8); // ensure that there is enough space to write the size and the id
+        out.ensureWritable(4); // ensure that there is enough space to write the size
+        out.writerIndex(startIndex + 4);
 
         boolean isMultipleRegistry = container.supportsMultipleRegistries();
         boolean useSendingId = packet.sendingId != -1;
@@ -126,6 +134,7 @@ public class SimplePacketEncoderDecoder implements PacketEncoderDecoder {
 
 
         try {
+            out.writeInt(packetHolderId);
             byte flags = BooleanCompression.compressBooleans(isMultipleRegistry, useSendingId, useReceivingId);
             out.writeByte(flags); // Write the flags
 
@@ -143,21 +152,16 @@ public class SimplePacketEncoderDecoder implements PacketEncoderDecoder {
                 buffer.readerIndex(bufferReaderIndex);
             } else packet.writeBytes(out);
 
+
             int lastIdx = out.writerIndex(); // Get the last index
             int size = lastIdx - startIndex - 9; // Calculate the size of packet encoded not including first 9 bytes
+
             out.writerIndex(startIndex); // Set the writer index back to the start index
-
             out.writeInt(size); // Write the size of the packet
-
-            int packetHolderId;
-            try {
-                packetHolderId = packetRegistry.getId(packet.getClass());
-            } catch (NullPointerException e) {
-                throw new PacketIDNotFound("The packet " + packet.getClass() + " does not exist in the registry " + packetRegistry);
-            }
-            out.writeInt(packetHolderId); // Write the id of the packet
             out.writerIndex(lastIdx); // Set the writer index back to the last index
+
         } catch (Exception e) {
+            out.writerIndex(startIndex); // clear everything written in this packet
             throw new PacketEncodeException("Error while encoding packet", e);
         }
     }
