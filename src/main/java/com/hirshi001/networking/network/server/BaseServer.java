@@ -25,6 +25,7 @@ import com.hirshi001.restapi.ScheduledExec;
 import com.hirshi001.restapi.TimerAction;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -79,7 +80,9 @@ public abstract class BaseServer<C extends Channel> implements Server {
 
     @MustBeInvokedByOverriders
     protected <T> void activateServerOption(ServerOption<T> option, T value){
-        if(option == ServerOption.TCP_PACKET_CHECK_INTERVAL){
+        if (option == ServerOption.MAX_CLIENTS) {
+            getClients().setMaxSize((Integer) value);
+        } else if(option == ServerOption.TCP_PACKET_CHECK_INTERVAL){
             setTCPPacketCheckInterval((Integer) value);
         }
         else if(option == ServerOption.UDP_PACKET_CHECK_INTERVAL){
@@ -93,7 +96,7 @@ public abstract class BaseServer<C extends Channel> implements Server {
      */
     private synchronized void setTCPPacketCheckInterval(int interval){
         if(checkTCPPackets!=null) checkTCPPackets.cancel();
-        if(interval<0) return;
+        if(interval<0 || !tcpOpen()) return;
         checkTCPPackets = getExecutor().repeat(this::checkTCPPackets,0, interval);
     }
 
@@ -103,7 +106,7 @@ public abstract class BaseServer<C extends Channel> implements Server {
      */
     private synchronized void setUDPPacketCheckInterval(int interval){
         if(checkUDPPackets!=null) checkUDPPackets.cancel();
-        if(interval<0) return;
+        if(interval<0 || !udpOpen()) return;
         checkUDPPackets = getExecutor().repeat(this::checkUDPPackets,0, interval);
     }
 
@@ -189,15 +192,45 @@ public abstract class BaseServer<C extends Channel> implements Server {
 
     @Override
     public void checkTCPPackets() {
-        for(Channel channel : getClients()){
-            channel.checkTCPPackets();
+        Iterator<Channel> iterator = getClients().iterator();
+        while (iterator.hasNext()) {
+            Channel channel = iterator.next();
+            try {
+                if (channel.isClosed()){
+                    iterator.remove();
+                }
+                if (channel.isTCPOpen()) {
+                    channel.checkTCPPackets();
+                    if (channel.isClosed()){ // state of channel may change after channel.checkTCPPackets() is called
+                        iterator.remove();
+                    }
+                }
+            }catch (Exception e){
+                channel.close().perform();
+                iterator.remove();
+            }
         }
     }
 
     @Override
     public void checkUDPPackets() {
-        for(Channel channel : getClients()){
-            channel.checkUDPPackets();
+        Iterator<Channel> iterator = getClients().iterator();
+        while (iterator.hasNext()) {
+            Channel channel = iterator.next();
+            try {
+                if (channel.isClosed()){
+                    iterator.remove();
+                }
+                if (channel.isUDPOpen()) {
+                    channel.checkUDPPackets();
+                    if (channel.isClosed()){ // state of channel may change after channel.checkUDPPackets() is called
+                        iterator.remove();
+                    }
+                }
+            }catch (Exception e){
+                channel.close().perform();
+                iterator.remove();
+            }
         }
     }
 
@@ -214,5 +247,46 @@ public abstract class BaseServer<C extends Channel> implements Server {
     @Override
     public ScheduledExec getExecutor() {
         return exec;
+    }
+
+
+    /**
+     * Should be called by subclasses when this server starts performing TCP operations
+     */
+    @SuppressWarnings("unused")
+    protected void onTCPServerStart(){
+        if(checkTCPPackets!=null) checkTCPPackets.cancel();
+        checkTCPPackets = getExecutor().repeat(this::checkTCPPackets,0, getServerOption(ServerOption.TCP_PACKET_CHECK_INTERVAL));
+    }
+
+    /**
+     * Should be called by subclasses when this server starts performing UDP operations
+     */
+    @SuppressWarnings("unused")
+    protected void onUDPServerStart() {
+        if (checkUDPPackets != null) checkUDPPackets.cancel();
+        checkUDPPackets = getExecutor().repeat(this::checkUDPPackets, 0, getServerOption(ServerOption.UDP_PACKET_CHECK_INTERVAL));
+    }
+
+    /**
+     * Should be called by subclasses when this server is no longer performing TCP operations
+     */
+    @SuppressWarnings("unused")
+    protected void onTCPServerStop(){
+        if(checkTCPPackets!=null) {
+            checkTCPPackets.cancel();
+            checkTCPPackets = null;
+        }
+    }
+
+    /**
+     * Should be called by subclasses when this server is no longer performing UDP operations
+     */
+    @SuppressWarnings("unused")
+    protected void onUDPServerStop(){
+        if(checkUDPPackets!=null) {
+            checkUDPPackets.cancel();
+            checkUDPPackets = null;
+        }
     }
 }

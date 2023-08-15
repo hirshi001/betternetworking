@@ -71,8 +71,10 @@ public class ExampleUsage {
         server.setServerOption(ServerOption.MAX_CLIENTS, 10);
         server.setServerOption(ServerOption.RECEIVE_BUFFER_SIZE, 1024);
 
-        // never check for packets automatically, need to manually tell server to check for packets
-        server.setServerOption(ServerOption.TCP_PACKET_CHECK_INTERVAL, -1);
+        // the server will check for tcp packets every 100 milliseconds
+        server.setServerOption(ServerOption.TCP_PACKET_CHECK_INTERVAL, 100);
+        // equivalent to
+        // TimerAction action = server.getExecutor().repeat(server::checkTCPPackets, 0, 100, TimeUnit.MILLISECONDS);
 
 
 
@@ -171,8 +173,10 @@ public class ExampleUsage {
             channel.send(integerPacket, null, PacketType.TCP).perform();
         }
 
-
-        TimerAction action = client.getExecutor().repeat(client::checkTCPPackets, 0, 100, TimeUnit.MILLISECONDS); // check for TCP packets every 100 ms
+        // check for TCP packets every 100 ms
+        TimerAction action = client.getExecutor().repeat(client::checkTCPPackets, 0, 100, TimeUnit.MILLISECONDS);
+        // equivalent to:
+        // client.setClientOption(ClientOption.TCP_PACKET_CHECK_INTERVAL, 100);
 
         Thread.sleep(1000);
         action.cancel(); // after 1 second, stop checking for packets

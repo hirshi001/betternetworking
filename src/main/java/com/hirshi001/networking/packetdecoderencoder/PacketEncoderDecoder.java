@@ -37,8 +37,11 @@ public interface PacketEncoderDecoder {
      * @param container the SidedPacketRegistryContainer which contains the packet registries
      * @param in        the ByteBuf to read from
      * @return the decoded packet or null if the packet could not be decoded because there were not enough bytes
+     * @throws PacketDecodeException if the packet could not be decoded
+     * @throws RegistryIDNotFound    if the registry ID could not be found
+     * @throws PacketIDNotFound      if the packet ID could not be found in the registry
      */
-    PacketHandlerContext<?> decode(PacketRegistryContainer container, ByteBuffer in, PacketHandlerContext<?> context);
+    PacketHandlerContext<?> decode(PacketRegistryContainer container, ByteBuffer in, PacketHandlerContext<?> context) throws PacketDecodeException, RegistryIDNotFound, PacketIDNotFound;
 
     /**
      * Encodes a single packet into the given ByteBuf.
@@ -47,8 +50,9 @@ public interface PacketEncoderDecoder {
      * @param dataPacket the DataPacket to encode, if available
      * @param container  the SidedPacketRegistryContainer which contains the packet registries
      * @param out        the ByteBuf to write to
+     * @throws PacketEncodeException if the packet could not be encoded
      */
     @SuppressWarnings("rawtypes")
-    void encode(PacketHandlerContext<?> ctx, @Nullable DataPacket dataPacket, PacketRegistryContainer container, ByteBuffer out);
+    void encode(PacketHandlerContext<?> ctx, @Nullable DataPacket dataPacket, PacketRegistryContainer container, ByteBuffer out) throws PacketEncodeException, PacketIDNotFound;
 
 }

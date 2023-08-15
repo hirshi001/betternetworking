@@ -342,18 +342,22 @@ public abstract class BaseChannel implements Channel {
     }
 
     public void checkTCPPacketTimeout() {
-        if (isTCPOpen() && (tcpPacketTimeout > 0 || packetTimeout > 0)) {
-            long dtime = System.nanoTime() - lastTCPReceived;
-            if ((tcpPacketTimeout > 0 && dtime > tcpPacketTimeout) || (packetTimeout > 0 && dtime > packetTimeout)) {
+        if ((isTCPOpen() && (tcpPacketTimeout > 0 || packetTimeout > 0)) || (isOpen() && packetTimeout > 0)) {
+            long now = System.nanoTime();
+            if (packetTimeout > 0 && now - lastReceived > packetTimeout) {
+                close().perform();
+            } else if (tcpPacketTimeout > 0 && now - lastTCPReceived > tcpPacketTimeout) {
                 stopTCP().perform();
             }
         }
     }
 
     public void checkUDPPacketTimeout() {
-        if (isUDPOpen() && (udpPacketTimeout > 0 || packetTimeout > 0)) {
-            long dtime = System.nanoTime() - lastUDPReceived;
-            if ((udpPacketTimeout > 0 && dtime > udpPacketTimeout) || (packetTimeout > 0 && dtime > packetTimeout)) {
+        if ((isUDPOpen() && (udpPacketTimeout > 0 || packetTimeout > 0)) || (isOpen() && packetTimeout > 0)) {
+            long now = System.nanoTime();
+            if (packetTimeout > 0 && now - lastReceived > packetTimeout) {
+                close().perform();
+            } else if (udpPacketTimeout > 0 && now - lastUDPReceived > udpPacketTimeout) {
                 stopUDP().perform();
             }
         }
@@ -390,10 +394,11 @@ public abstract class BaseChannel implements Channel {
             packet.clear();
             return;
         }
-        PacketEncoderDecoder encoderDecoder = getSide().getNetworkData().getPacketEncoderDecoder();
 
+        PacketEncoderDecoder encoderDecoder = getSide().getNetworkData().getPacketEncoderDecoder();
+        PacketRegistryContainer container = getSide().getNetworkData().getPacketRegistryContainer();
         while (true) {
-            PacketHandlerContext context = encoderDecoder.decode(getSide().getNetworkData().getPacketRegistryContainer(), packet, null);
+            PacketHandlerContext context = encoderDecoder.decode(container, packet, null);
             if (context != null) {
                 context.packetType = PacketType.UDP;
                 context.channel = this;
@@ -413,10 +418,11 @@ public abstract class BaseChannel implements Channel {
     protected void onTCPBytesReceived(ByteBuffer bytes) {
         tcpBuffer.writeBytes(bytes);
 
+        PacketEncoderDecoder encoderDecoder = getSide().getNetworkData().getPacketEncoderDecoder();
+        PacketRegistryContainer container = getSide().getNetworkData().getPacketRegistryContainer();
         while (true) {
             tcpBuffer.markReaderIndex();
-            PacketEncoderDecoder encoderDecoder = getSide().getNetworkData().getPacketEncoderDecoder();
-            PacketHandlerContext context = encoderDecoder.decode(getSide().getNetworkData().getPacketRegistryContainer(), tcpBuffer, null);
+            PacketHandlerContext context = encoderDecoder.decode(container, tcpBuffer, null);
             if (context != null) {
                 context.packetType = PacketType.TCP;
                 context.channel = this;
