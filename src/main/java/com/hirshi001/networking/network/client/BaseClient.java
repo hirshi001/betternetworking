@@ -131,7 +131,7 @@ public abstract class BaseClient implements Client {
      */
     private synchronized void setTCPPacketCheckInterval(int interval){
         if(checkTCPPackets!=null) checkTCPPackets.cancel();
-        if(interval<0) return;
+        if(interval<0 || !tcpOpen()) return;
         checkTCPPackets = getExecutor().repeat(this::checkTCPPackets,0, interval);
     }
 
@@ -141,7 +141,7 @@ public abstract class BaseClient implements Client {
      */
     private synchronized void setUDPPacketCheckInterval(int interval){
         if(checkUDPPackets!=null) checkUDPPackets.cancel();
-        if(interval<0) return;
+        if(interval<0 || !udpOpen()) return;
         checkUDPPackets = getExecutor().repeat(this::checkUDPPackets,0, interval);
     }
 
