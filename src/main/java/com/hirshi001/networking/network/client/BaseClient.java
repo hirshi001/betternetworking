@@ -21,6 +21,7 @@ import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelListener;
 import com.hirshi001.networking.network.channel.ChannelListenerHandler;
+import com.hirshi001.networking.network.server.ServerOption;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
@@ -54,10 +55,10 @@ public abstract class BaseClient implements Client {
     /**
      * Creates a new BaseClient with the given NetworkData, BufferFactory, host, and port
      *
-     * @param networkData the NetworkData to use
+     * @param networkData   the NetworkData to use
      * @param bufferFactory the BufferFactory to use
-     * @param host the host to connect to
-     * @param port the port to connect to
+     * @param host          the host to connect to
+     * @param port          the port to connect to
      */
     public BaseClient(ScheduledExec exec, NetworkData networkData, BufferFactory bufferFactory, String host, int port) {
         this.exec = exec;
@@ -110,13 +111,11 @@ public abstract class BaseClient implements Client {
 
     @MustBeInvokedByOverriders
     protected <T> void activateOption(ClientOption<T> option, T value) {
-        if(option==ClientOption.TCP_PACKET_CHECK_INTERVAL){
+        if (option == ClientOption.TCP_PACKET_CHECK_INTERVAL) {
             setTCPPacketCheckInterval((Integer) value);
-        }
-        else if(option==ClientOption.UDP_PACKET_CHECK_INTERVAL){
+        } else if (option == ClientOption.UDP_PACKET_CHECK_INTERVAL) {
             setUDPPacketCheckInterval((Integer) value);
-        }
-        else if(option==ClientOption.RECEIVE_BUFFER_SIZE) {
+        } else if (option == ClientOption.RECEIVE_BUFFER_SIZE) {
             setReceiveBufferSize((Integer) value);
         }
     }
@@ -124,25 +123,26 @@ public abstract class BaseClient implements Client {
     protected abstract void setReceiveBufferSize(int size);
 
 
-
     /**
      * Sets the interval in ms to check for udp packets. If negative, the client will never automatically check for tcp packets.
+     *
      * @param interval the interval in ms to check for tcp packets
      */
-    private synchronized void setTCPPacketCheckInterval(int interval){
-        if(checkTCPPackets!=null) checkTCPPackets.cancel();
-        if(interval<0 || !tcpOpen()) return;
-        checkTCPPackets = getExecutor().repeat(this::checkTCPPackets,0, interval);
+    private synchronized void setTCPPacketCheckInterval(Integer interval) {
+        if (checkTCPPackets != null) checkTCPPackets.cancel();
+        if (interval == null || interval < 0 || !tcpOpen()) return;
+        checkTCPPackets = getExecutor().repeat(this::checkTCPPackets, 0, interval);
     }
 
     /**
      * Sets the interval in ms to check for udp packets. If negative, the client will never automatically check for udp packets.
+     *
      * @param interval the interval in ms to check for udp packets
      */
-    private synchronized void setUDPPacketCheckInterval(int interval){
-        if(checkUDPPackets!=null) checkUDPPackets.cancel();
-        if(interval<0 || !udpOpen()) return;
-        checkUDPPackets = getExecutor().repeat(this::checkUDPPackets,0, interval);
+    private synchronized void setUDPPacketCheckInterval(Integer interval) {
+        if (checkUDPPackets != null) checkUDPPackets.cancel();
+        if (interval == null || interval < 0 || !udpOpen()) return;
+        checkUDPPackets = getExecutor().repeat(this::checkUDPPackets, 0, interval);
     }
 
     @Override
@@ -168,13 +168,13 @@ public abstract class BaseClient implements Client {
     @Override
     public void checkTCPPackets() {
         Channel channel = getChannel();
-        if(channel!=null) channel.checkTCPPackets();
+        if (channel != null) channel.checkTCPPackets();
     }
 
     @Override
     public void checkUDPPackets() {
         Channel channel = getChannel();
-        if(channel!=null) channel.checkUDPPackets();
+        if (channel != null) channel.checkUDPPackets();
     }
 
     @Override
@@ -185,9 +185,9 @@ public abstract class BaseClient implements Client {
 
     @Override
     public RestFuture<?, Client> stopTCP() {
-        return RestAPI.create(()-> {
+        return RestAPI.create(() -> {
             Channel channel = getChannel();
-            if(channel!=null) {
+            if (channel != null) {
                 getChannel().stopTCP().perform();
             }
             return this;
@@ -196,9 +196,9 @@ public abstract class BaseClient implements Client {
 
     @Override
     public RestFuture<?, Client> stopUDP() {
-        return RestAPI.create(()-> {
+        return RestAPI.create(() -> {
             Channel channel = getChannel();
-            if(channel!=null) {
+            if (channel != null) {
                 getChannel().stopUDP().perform();
             }
             return this;
@@ -230,5 +230,37 @@ public abstract class BaseClient implements Client {
     @Override
     public ScheduledExec getExecutor() {
         return exec;
+    }
+
+    /**
+     * Should be called by subclasses when this client starts performing TCP operations
+     */
+    protected void onTCPClientStart() {
+        setTCPPacketCheckInterval(getClientOption(ClientOption.TCP_PACKET_CHECK_INTERVAL));
+    }
+
+
+    /**
+     * Should be called by subclasses when this client starts performing UDP operations
+     */
+    protected void onUDPClientStart() {
+        setUDPPacketCheckInterval(getClientOption(ClientOption.UDP_PACKET_CHECK_INTERVAL));
+    }
+
+
+    /**
+     * Should be called by subclasses when this client is no longer performing TCP operations
+     */
+    @SuppressWarnings("unused")
+    protected void onTCPServerStop() {
+        setTCPPacketCheckInterval(null);
+    }
+
+    /**
+     * Should be called by subclasses when this client is no longer performing UDP operations
+     */
+    @SuppressWarnings("unused")
+    protected void onUDPServerStop() {
+        setUDPPacketCheckInterval(null);
     }
 }

@@ -20,6 +20,7 @@ import com.hirshi001.buffer.bufferfactory.BufferFactory;
 import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelSet;
+import com.hirshi001.networking.network.client.ClientOption;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.restapi.ScheduledExec;
 import com.hirshi001.restapi.TimerAction;
@@ -94,9 +95,9 @@ public abstract class BaseServer<C extends Channel> implements Server {
      * Sets the interval in ms to check for tcp packets. If negative, the server will never automatically check for tcp packets.
      * @param interval the interval in ms to check for tcp packets
      */
-    private synchronized void setTCPPacketCheckInterval(int interval){
+    private synchronized void setTCPPacketCheckInterval(Integer interval){
         if(checkTCPPackets!=null) checkTCPPackets.cancel();
-        if(interval<0 || !tcpOpen()) return;
+        if(interval==null || interval<0 || !tcpOpen()) return;
         checkTCPPackets = getExecutor().repeat(this::checkTCPPackets,0, interval);
     }
 
@@ -104,9 +105,9 @@ public abstract class BaseServer<C extends Channel> implements Server {
      * Sets the interval in ms to check for udp packets. If negative, the server will never automatically check for udp packets.
      * @param interval the interval in ms to check for udp packets
      */
-    private synchronized void setUDPPacketCheckInterval(int interval){
+    private synchronized void setUDPPacketCheckInterval(Integer interval){
         if(checkUDPPackets!=null) checkUDPPackets.cancel();
-        if(interval<0 || !udpOpen()) return;
+        if(interval==null || interval<0 || !udpOpen()) return;
         checkUDPPackets = getExecutor().repeat(this::checkUDPPackets,0, interval);
     }
 
@@ -255,17 +256,16 @@ public abstract class BaseServer<C extends Channel> implements Server {
      */
     @SuppressWarnings("unused")
     protected void onTCPServerStart(){
-        if(checkTCPPackets!=null) checkTCPPackets.cancel();
-        checkTCPPackets = getExecutor().repeat(this::checkTCPPackets,0, getServerOption(ServerOption.TCP_PACKET_CHECK_INTERVAL));
+        setTCPPacketCheckInterval(getServerOption(ServerOption.TCP_PACKET_CHECK_INTERVAL));
     }
+
 
     /**
      * Should be called by subclasses when this server starts performing UDP operations
      */
     @SuppressWarnings("unused")
     protected void onUDPServerStart() {
-        if (checkUDPPackets != null) checkUDPPackets.cancel();
-        checkUDPPackets = getExecutor().repeat(this::checkUDPPackets, 0, getServerOption(ServerOption.UDP_PACKET_CHECK_INTERVAL));
+        setUDPPacketCheckInterval(getServerOption(ServerOption.UDP_PACKET_CHECK_INTERVAL));
     }
 
     /**
@@ -273,10 +273,7 @@ public abstract class BaseServer<C extends Channel> implements Server {
      */
     @SuppressWarnings("unused")
     protected void onTCPServerStop(){
-        if(checkTCPPackets!=null) {
-            checkTCPPackets.cancel();
-            checkTCPPackets = null;
-        }
+        setTCPPacketCheckInterval(null);
     }
 
     /**
@@ -284,9 +281,6 @@ public abstract class BaseServer<C extends Channel> implements Server {
      */
     @SuppressWarnings("unused")
     protected void onUDPServerStop(){
-        if(checkUDPPackets!=null) {
-            checkUDPPackets.cancel();
-            checkUDPPackets = null;
-        }
+        setUDPPacketCheckInterval(null);
     }
 }
