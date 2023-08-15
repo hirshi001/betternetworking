@@ -73,6 +73,7 @@ public abstract class BaseChannel implements Channel {
     public long lastTCPReceived = 0;
     public long lastUDPReceived = 0;
     public long lastReceived = 0;
+    boolean closeSequencePerformed = false;
 
     private final ByteBuffer tcpBuffer;
     private final ByteBuffer sendTCPBuffer, sendUDPBuffer;
@@ -538,7 +539,8 @@ public abstract class BaseChannel implements Channel {
     @Override
     public RestFuture<?, Channel> close() {
         return RestAPI.create(() -> {
-            if (isClosed()) return this;
+            if (isClosed() && closeSequencePerformed) return this;
+            closeSequencePerformed = true; // set to true beforehand to prevent being called multiple times
             if (!isTCPClosed()) stopTCP().perform();
             if (!isUDPClosed()) stopUDP().perform();
             if (getSide().isServer()) {
@@ -593,6 +595,7 @@ public abstract class BaseChannel implements Channel {
     @SuppressWarnings("unused")
     protected void onTCPConnected() {
         lastTCPReceived = System.nanoTime();
+        closeSequencePerformed = false;
         if (!isUDPOpen()) lastReceived = lastTCPReceived;
         getListenerHandler().onTCPConnect(this);
         if (getSide().isClient()) {
@@ -618,6 +621,7 @@ public abstract class BaseChannel implements Channel {
     @SuppressWarnings("unused")
     protected void onUDPStart() {
         lastUDPReceived = System.nanoTime();
+        closeSequencePerformed = false;
         if (!isTCPOpen()) lastReceived = lastUDPReceived;
         getListenerHandler().onUDPStart(this);
         if (getSide().isClient()) {
