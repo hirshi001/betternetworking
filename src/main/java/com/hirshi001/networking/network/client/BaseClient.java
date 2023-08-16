@@ -237,6 +237,7 @@ public abstract class BaseClient implements Client {
      */
     public void onTCPClientStart() {
         setTCPPacketCheckInterval(getClientOption(ClientOption.TCP_PACKET_CHECK_INTERVAL));
+        getListenerHandler().onTCPConnect(getChannel());
     }
 
 
@@ -245,6 +246,7 @@ public abstract class BaseClient implements Client {
      */
     public void onUDPClientStart() {
         setUDPPacketCheckInterval(getClientOption(ClientOption.UDP_PACKET_CHECK_INTERVAL));
+        getListenerHandler().onUDPStart(getChannel());
     }
 
 
@@ -254,6 +256,7 @@ public abstract class BaseClient implements Client {
     @SuppressWarnings("unused")
     public void onTCPClientStop() {
         setTCPPacketCheckInterval(null);
+        getListenerHandler().onTCPDisconnect(getChannel());
     }
 
     /**
@@ -262,5 +265,6 @@ public abstract class BaseClient implements Client {
     @SuppressWarnings("unused")
     public void onUDPClientStop() {
         setUDPPacketCheckInterval(null);
+        getListenerHandler().onUDPStop(getChannel());
     }
 }

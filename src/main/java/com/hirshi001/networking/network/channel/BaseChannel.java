@@ -601,7 +601,6 @@ public abstract class BaseChannel implements Channel {
         getListenerHandler().onTCPConnect(this);
         if (getSide().isClient()) {
             ((BaseClient) getSide()).onTCPClientStart();
-            getSide().asClient().getListenerHandler().onTCPConnect(this);
         }
     }
 
@@ -613,7 +612,6 @@ public abstract class BaseChannel implements Channel {
         getListenerHandler().onTCPDisconnect(this);
         if (getSide().isClient()) {
             ((BaseClient) getSide()).onTCPClientStop();
-            getSide().asClient().getListenerHandler().onTCPDisconnect(this);
         }
         if (isUDPClosed()) close().perform();
     }
@@ -629,7 +627,6 @@ public abstract class BaseChannel implements Channel {
         getListenerHandler().onUDPStart(this);
         if (getSide().isClient()) {
             ((BaseClient) getSide()).onUDPClientStart();
-            getSide().asClient().getListenerHandler().onUDPStart(this);
         }
     }
 
@@ -641,7 +638,6 @@ public abstract class BaseChannel implements Channel {
         getListenerHandler().onUDPStop(this);
         if(getSide().isClient()) {
             ((BaseClient) getSide()).onUDPClientStop();
-            getSide().asClient().getListenerHandler().onUDPStop(this);
         }
         if (isTCPClosed()) close().perform();
     }
