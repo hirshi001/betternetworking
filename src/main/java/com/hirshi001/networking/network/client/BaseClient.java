@@ -233,34 +233,34 @@ public abstract class BaseClient implements Client {
     }
 
     /**
-     * Should be called by subclasses when this client starts performing TCP operations
+     * Should be called by subclasses or the channel when the channel starts performing TCP operations
      */
-    protected void onTCPClientStart() {
+    public void onTCPClientStart() {
         setTCPPacketCheckInterval(getClientOption(ClientOption.TCP_PACKET_CHECK_INTERVAL));
     }
 
 
     /**
-     * Should be called by subclasses when this client starts performing UDP operations
+     * Should be called by subclasses or the channel when the channel starts performing UDP operations
      */
-    protected void onUDPClientStart() {
+    public void onUDPClientStart() {
         setUDPPacketCheckInterval(getClientOption(ClientOption.UDP_PACKET_CHECK_INTERVAL));
     }
 
 
     /**
-     * Should be called by subclasses when this client is no longer performing TCP operations
+     * Should be called by subclasses or the channel when the channel is no longer performing TCP operations
      */
     @SuppressWarnings("unused")
-    protected void onTCPServerStop() {
+    public void onTCPClientStop() {
         setTCPPacketCheckInterval(null);
     }
 
     /**
-     * Should be called by subclasses when this client is no longer performing UDP operations
+     * Should be called by subclasses or the channel when the chanel is no longer performing UDP operations
      */
     @SuppressWarnings("unused")
-    protected void onUDPServerStop() {
+    public void onUDPClientStop() {
         setUDPPacketCheckInterval(null);
     }
 }

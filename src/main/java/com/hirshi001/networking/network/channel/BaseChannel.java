@@ -17,6 +17,7 @@ package com.hirshi001.networking.network.channel;
 
 import com.hirshi001.buffer.buffers.ByteBuffer;
 import com.hirshi001.networking.network.PacketResponseManager;
+import com.hirshi001.networking.network.client.BaseClient;
 import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.network.server.Server;
 import com.hirshi001.networking.networkdata.NetworkData;
@@ -140,7 +141,7 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public <T extends Packet> RestFuture<?, PacketHandlerContext<T>> waitFor(T packet, long timeout) {
-        // TODO: make it so that Packet T is used to read the packet bytes. Right Now packet T is basically useless
+        // TODO: make it so that Packet T is used to read the packet bytes. Right Now "T packet" is basically useless
         RestFuture<?, PacketHandlerContext<T>> future = RestAPI.create();
         packetResponseManager.waitForPacketType((Class<T>) packet.getClass(), timeout, TimeUnit.MILLISECONDS, future);
         return future;
@@ -599,6 +600,7 @@ public abstract class BaseChannel implements Channel {
         if (!isUDPOpen()) lastReceived = lastTCPReceived;
         getListenerHandler().onTCPConnect(this);
         if (getSide().isClient()) {
+            ((BaseClient) getSide()).onTCPClientStart();
             getSide().asClient().getListenerHandler().onTCPConnect(this);
         }
     }
@@ -610,6 +612,7 @@ public abstract class BaseChannel implements Channel {
     protected void onTCPDisconnected() {
         getListenerHandler().onTCPDisconnect(this);
         if (getSide().isClient()) {
+            ((BaseClient) getSide()).onTCPClientStop();
             getSide().asClient().getListenerHandler().onTCPDisconnect(this);
         }
         if (isUDPClosed()) close().perform();
@@ -625,6 +628,7 @@ public abstract class BaseChannel implements Channel {
         if (!isTCPOpen()) lastReceived = lastUDPReceived;
         getListenerHandler().onUDPStart(this);
         if (getSide().isClient()) {
+            ((BaseClient) getSide()).onUDPClientStart();
             getSide().asClient().getListenerHandler().onUDPStart(this);
         }
     }
@@ -635,6 +639,10 @@ public abstract class BaseChannel implements Channel {
     @SuppressWarnings("unused")
     protected void onUDPStop() {
         getListenerHandler().onUDPStop(this);
+        if(getSide().isClient()) {
+            ((BaseClient) getSide()).onUDPClientStop();
+            getSide().asClient().getListenerHandler().onUDPStop(this);
+        }
         if (isTCPClosed()) close().perform();
     }
 
