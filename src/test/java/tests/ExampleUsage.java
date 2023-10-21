@@ -45,7 +45,6 @@ public class ExampleUsage {
     @Test
     public void main() throws Exception {
         assert true;
-
         if (true) return; //just make sure the code compiles
 
         PacketEncoderDecoder packetEncoderDecoder = new SimplePacketEncoderDecoder();
