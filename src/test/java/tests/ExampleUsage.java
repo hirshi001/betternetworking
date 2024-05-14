@@ -145,6 +145,11 @@ public class ExampleUsage {
         Client client = serverFactory.createClient(clientNetworkData, bufferFactory, "localhost", 8080);
 
         client.setClientOption(ClientOption.TCP_PACKET_CHECK_INTERVAL, -1); // don't check for packets automatically
+
+        client.getNetworkCondition().sendLatencySpeed = 0.5F; // simulates an average delay of 0.5 seconds before sending the packet
+        client.getNetworkCondition().sendLatencyStandardDeviation = 0.1F; // simulates a standard deviation of 0.1 seconds
+        client.getNetworkCondition().sendPacketLossRate = 0.1F; // simulates a 10% packet loss (for UDP Packets only)
+
         // client.setClientOption(ClientOption.TCP_PACKET_CHECK_INTERVAL, 1000);  // check for packets every second (or 1000 ms)
         client.setChannelInitializer((channel) -> {
             channel.setChannelOption(ChannelOption.TCP_SO_TIMEOUT, 1000);

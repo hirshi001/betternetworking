@@ -18,6 +18,7 @@ package com.hirshi001.networking.network.networkside;
 
 import com.hirshi001.buffer.bufferfactory.BufferFactory;
 import com.hirshi001.networking.network.client.Client;
+import com.hirshi001.networking.network.networkcondition.NetworkCondition;
 import com.hirshi001.networking.network.server.Server;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.restapi.RestFuture;
@@ -181,5 +182,7 @@ public interface NetworkSide {
      * Checks if there are any UDP packets received and handles them
      */
     void checkUDPPackets();
+
+    NetworkCondition getNetworkCondition();
 
 }

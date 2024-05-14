@@ -18,6 +18,7 @@ package com.hirshi001.networking.network.channel;
 import com.hirshi001.buffer.buffers.ByteBuffer;
 import com.hirshi001.networking.network.PacketResponseManager;
 import com.hirshi001.networking.network.client.BaseClient;
+import com.hirshi001.networking.network.networkcondition.NetworkCondition;
 import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.network.server.Server;
 import com.hirshi001.networking.networkdata.NetworkData;
@@ -31,10 +32,11 @@ import com.hirshi001.networking.packetregistrycontainer.PacketRegistryContainer;
 import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
 import com.hirshi001.restapi.ScheduledExec;
+import com.hirshi001.restapi.TimerAction;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -521,19 +523,83 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public void flushUDP() {
+        NetworkCondition condition = getSide().getNetworkCondition();
+        ByteBuffer buffer = getSide().getBufferFactory().buffer(sendUDPBuffer.readableBytes());
         synchronized (sendUDPBuffer) {
-            if (maxUDPPacketSize >= 0 && sendUDPBuffer.readableBytes() > maxUDPPacketSize) {
-                sendUDPBuffer.clear();
-                return;
+            sendUDPBuffer.readBytes(buffer, sendUDPBuffer.readableBytes());
+            sendUDPBuffer.clear();
+        }
+
+        if ((maxUDPPacketSize >= 0 && buffer.readableBytes() > maxUDPPacketSize) || condition.nextSendPacketLoss()) {
+            return;
+        }
+
+        if(condition.nextSendPacketCorruption()) {
+            for(int i = 0; i < buffer.readableBytes(); i++) {
+                buffer.putByte( buffer.getByte(i) + 1, i);
             }
-            writeAndFlushUDP(sendUDPBuffer);
+        }
+
+        long milliDelay = (long) (condition.nextSendLatency() * 1000);
+
+        if(milliDelay == 0) {
+            writeAndFlushUDP(buffer);
+        } else {
+            getExecutor().run(() -> writeAndFlushUDP(buffer), milliDelay, TimeUnit.MILLISECONDS);
+        }
+
+    }
+
+    private class DelayedData {
+        ByteBuffer data;
+        long delay;
+        long from;
+
+        public DelayedData(ByteBuffer toSend, long delay, long from) {
+            data = BaseChannel.this.getSide().getBufferFactory().buffer(toSend.readableBytes());
+            toSend.readBytes(data, toSend.readableBytes());
+            this.delay = delay;
+            this.from = from;
         }
     }
 
+    Queue<DelayedData> tcpJobs = new ArrayDeque<>();
+    TimerAction tcpTimer = null;
+
     @Override
     public void flushTCP() {
+
+        NetworkCondition condition = getSide().getNetworkCondition();
         synchronized (sendTCPBuffer) {
-            writeAndFlushTCP(sendTCPBuffer);
+            long milliDelay = (long) (condition.nextSendLatency() * 1000);
+            if(condition.nextSendPacketLoss() || condition.nextSendPacketCorruption()) {
+                milliDelay *= 2;
+            }
+            if(milliDelay == 0 && tcpJobs.isEmpty()) {
+                writeAndFlushTCP(sendTCPBuffer);
+                return;
+            }
+            tcpJobs.add(new DelayedData(sendTCPBuffer,  milliDelay, System.currentTimeMillis()));
+            if(tcpTimer == null) {
+                tcpTimer = getExecutor().repeat(() -> {
+                    long now = System.currentTimeMillis();
+                    DelayedData data;
+                    while(!tcpJobs.isEmpty()) {
+                        data = tcpJobs.peek();
+                        if(now - data.from >= data.delay) {
+                            writeAndFlushTCP(data.data);
+                            tcpJobs.poll();
+                        } else {
+                            break;
+                        }
+                    }
+                    if(tcpJobs.isEmpty()) {
+                        tcpTimer.cancel();
+                        tcpTimer = null;
+                    }
+                }, 0, 1);
+            }
+
         }
     }
 

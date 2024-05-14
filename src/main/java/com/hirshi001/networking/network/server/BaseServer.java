@@ -21,6 +21,7 @@ import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelSet;
 import com.hirshi001.networking.network.client.ClientOption;
+import com.hirshi001.networking.network.networkcondition.NetworkCondition;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.restapi.ScheduledExec;
 import com.hirshi001.restapi.TimerAction;
@@ -42,6 +43,7 @@ public abstract class BaseServer<C extends Channel> implements Server {
 
     private final NetworkData networkData;
     private final BufferFactory bufferFactory;
+    private final NetworkCondition networkCondition;
     protected final ServerListenerHandler<ServerListener> serverListenerHandler;
     protected ChannelInitializer channelInitializer;
     private final int port;
@@ -61,6 +63,7 @@ public abstract class BaseServer<C extends Channel> implements Server {
         this.exec = exec;
         this.networkData = networkData;
         this.bufferFactory = bufferFactory;
+        this.networkCondition = new NetworkCondition();
         this.serverListenerHandler = new ServerListenerHandler<>();
         this.port = port;
 
@@ -282,5 +285,10 @@ public abstract class BaseServer<C extends Channel> implements Server {
     @SuppressWarnings("unused")
     protected void onUDPServerStop(){
         setUDPPacketCheckInterval(null);
+    }
+
+    @Override
+    public NetworkCondition getNetworkCondition() {
+        return networkCondition;
     }
 }

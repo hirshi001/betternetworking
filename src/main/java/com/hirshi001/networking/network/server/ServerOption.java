@@ -16,6 +16,7 @@
 
 package com.hirshi001.networking.network.server;
 
+import com.hirshi001.networking.network.networkcondition.NetworkCondition;
 import com.hirshi001.networking.util.Option;
 
 /**

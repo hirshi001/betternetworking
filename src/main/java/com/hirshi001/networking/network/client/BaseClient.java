@@ -21,6 +21,7 @@ import com.hirshi001.networking.network.channel.Channel;
 import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelListener;
 import com.hirshi001.networking.network.channel.ChannelListenerHandler;
+import com.hirshi001.networking.network.networkcondition.NetworkCondition;
 import com.hirshi001.networking.network.server.ServerOption;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.restapi.RestAPI;
@@ -43,6 +44,7 @@ public abstract class BaseClient implements Client {
 
     private final NetworkData networkData;
     private final BufferFactory bufferFactory;
+    private final NetworkCondition networkCondition;
     private final String host;
     private final int port;
     protected final ChannelListenerHandler<ChannelListener> clientListenerHandler;
@@ -51,6 +53,7 @@ public abstract class BaseClient implements Client {
 
     private volatile TimerAction checkTCPPackets, checkUDPPackets;
     protected ScheduledExec exec;
+
 
     /**
      * Creates a new BaseClient with the given NetworkData, BufferFactory, host, and port
@@ -64,6 +67,7 @@ public abstract class BaseClient implements Client {
         this.exec = exec;
         this.networkData = networkData;
         this.bufferFactory = bufferFactory;
+        this.networkCondition = new NetworkCondition();
         this.clientListenerHandler = new ChannelListenerHandler<>();
         this.host = host;
         this.port = port;
@@ -266,5 +270,10 @@ public abstract class BaseClient implements Client {
     public void onUDPClientStop() {
         setUDPPacketCheckInterval(null);
         getListenerHandler().onUDPStop(getChannel());
+    }
+
+    @Override
+    public NetworkCondition getNetworkCondition() {
+        return networkCondition;
     }
 }

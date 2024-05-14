@@ -16,6 +16,7 @@
 
 package com.hirshi001.networking.network.channel;
 
+import com.hirshi001.networking.network.networkcondition.NetworkCondition;
 import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.packet.DataPacket;
 import com.hirshi001.networking.packet.Packet;
@@ -406,5 +407,7 @@ public interface Channel {
      * Checks for incoming udp packets and handles them.
      */
     void checkUDPPackets();
+
+
 
 }
