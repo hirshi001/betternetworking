@@ -401,11 +401,12 @@ The top most row is the latest/most up-to-date version. Other versions found on 
 
 Note: Unfortunately, there are many libraries you must keep track of because not all libraries are compatible on all platforms.
 
-| NetworkingLibrary           | JavaNetworkingLibrary | HTML/GWT Client | Websocket Server | ByteBuffer | RestAPI    | JavaRestAPI | GWTRestAPI |
-|-----------------------------|-----------------------|-----------------|------------------|------------|------------|-------------|------------|
-| af4741db0f (Latest Version) | 8e9cd54a4e            | 079a2480f5      | 9afa5308bb       | ea62bf49b9 | 2a46f4e0bd | 2e2e4b01de  | 66ba2d8fa2 |
-| de3537b0aa                  | 0f5f756978            | N/A             | N/A              | c7cecbed69 | 9d6f540f25 | N/A         | N/A        |
-| 56a9acbde2                  | 564d952667            | N/A             | N/A              | c7cecbed69 | 9d6f540f25 | N/A         | N/A        |
+| NetworkingLibrary | JavaNetworkingLibrary | HTML/GWT Client | Websocket Server | ByteBuffer | RestAPI    | JavaRestAPI | GWTRestAPI |
+|-------------------|-----------------------|-----------------|------------------|------------|------------|-------------|------------|
+| Unfinished        | Unfinished            | Unfinished      | Unfinished       | ea62bf49b9 | 02b02857ee | fa7cc5356a  | Unfinished |
+| af4741db0f        | 8e9cd54a4e            | 079a2480f5      | 9afa5308bb       | ea62bf49b9 | 2a46f4e0bd | 2e2e4b01de  | 66ba2d8fa2 |
+| de3537b0aa        | 0f5f756978            | N/A             | N/A              | c7cecbed69 | 9d6f540f25 | N/A         | N/A        |
+| 56a9acbde2        | 564d952667            | N/A             | N/A              | c7cecbed69 | 9d6f540f25 | N/A         | N/A        |
 
 ### Other Libraries
 These are some libraries this library depends on. These libraries are relatively new and may contain bugs, thus affecting

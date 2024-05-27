@@ -183,6 +183,29 @@ public interface NetworkSide {
      */
     void checkUDPPackets();
 
+    /**
+     * Simulated network conditions for this NetworkSide. Modifying this won't do anything unless
+     * {@link #propagateNetworkConditionToChannels()} is called, which will apply these NetworkConditions to all channels.
+     * Note: disabling network conditions will cause all tcp data to be sent immediately once the tcp buffer is flushed.
+     * @return the network conditions for this NetworkSide
+     */
     NetworkCondition getNetworkCondition();
+
+    /**
+     * Applies the network conditions for this Network side to all channels associated with this NetworkSide. Does not
+     * enable network conditions for the channels, only applies the network conditions to the channels.
+     */
+    void propagateNetworkConditionToChannels();
+
+    /**
+     * Enables network conditions for all channels associated with this NetworkSide, but does not propagate the network
+     * conditions associated with this NetworkSide
+     */
+    void enableNetworkCondition();
+
+    /**
+     * Disables network conditions for all channels associated with this NetworkSide
+     */
+    void disableNetworkCondition();
 
 }

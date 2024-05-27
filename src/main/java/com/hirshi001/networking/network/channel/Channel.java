@@ -16,6 +16,7 @@
 
 package com.hirshi001.networking.network.channel;
 
+import com.hirshi001.buffer.buffers.ByteBuffer;
 import com.hirshi001.networking.network.networkcondition.NetworkCondition;
 import com.hirshi001.networking.network.networkside.NetworkSide;
 import com.hirshi001.networking.packet.DataPacket;
@@ -209,6 +210,15 @@ public interface Channel {
      */
     <T extends Packet> RestFuture<?, PacketHandlerContext<T>> waitFor(T packet,
                                                                       long timeout);
+
+    default void sendRawBytes(ByteBuffer buffer, PacketType type) {
+        if(type == PacketType.TCP) sendRawBytesTCP(buffer);
+        else if(type == PacketType.UDP) sendRawBytesUDP(buffer);
+    }
+
+    void sendRawBytesTCP(ByteBuffer buffer);
+
+    void sendRawBytesUDP(ByteBuffer buffer);
 
     /**
      * Sends all bytes in the UDP channel
@@ -408,6 +418,16 @@ public interface Channel {
      */
     void checkUDPPackets();
 
+    /**
+     * Simulated network conditions for this NetworkSide
+     * Note: disabling network conditions will cause all tcp data to be sent immediately once the tcp buffer is flushed.
+     * @return the network conditions for this NetworkSide
+     */
+    NetworkCondition getNetworkCondition();
+
+    void enableNetworkCondition(boolean enable);
+
+    boolean isNetworkConditionEnabled();
 
 
 }

@@ -291,4 +291,25 @@ public abstract class BaseServer<C extends Channel> implements Server {
     public NetworkCondition getNetworkCondition() {
         return networkCondition;
     }
+
+    @Override
+    public void propagateNetworkConditionToChannels() {
+        for(Channel channel : getClients()){
+            channel.getNetworkCondition().set(networkCondition);
+        }
+    }
+
+    @Override
+    public void enableNetworkCondition() {
+        for(Channel channel : getClients()){
+            channel.enableNetworkCondition(true);
+        }
+    }
+
+    @Override
+    public void disableNetworkCondition() {
+        for(Channel channel : getClients()){
+            channel.enableNetworkCondition(false);
+        }
+    }
 }

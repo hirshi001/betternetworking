@@ -22,7 +22,6 @@ import com.hirshi001.networking.network.channel.ChannelInitializer;
 import com.hirshi001.networking.network.channel.ChannelListener;
 import com.hirshi001.networking.network.channel.ChannelListenerHandler;
 import com.hirshi001.networking.network.networkcondition.NetworkCondition;
-import com.hirshi001.networking.network.server.ServerOption;
 import com.hirshi001.networking.networkdata.NetworkData;
 import com.hirshi001.restapi.RestAPI;
 import com.hirshi001.restapi.RestFuture;
@@ -275,5 +274,29 @@ public abstract class BaseClient implements Client {
     @Override
     public NetworkCondition getNetworkCondition() {
         return networkCondition;
+    }
+
+    @Override
+    public void propagateNetworkConditionToChannels() {
+        Channel channel = getChannel();
+        if (channel != null) {
+            channel.getNetworkCondition().set(networkCondition);
+        }
+    }
+
+    @Override
+    public void enableNetworkCondition() {
+        Channel channel = getChannel();
+        if (channel != null) {
+            channel.enableNetworkCondition(true);
+        }
+    }
+
+    @Override
+    public void disableNetworkCondition() {
+        Channel channel = getChannel();
+        if (channel != null) {
+            channel.enableNetworkCondition(false);
+        }
     }
 }

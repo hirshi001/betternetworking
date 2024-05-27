@@ -15,6 +15,7 @@
  */
 package com.hirshi001.networking.network.channel;
 
+import com.hirshi001.buffer.bufferfactory.BufferFactory;
 import com.hirshi001.buffer.buffers.ByteBuffer;
 import com.hirshi001.networking.network.PacketResponseManager;
 import com.hirshi001.networking.network.client.BaseClient;
@@ -81,17 +82,34 @@ public abstract class BaseChannel implements Channel {
     private final ByteBuffer tcpBuffer;
     private final ByteBuffer sendTCPBuffer, sendUDPBuffer;
 
+    private final NetworkCondition networkCondition;
+    private boolean networkConditionEnabled;
+
+    private final IOFlusher tcpFlush, udpFlush;
+    private final IOFlusher networkConditionTCPFlush, networkConditionUDPFlush;
+
 
     public BaseChannel(NetworkSide networkSide, ScheduledExec executor) {
         this.networkSide = networkSide;
         this.executorService = executor;
         packetResponseManager = new PacketResponseManager(executor);
         optionObjectMap = new ConcurrentHashMap<>();
-        tcpBuffer = getSide().getBufferFactory().circularBuffer(64);
+        tcpBuffer = getSide().getBufferFactory().circularBuffer(256);
         clientListenerHandler = new ChannelListenerHandler<>();
 
-        sendTCPBuffer = getSide().getBufferFactory().buffer(64);
-        sendUDPBuffer = getSide().getBufferFactory().buffer(64);
+
+        BufferFactory bufferFactory = getSide().getBufferFactory();
+
+        sendTCPBuffer = bufferFactory.buffer(64);
+        sendUDPBuffer = bufferFactory.buffer(64);
+
+        tcpFlush = this::writeAndFlushTCP;
+        udpFlush = this::writeAndFlushUDP;
+
+        networkCondition = new NetworkCondition();
+        networkConditionEnabled = false;
+        networkConditionTCPFlush = new NetworkCondition.TCPFlusher(getNetworkCondition(), tcpFlush, executor, bufferFactory);
+        networkConditionUDPFlush = new NetworkCondition.UDPFlusher(getNetworkCondition(), udpFlush, executor, bufferFactory);
     }
 
     protected final <P extends Packet> PacketHandlerContext<P> getNewPacketHandlerContext(P packet, PacketRegistry registry) {
@@ -303,6 +321,26 @@ public abstract class BaseChannel implements Channel {
         NetworkData data = side.getNetworkData();
         PacketRegistryContainer container = data.getPacketRegistryContainer();
         data.getPacketEncoderDecoder().encode(context, dataPacket, container, buffer);
+    }
+
+    @Override
+    public void sendRawBytesTCP(ByteBuffer buffer) {
+        synchronized (sendTCPBuffer) {
+            sendTCPBuffer.writeBytes(buffer, buffer.readableBytes());
+            if (autoFlushTCP) {
+                flushTCP();
+            }
+        }
+    }
+
+    @Override
+    public void sendRawBytesUDP(ByteBuffer buffer) {
+        synchronized (sendUDPBuffer) {
+            sendUDPBuffer.writeBytes(buffer, buffer.readableBytes());
+            if (autoFlushUDP) {
+                flushUDP();
+            }
+        }
     }
 
     @Override
@@ -523,84 +561,31 @@ public abstract class BaseChannel implements Channel {
 
     @Override
     public void flushUDP() {
-        NetworkCondition condition = getSide().getNetworkCondition();
-        ByteBuffer buffer = getSide().getBufferFactory().buffer(sendUDPBuffer.readableBytes());
         synchronized (sendUDPBuffer) {
-            sendUDPBuffer.readBytes(buffer, sendUDPBuffer.readableBytes());
-            sendUDPBuffer.clear();
-        }
-
-        if ((maxUDPPacketSize >= 0 && buffer.readableBytes() > maxUDPPacketSize) || condition.nextSendPacketLoss()) {
-            return;
-        }
-
-        if(condition.nextSendPacketCorruption()) {
-            for(int i = 0; i < buffer.readableBytes(); i++) {
-                buffer.putByte( buffer.getByte(i) + 1, i);
+            if (maxUDPPacketSize >= 0 && sendUDPBuffer.readableBytes() > maxUDPPacketSize) {
+                sendUDPBuffer.clear();
+                return;
             }
         }
 
-        long milliDelay = (long) (condition.nextSendLatency() * 1000);
-
-        if(milliDelay == 0) {
-            writeAndFlushUDP(buffer);
+        IOFlusher udpFlusher;
+        if (isNetworkConditionEnabled()) {
+            udpFlusher = networkConditionUDPFlush;
         } else {
-            getExecutor().run(() -> writeAndFlushUDP(buffer), milliDelay, TimeUnit.MILLISECONDS);
+            udpFlusher = udpFlush;
         }
-
+        udpFlusher.flush(sendUDPBuffer);
     }
-
-    private class DelayedData {
-        ByteBuffer data;
-        long delay;
-        long from;
-
-        public DelayedData(ByteBuffer toSend, long delay, long from) {
-            data = BaseChannel.this.getSide().getBufferFactory().buffer(toSend.readableBytes());
-            toSend.readBytes(data, toSend.readableBytes());
-            this.delay = delay;
-            this.from = from;
-        }
-    }
-
-    Queue<DelayedData> tcpJobs = new ArrayDeque<>();
-    TimerAction tcpTimer = null;
 
     @Override
     public void flushTCP() {
-
-        NetworkCondition condition = getSide().getNetworkCondition();
-        synchronized (sendTCPBuffer) {
-            long milliDelay = (long) (condition.nextSendLatency() * 1000);
-            if(condition.nextSendPacketLoss() || condition.nextSendPacketCorruption()) {
-                milliDelay *= 2;
-            }
-            if(milliDelay == 0 && tcpJobs.isEmpty()) {
-                writeAndFlushTCP(sendTCPBuffer);
-                return;
-            }
-            tcpJobs.add(new DelayedData(sendTCPBuffer,  milliDelay, System.currentTimeMillis()));
-            if(tcpTimer == null) {
-                tcpTimer = getExecutor().repeat(() -> {
-                    long now = System.currentTimeMillis();
-                    DelayedData data;
-                    while(!tcpJobs.isEmpty()) {
-                        data = tcpJobs.peek();
-                        if(now - data.from >= data.delay) {
-                            writeAndFlushTCP(data.data);
-                            tcpJobs.poll();
-                        } else {
-                            break;
-                        }
-                    }
-                    if(tcpJobs.isEmpty()) {
-                        tcpTimer.cancel();
-                        tcpTimer = null;
-                    }
-                }, 0, 1);
-            }
-
+        IOFlusher tcpFlusher;
+        if (isNetworkConditionEnabled()) {
+            tcpFlusher = networkConditionTCPFlush;
+        } else {
+            tcpFlusher = tcpFlush;
         }
+        tcpFlusher.flush(sendTCPBuffer);
     }
 
     @Override
@@ -702,7 +687,7 @@ public abstract class BaseChannel implements Channel {
     @SuppressWarnings("unused")
     protected void onUDPStop() {
         getListenerHandler().onUDPStop(this);
-        if(getSide().isClient()) {
+        if (getSide().isClient()) {
             ((BaseClient) getSide()).onUDPClientStop();
         }
         if (isTCPClosed()) close().perform();
@@ -725,4 +710,28 @@ public abstract class BaseChannel implements Channel {
         getSide().getListenerHandler().onSent(context);
     }
 
+
+    @Override
+    public NetworkCondition getNetworkCondition() {
+        return networkCondition;
+    }
+
+    @Override
+    public void enableNetworkCondition(boolean enable) {
+        synchronized (sendTCPBuffer) {
+            synchronized (sendUDPBuffer) {
+                if (!networkConditionEnabled && enable) {
+                    networkConditionTCPFlush.forceFlush();
+                    networkConditionUDPFlush.forceFlush();
+                }
+                networkConditionEnabled = enable;
+            }
+        }
+    }
+
+
+    @Override
+    public boolean isNetworkConditionEnabled() {
+        return networkConditionEnabled;
+    }
 }
