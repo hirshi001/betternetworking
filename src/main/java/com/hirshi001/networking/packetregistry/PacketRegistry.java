@@ -19,8 +19,10 @@ package com.hirshi001.networking.packetregistry;
 import com.hirshi001.networking.packet.Packet;
 import com.hirshi001.networking.packet.PacketHandler;
 import com.hirshi001.networking.packet.PacketHolder;
+import com.hirshi001.networking.packethandlercontext.PacketHandlerContext;
 import com.hirshi001.networking.util.defaultpackets.arraypackets.*;
 import com.hirshi001.networking.util.defaultpackets.primitivepackets.*;
+import com.hirshi001.networking.util.defaultpackets.systempackets.NetworkConditionPackets;
 import com.hirshi001.networking.util.defaultpackets.udppackets.UDPInitialConnectionPacket;
 
 import java.util.function.Supplier;
@@ -150,6 +152,43 @@ public interface PacketRegistry {
      */
     default PacketRegistry registerUDPHelperPackets() {
         register(new PacketHolder<>(UDPInitialConnectionPacket::new, null, UDPInitialConnectionPacket.class), -401);
+        return this;
+    }
+
+    default PacketRegistry registerNetworkConditionPackets() {
+        // latency
+        register(new PacketHolder<>(NetworkConditionPackets.LatencyPacket::new, context -> {
+            context.channel.getNetworkCondition().sendLatencySpeed = context.packet.value;
+        }, NetworkConditionPackets.LatencyPacket.class), -501);
+
+        register(new PacketHolder<>(NetworkConditionPackets.LatencySTD::new, context -> {
+            context.channel.getNetworkCondition().sendLatencyStandardDeviation = context.packet.value;
+        }, NetworkConditionPackets.LatencySTD.class), -502);
+
+
+        // packet loss rate
+        register(new PacketHolder<>(NetworkConditionPackets.PacketLossPacket::new, context -> {
+            context.channel.getNetworkCondition().sendPacketLossRate = context.packet.value;
+        }, NetworkConditionPackets.PacketLossPacket.class), -503);
+
+        register(new PacketHolder<>(NetworkConditionPackets.PacketLossSTD::new, context -> {
+            context.channel.getNetworkCondition().sendPacketLossStandardDeviation = context.packet.value;
+        }, NetworkConditionPackets.PacketLossSTD.class), -504);
+
+
+        // corruption rate
+        register(new PacketHolder<>(NetworkConditionPackets.PacketCorruptionPacket::new, context -> {
+            context.channel.getNetworkCondition().sendPacketCorruptionRate = context.packet.value;
+        }, NetworkConditionPackets.PacketCorruptionPacket.class), -505);
+
+        register(new PacketHolder<>(NetworkConditionPackets.PacketCorruptionSTD::new, context -> {
+            context.channel.getNetworkCondition().sendPacketCorruptionStandardDeviation = context.packet.value;
+        }, NetworkConditionPackets.PacketCorruptionSTD.class), -506);
+
+        // enabling/disabling
+        register(new PacketHolder<>(NetworkConditionPackets.EnableNetworkConditionPacket::new, context -> {
+            context.channel.enableNetworkCondition(context.packet.value);
+        }, NetworkConditionPackets.EnableNetworkConditionPacket.class), -507);
         return this;
     }
 
