@@ -21,6 +21,7 @@ import com.hirshi001.buffer.buffers.ByteBuffer;
 import com.hirshi001.networking.network.channel.IOFlusher;
 import com.hirshi001.restapi.ScheduledExec;
 import com.hirshi001.restapi.TimerAction;
+import java.security.SecureRandom;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -48,7 +49,7 @@ public class NetworkCondition {
     public double receivePacketCorruptionRate;
     public double receivePacketCorruptionStandardDeviation;
 
-    private final Random random = new Random();
+    private final Random random = new SecureRandom();
 
     private double stdScale() {
         return Math.random() - 0.5;
