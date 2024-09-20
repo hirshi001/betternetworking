@@ -21,6 +21,7 @@ import com.hirshi001.buffer.buffers.ByteBuffer;
 import com.hirshi001.networking.network.channel.IOFlusher;
 import com.hirshi001.restapi.ScheduledExec;
 import com.hirshi001.restapi.TimerAction;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -28,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+@ApiStatus.Experimental
 public class NetworkCondition {
 
     public double sendLatencySpeed;
