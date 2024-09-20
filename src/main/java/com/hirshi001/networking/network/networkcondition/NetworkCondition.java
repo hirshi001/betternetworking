@@ -23,11 +23,13 @@ import com.hirshi001.restapi.ScheduledExec;
 import com.hirshi001.restapi.TimerAction;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Queue;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @ApiStatus.Experimental
 public class NetworkCondition {
@@ -144,7 +146,8 @@ public class NetworkCondition {
         private final BufferFactory bufferFactory;
         private final Queue<DelayedTCPFlush> timerActions = new ConcurrentLinkedQueue<>();
         private TimerAction currentAction;
-        private final Lock lock = new ReentrantLock();
+
+        private final Object lock = new Object();
 
         public TCPFlusher(NetworkCondition networkCondition, IOFlusher sourceFlush, ScheduledExec exec, BufferFactory bufferFactory) {
             this.networkCondition = networkCondition;
@@ -160,16 +163,15 @@ public class NetworkCondition {
             long milliDelay = applyNetworkCondition(sendBuffer, buffer, networkCondition, true);
 
             long now = System.currentTimeMillis();
-            lock.lock();
-            if (milliDelay == 0 && timerActions.isEmpty()) {
-                sourceFlush.flush(buffer);
-                lock.unlock();
-                return;
-            }
-            timerActions.add(new DelayedTCPFlush(buffer, milliDelay, now));
-            scheduleTimerAction(now);
 
-            lock.unlock();
+            synchronized (lock) {
+                if (milliDelay == 0 && timerActions.isEmpty()) {
+                    sourceFlush.flush(buffer);
+                    return;
+                }
+                timerActions.add(new DelayedTCPFlush(buffer, milliDelay, now));
+                scheduleTimerAction(now);
+            }
         }
 
         // Requires lock
@@ -183,44 +185,39 @@ public class NetworkCondition {
         }
 
         private void timerAction() {
-            lock.lock();
-            if(Thread.interrupted()) {
-                lock.unlock();
-                return;
-            }
-            long now = System.currentTimeMillis();
-            while(true) {
-                DelayedTCPFlush delayedFlush = timerActions.peek();
-                if(delayedFlush == null) {
-                    currentAction = null;
-                    lock.unlock();
-                    return;
-                }
+            synchronized (lock) {
+                long now = System.currentTimeMillis();
+                while (true) {
+                    DelayedTCPFlush delayedFlush = timerActions.peek();
+                    if (delayedFlush == null) {
+                        currentAction = null;
+                        return;
+                    }
 
-                long delay = delayedFlush.delay - (now - delayedFlush.startTime);
-                if(delay > 0) {
-                    break;
+                    long delay = delayedFlush.delay - (now - delayedFlush.startTime);
+                    if (delay > 0) {
+                        break;
+                    }
+                    sourceFlush.flush(delayedFlush.buffer);
+                    timerActions.poll();
                 }
-                sourceFlush.flush(delayedFlush.buffer);
-                timerActions.poll();
+                currentAction = null;
+                scheduleTimerAction(now);
             }
-            currentAction = null;
-            scheduleTimerAction(now);
-            lock.unlock();
         }
 
         @Override
         public void forceFlush() {
-            lock.lock();
-            if(currentAction != null) {
-                currentAction.cancel();
-            }
+            synchronized (lock) {
+                if (currentAction != null) {
+                    currentAction.cancel();
+                }
 
-            for (DelayedTCPFlush delayedTCPFlush : timerActions) {
-                sourceFlush.flush(delayedTCPFlush.buffer);
+                for (DelayedTCPFlush delayedTCPFlush : timerActions) {
+                    sourceFlush.flush(delayedTCPFlush.buffer);
+                }
+                timerActions.clear();
             }
-            timerActions.clear();
-            lock.unlock();
         }
     }
 
