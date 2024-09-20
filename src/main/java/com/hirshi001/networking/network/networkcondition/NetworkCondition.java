@@ -23,6 +23,7 @@ import com.hirshi001.restapi.ScheduledExec;
 import com.hirshi001.restapi.TimerAction;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
@@ -144,7 +145,7 @@ public class NetworkCondition {
         private final IOFlusher sourceFlush;
         private final ScheduledExec exec;
         private final BufferFactory bufferFactory;
-        private final Queue<DelayedTCPFlush> timerActions = new ConcurrentLinkedQueue<>();
+        private final Queue<DelayedTCPFlush> timerActions = new LinkedList<>();
         private TimerAction currentAction;
 
         private final Object lock = new Object();
